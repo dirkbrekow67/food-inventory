@@ -40,7 +40,12 @@ router.get('/', (req, res) => {
         storage_units.type AS storage_unit_type,
 
         storage_compartments.name AS storage_compartment_name,
-        storage_compartments.type AS storage_compartment_type
+        storage_compartments.type AS storage_compartment_type,
+
+        COALESCE(
+          inventory_items.internal_use_until_date,
+          inventory_items.best_before_date
+        ) AS effective_use_date
 
       FROM inventory_items
       JOIN products ON products.id = inventory_items.product_id
@@ -49,8 +54,8 @@ router.get('/', (req, res) => {
         ON storage_compartments.id = inventory_items.storage_compartment_id
       WHERE inventory_items.status = 'available'
       ORDER BY
-        best_before_date IS NULL,
-        best_before_date,
+        effective_use_date IS NULL,
+        effective_use_date,
         products.name COLLATE NOCASE
     `).all();
 
@@ -101,56 +106,56 @@ router.post('/', (req, res) => {
       ? packageState
       : 'ungeoeffnet';
 
-      const safeInternalExtensionMonths = internalExtensionMonths
-        ? Number(internalExtensionMonths)
-        : 6;
+    const safeInternalExtensionMonths = internalExtensionMonths
+      ? Number(internalExtensionMonths)
+      : 6;
 
-const internalUseUntilDate = isFrozenChilledFood
-  ? addMonthsToDate(frozenDate, safeInternalExtensionMonths)
-  : null;
+    const internalUseUntilDate = isFrozenChilledFood
+      ? addMonthsToDate(frozenDate, safeInternalExtensionMonths)
+      : null;
 
     const result = db.prepare(`
-  INSERT INTO inventory_items
-  (
-    product_id,
-    storage_unit_id,
-    storage_compartment_id,
-    original_quantity,
-    original_unit,
-    remaining_quantity,
-    remaining_unit,
-    remaining_fraction_numerator,
-    remaining_fraction_denominator,
-    quantity_estimated,
-    package_state,
-    best_before_date,
-    frozen_date,
-    opened_date,
-    is_frozen_chilled_food,
-    internal_extension_months,
-    internal_use_until_date,
-    notes
-  )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO inventory_items
+      (
+        product_id,
+        storage_unit_id,
+        storage_compartment_id,
+        original_quantity,
+        original_unit,
+        remaining_quantity,
+        remaining_unit,
+        remaining_fraction_numerator,
+        remaining_fraction_denominator,
+        quantity_estimated,
+        package_state,
+        best_before_date,
+        frozen_date,
+        opened_date,
+        is_frozen_chilled_food,
+        internal_extension_months,
+        internal_use_until_date,
+        notes
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-    productId,
-    storageUnitId,
-    storageCompartmentId || null,
-    originalQuantity,
-    originalUnit,
-    remainingQuantity,
-    remainingUnit,
-    remainingFractionNumerator,
-    remainingFractionDenominator,
-    quantityEstimated ? 1 : 0,
-    safePackageState,
-    bestBeforeDate,
-    frozenDate,
-    openedDate,
-    isFrozenChilledFood ? 1 : 0,
-    safeInternalExtensionMonths,
-    internalUseUntilDate,
-    notes
+      productId,
+      storageUnitId,
+      storageCompartmentId || null,
+      originalQuantity,
+      originalUnit,
+      remainingQuantity,
+      remainingUnit,
+      remainingFractionNumerator,
+      remainingFractionDenominator,
+      quantityEstimated ? 1 : 0,
+      safePackageState,
+      bestBeforeDate,
+      frozenDate,
+      openedDate,
+      isFrozenChilledFood ? 1 : 0,
+      safeInternalExtensionMonths,
+      internalUseUntilDate,
+      notes
     );
 
     const item = db.prepare(`
@@ -166,7 +171,12 @@ const internalUseUntilDate = isFrozenChilledFood
         storage_units.type AS storage_unit_type,
 
         storage_compartments.name AS storage_compartment_name,
-        storage_compartments.type AS storage_compartment_type
+        storage_compartments.type AS storage_compartment_type,
+
+        COALESCE(
+          inventory_items.internal_use_until_date,
+          inventory_items.best_before_date
+        ) AS effective_use_date
 
       FROM inventory_items
       JOIN products ON products.id = inventory_items.product_id
@@ -195,7 +205,9 @@ router.delete('/:id', (req, res) => {
     `).get(id);
 
     if (!existingItem) {
-      return res.status(404).json({ error: 'Bestandseintrag wurde nicht gefunden.' });
+      return res.status(404).json({
+        error: 'Bestandseintrag wurde nicht gefunden.',
+      });
     }
 
     db.prepare(`
@@ -209,7 +221,9 @@ router.delete('/:id', (req, res) => {
     res.json({ message: 'Bestandseintrag wurde entfernt.' });
   } catch (error) {
     console.error('Error removing inventory item:', error);
-    res.status(500).json({ error: 'Bestandseintrag konnte nicht entfernt werden.' });
+    res.status(500).json({
+      error: 'Bestandseintrag konnte nicht entfernt werden.',
+    });
   }
 });
 

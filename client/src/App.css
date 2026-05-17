@@ -413,6 +413,14 @@ h4 {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  align-items: flex-start;
+}
+
+.inventory-status-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .inventory-meta {
@@ -458,3 +466,37 @@ h4 {
   background: #e0f2fe;
   color: #075985;
 }
+
+.date-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.date-status-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.date-status-soon {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.date-status-expired {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.date-status-no_date {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+

@@ -56,6 +56,72 @@ function formatQuantity(item) {
   return "Menge nicht angegeben";
 }
 
+function formatDateGerman(dateString) {
+  if (!dateString) {
+    return "";
+  }
+
+  const [year, month, day] = dateString.split("-");
+
+  if (!year || !month || !day) {
+    return dateString;
+  }
+
+  return `${day}.${month}.${year}`;
+}
+
+function getInventoryEffectiveDate(item) {
+  return (
+    item.effective_use_date ||
+    item.internal_use_until_date ||
+    item.best_before_date ||
+    ""
+  );
+}
+
+function getInventoryDateStatus(item) {
+  const effectiveDate = getInventoryEffectiveDate(item);
+
+  if (!effectiveDate) {
+    return "no_date";
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const targetDate = new Date(`${effectiveDate}T00:00:00`);
+
+  if (Number.isNaN(targetDate.getTime())) {
+    return "no_date";
+  }
+
+  const differenceInMs = targetDate.getTime() - today.getTime();
+  const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
+
+  if (differenceInDays < 0) {
+    return "expired";
+  }
+
+  if (differenceInDays <= 30) {
+    return "soon";
+  }
+
+  return "ok";
+}
+
+function getInventoryDateStatusLabel(status) {
+  switch (status) {
+    case "expired":
+      return "Abgelaufen";
+    case "soon":
+      return "Bald fällig";
+    case "ok":
+      return "OK";
+    default:
+      return "Ohne Datum";
+  }
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -415,12 +481,13 @@ function App() {
 
       setInventoryItems((currentItems) =>
         [...currentItems, createdItem].sort((a, b) => {
-          if (!a.best_before_date && b.best_before_date) return 1;
-          if (a.best_before_date && !b.best_before_date) return -1;
+          const dateA = getInventoryEffectiveDate(a);
+          const dateB = getInventoryEffectiveDate(b);
 
-          return String(a.best_before_date || "").localeCompare(
-            String(b.best_before_date || ""),
-          );
+          if (!dateA && dateB) return 1;
+          if (dateA && !dateB) return -1;
+
+          return String(dateA || "").localeCompare(String(dateB || ""));
         }),
       );
 
@@ -962,11 +1029,19 @@ function App() {
                   </p>
                 </div>
 
-                <span
-                  className={`package-state package-state-${item.package_state}`}
-                >
-                  {getPackageStateLabel(item.package_state)}
-                </span>
+                <div className="inventory-status-group">
+                  <span
+                    className={`package-state package-state-${item.package_state}`}
+                  >
+                    {getPackageStateLabel(item.package_state)}
+                  </span>
+
+                  <span
+                    className={`date-status date-status-${getInventoryDateStatus(item)}`}
+                  >
+                    {getInventoryDateStatusLabel(getInventoryDateStatus(item))}
+                  </span>
+                </div>
               </div>
 
               <div className="inventory-meta">
@@ -976,10 +1051,12 @@ function App() {
                 )}
                 <span>{formatQuantity(item)}</span>
                 {item.best_before_date && (
-                  <span>MHD: {item.best_before_date}</span>
+                  <span>MHD: {formatDateGerman(item.best_before_date)}</span>
                 )}
                 {item.internal_use_until_date && (
-                  <span>Intern bis: {item.internal_use_until_date}</span>
+                  <span>
+                    Intern bis: {formatDateGerman(item.internal_use_until_date)}
+                  </span>
                 )}
               </div>
 
