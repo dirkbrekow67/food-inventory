@@ -1,0 +1,15 @@
+node_modules/
+server/node_modules/
+.env
+.DS_Store
+
+server/database/*.db
+server/database/*.sqlite
+server/database/*.sqlite3
+
+qr/generated/*.pdf
+qr/generated/*.png
+qr/generated/*.svg
+
+client/dist/
+server/uploads/
