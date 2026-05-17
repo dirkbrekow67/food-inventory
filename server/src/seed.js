@@ -49,6 +49,63 @@ function seed() {
     insertCompartment.run(4, `Regalboden ${i}`, 'Regalboden', i, i);
   }
 
+    const insertProduct = db.prepare(`
+    INSERT INTO products
+    (
+      id,
+      name,
+      brand,
+      category,
+      country,
+      store,
+      buy_again_status,
+      rating,
+      notes,
+      favorite
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO NOTHING
+  `);
+
+  insertProduct.run(
+    1,
+    'Pommes Frites',
+    'Beispielmarke',
+    'Tiefkühlware',
+    'Deutschland',
+    'Supermarkt',
+    'neutral',
+    3,
+    'Testprodukt für angebrochene Tüten und Grammangaben.',
+    0
+  );
+
+  insertProduct.run(
+    2,
+    'Ravioli Ricotta',
+    'Coop Italia',
+    'Vorrat',
+    'Italien',
+    'Coop',
+    'wieder_kaufen',
+    5,
+    'Sehr gut, beim nächsten Italien-Einkauf wieder mitnehmen.',
+    1
+  );
+
+  insertProduct.run(
+    3,
+    'TK-Pizza',
+    'Beispielmarke',
+    'Tiefkühlware',
+    'Deutschland',
+    'Supermarkt',
+    'nicht_wieder_kaufen',
+    2,
+    'Boden wurde matschig, nicht nochmal kaufen.',
+    0
+  );
+
   console.log('Testdaten wurden angelegt.');
 }
 

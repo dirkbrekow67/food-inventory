@@ -3,36 +3,61 @@ import "./App.css";
 
 const API_BASE_URL = "http://localhost:3101/api";
 
+function getBuyAgainLabel(status) {
+  switch (status) {
+    case "wieder_kaufen":
+      return "Wieder kaufen";
+    case "nicht_wieder_kaufen":
+      return "Nicht wieder kaufen";
+    case "testen":
+      return "Erst testen";
+    default:
+      return "Neutral";
+  }
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [loadingStorage, setLoadingStorage] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    async function loadStorageTree() {
+    async function loadData() {
       try {
-        setLoading(true);
         setErrorMessage("");
 
-        const response = await fetch(`${API_BASE_URL}/storage/tree`);
+        const [storageResponse, productsResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/storage/tree`),
+          fetch(`${API_BASE_URL}/products`),
+        ]);
 
-        if (!response.ok) {
+        if (!storageResponse.ok) {
           throw new Error("Lagerstruktur konnte nicht geladen werden.");
         }
 
-        const data = await response.json();
-        setStorageTree(data);
+        if (!productsResponse.ok) {
+          throw new Error("Produkte konnten nicht geladen werden.");
+        }
+
+        const storageData = await storageResponse.json();
+        const productData = await productsResponse.json();
+
+        setStorageTree(storageData);
+        setProducts(productData);
       } catch (error) {
         console.error(error);
         setErrorMessage(
-          "Lagerstruktur konnte nicht geladen werden. Läuft der Server?",
+          "Daten konnten nicht geladen werden. Läuft der Server?",
         );
       } finally {
-        setLoading(false);
+        setLoadingStorage(false);
+        setLoadingProducts(false);
       }
     }
 
-    loadStorageTree();
+    loadData();
   }, []);
 
   return (
@@ -42,10 +67,62 @@ function App() {
           <p className="eyebrow">Food Inventory</p>
           <h1>Lebensmittel-Inventar</h1>
           <p className="subtitle">
-            Verwaltung für Gefrierschrank, Kühlschrank und Vorratskammer.
+            Verwaltung für Gefrierschrank, Kühlschrank, Vorratskammer und
+            Auslandseinkäufe.
           </p>
         </div>
       </header>
+
+      {errorMessage && <p className="error">{errorMessage}</p>}
+
+      <section className="card">
+        <div className="section-header">
+          <div>
+            <h2>Produkte</h2>
+            <p>Produkt-Stammdaten mit Bewertung für spätere Einkäufe.</p>
+          </div>
+        </div>
+
+        {loadingProducts && <p className="muted">Produkte werden geladen...</p>}
+
+        {!loadingProducts && products.length === 0 && (
+          <p className="muted">Noch keine Produkte vorhanden.</p>
+        )}
+
+        <div className="product-grid">
+          {products.map((product) => (
+            <article className="product-card" key={product.id}>
+              <div className="product-card-header">
+                <div>
+                  <h3>{product.name}</h3>
+                  <p className="muted">
+                    {[product.brand, product.category]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </div>
+                {product.favorite === 1 && <span className="favorite">★</span>}
+              </div>
+
+              <div className="product-meta">
+                {product.country && <span>{product.country}</span>}
+                {product.store && <span>{product.store}</span>}
+                {product.rating && <span>{product.rating}/5</span>}
+              </div>
+
+              <div
+                className={`buy-again buy-again-${product.buy_again_status}`}
+              >
+                {getBuyAgainLabel(product.buy_again_status)}
+              </div>
+
+              {product.notes && (
+                <p className="product-notes">{product.notes}</p>
+              )}
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="card">
         <div className="section-header">
@@ -55,11 +132,11 @@ function App() {
           </div>
         </div>
 
-        {loading && <p className="muted">Lagerstruktur wird geladen...</p>}
+        {loadingStorage && (
+          <p className="muted">Lagerstruktur wird geladen...</p>
+        )}
 
-        {errorMessage && <p className="error">{errorMessage}</p>}
-
-        {!loading && !errorMessage && storageTree.length === 0 && (
+        {!loadingStorage && storageTree.length === 0 && (
           <p className="muted">Noch keine Lagerorte vorhanden.</p>
         )}
 

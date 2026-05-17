@@ -76,10 +76,35 @@ function createStorageCompartmentsTable() {
   `).run();
 }
 
+function createProductsTable() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      brand TEXT,
+      category TEXT,
+      country TEXT,
+      store TEXT,
+      barcode TEXT,
+      buy_again_status TEXT NOT NULL DEFAULT 'neutral',
+      rating INTEGER,
+      notes TEXT,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  addColumnIfMissing('products', 'image_front', 'TEXT');
+  addColumnIfMissing('products', 'image_back', 'TEXT');
+  addColumnIfMissing('products', 'favorite', 'INTEGER NOT NULL DEFAULT 0');
+}
+
 function runMigrations() {
   createStorageLocationsTable();
   createStorageUnitsTable();
   createStorageCompartmentsTable();
+  createProductsTable();
 
   console.log('Datenbank-Migrationen abgeschlossen.');
 }
