@@ -23,6 +23,20 @@ function App() {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [productForm, setProductForm] = useState({
+    name: "",
+    brand: "",
+    category: "",
+    country: "",
+    store: "",
+    buyAgainStatus: "neutral",
+    rating: "",
+    notes: "",
+    favorite: false,
+  });
+
+  const [savingProduct, setSavingProduct] = useState(false);
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -60,6 +74,74 @@ function App() {
     loadData();
   }, []);
 
+  function updateProductForm(field, value) {
+    setProductForm((currentForm) => ({
+      ...currentForm,
+      [field]: value,
+    }));
+  }
+
+  async function handleCreateProduct(event) {
+    event.preventDefault();
+
+    if (!productForm.name.trim()) {
+      setErrorMessage("Bitte einen Produktnamen eingeben.");
+      return;
+    }
+
+    try {
+      setSavingProduct(true);
+      setErrorMessage("");
+
+      const response = await fetch(`${API_BASE_URL}/products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: productForm.name.trim(),
+          brand: productForm.brand.trim() || null,
+          category: productForm.category.trim() || null,
+          country: productForm.country.trim() || null,
+          store: productForm.store.trim() || null,
+          buyAgainStatus: productForm.buyAgainStatus,
+          rating: productForm.rating ? Number(productForm.rating) : null,
+          notes: productForm.notes.trim() || null,
+          favorite: productForm.favorite ? 1 : 0,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Produkt konnte nicht gespeichert werden.");
+      }
+
+      const createdProduct = await response.json();
+
+      setProducts((currentProducts) =>
+        [...currentProducts, createdProduct].sort((a, b) =>
+          a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
+        ),
+      );
+
+      setProductForm({
+        name: "",
+        brand: "",
+        category: "",
+        country: "",
+        store: "",
+        buyAgainStatus: "neutral",
+        rating: "",
+        notes: "",
+        favorite: false,
+      });
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Produkt konnte nicht gespeichert werden.");
+    } finally {
+      setSavingProduct(false);
+    }
+  }
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -82,6 +164,131 @@ function App() {
             <p>Produkt-Stammdaten mit Bewertung für spätere Einkäufe.</p>
           </div>
         </div>
+
+        <form className="product-form" onSubmit={handleCreateProduct}>
+          <div className="form-grid">
+            <label>
+              Produktname *
+              <input
+                type="text"
+                value={productForm.name}
+                onChange={(event) =>
+                  updateProductForm("name", event.target.value)
+                }
+                placeholder="z. B. Pommes Frites"
+              />
+            </label>
+
+            <label>
+              Marke
+              <input
+                type="text"
+                value={productForm.brand}
+                onChange={(event) =>
+                  updateProductForm("brand", event.target.value)
+                }
+                placeholder="z. B. Coop Italia"
+              />
+            </label>
+
+            <label>
+              Kategorie
+              <input
+                type="text"
+                value={productForm.category}
+                onChange={(event) =>
+                  updateProductForm("category", event.target.value)
+                }
+                placeholder="z. B. Tiefkühlware"
+              />
+            </label>
+
+            <label>
+              Land
+              <input
+                type="text"
+                value={productForm.country}
+                onChange={(event) =>
+                  updateProductForm("country", event.target.value)
+                }
+                placeholder="z. B. Italien"
+              />
+            </label>
+
+            <label>
+              Geschäft
+              <input
+                type="text"
+                value={productForm.store}
+                onChange={(event) =>
+                  updateProductForm("store", event.target.value)
+                }
+                placeholder="z. B. Coop"
+              />
+            </label>
+
+            <label>
+              Bewertung
+              <select
+                value={productForm.buyAgainStatus}
+                onChange={(event) =>
+                  updateProductForm("buyAgainStatus", event.target.value)
+                }
+              >
+                <option value="neutral">Neutral</option>
+                <option value="wieder_kaufen">Wieder kaufen</option>
+                <option value="nicht_wieder_kaufen">Nicht wieder kaufen</option>
+                <option value="testen">Erst testen</option>
+              </select>
+            </label>
+
+            <label>
+              Sterne
+              <select
+                value={productForm.rating}
+                onChange={(event) =>
+                  updateProductForm("rating", event.target.value)
+                }
+              >
+                <option value="">Keine Bewertung</option>
+                <option value="1">1/5</option>
+                <option value="2">2/5</option>
+                <option value="3">3/5</option>
+                <option value="4">4/5</option>
+                <option value="5">5/5</option>
+              </select>
+            </label>
+
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={productForm.favorite}
+                onChange={(event) =>
+                  updateProductForm("favorite", event.target.checked)
+                }
+              />
+              Favorit
+            </label>
+          </div>
+
+          <label>
+            Notiz
+            <textarea
+              value={productForm.notes}
+              onChange={(event) =>
+                updateProductForm("notes", event.target.value)
+              }
+              placeholder="z. B. beim nächsten Italien-Einkauf wieder mitnehmen"
+              rows="3"
+            />
+          </label>
+
+          <div className="form-actions">
+            <button type="submit" disabled={savingProduct}>
+              {savingProduct ? "Speichern..." : "Produkt anlegen"}
+            </button>
+          </div>
+        </form>
 
         {loadingProducts && <p className="muted">Produkte werden geladen...</p>}
 
