@@ -53,7 +53,11 @@ function createStorageUnitsTable() {
   `).run();
 
   addColumnIfMissing('storage_units', 'temperature_zone', 'TEXT');
-  addColumnIfMissing('storage_units', 'qr_print_enabled', 'INTEGER NOT NULL DEFAULT 1');
+  addColumnIfMissing(
+    'storage_units',
+    'qr_print_enabled',
+    'INTEGER NOT NULL DEFAULT 1'
+  );
 }
 
 function createStorageCompartmentsTable() {
@@ -100,6 +104,21 @@ function createProductsTable() {
   addColumnIfMissing('products', 'favorite', 'INTEGER NOT NULL DEFAULT 0');
 }
 
+function createLabelSlotsTable() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS label_slots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      label_code TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'free',
+      current_inventory_item_id INTEGER,
+      notes TEXT,
+      last_used_at TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+}
+
 function createInventoryItemsTable() {
   db.prepare(`
     CREATE TABLE IF NOT EXISTS inventory_items (
@@ -136,22 +155,17 @@ function createInventoryItemsTable() {
   addColumnIfMissing('inventory_items', 'qr_code', 'TEXT');
   addColumnIfMissing('inventory_items', 'image', 'TEXT');
   addColumnIfMissing(
-  'inventory_items',
-  'is_frozen_chilled_food',
-  'INTEGER NOT NULL DEFAULT 0'
-);
-
-    addColumnIfMissing(
     'inventory_items',
-    'internal_use_until_date',
-    'TEXT'
-    );
-
-    addColumnIfMissing(
+    'is_frozen_chilled_food',
+    'INTEGER NOT NULL DEFAULT 0'
+  );
+  addColumnIfMissing('inventory_items', 'internal_use_until_date', 'TEXT');
+  addColumnIfMissing(
     'inventory_items',
     'internal_extension_months',
     'INTEGER NOT NULL DEFAULT 6'
-    );
+  );
+  addColumnIfMissing('inventory_items', 'label_slot_id', 'INTEGER');
 }
 
 function runMigrations() {
@@ -159,11 +173,11 @@ function runMigrations() {
   createStorageUnitsTable();
   createStorageCompartmentsTable();
   createProductsTable();
+  createLabelSlotsTable();
   createInventoryItemsTable();
 
   console.log('Datenbank-Migrationen abgeschlossen.');
 }
-
 
 module.exports = {
   runMigrations,

@@ -49,7 +49,19 @@ function seed() {
     insertCompartment.run(4, `Regalboden ${i}`, 'Regalboden', i, i);
   }
 
-    const insertProduct = db.prepare(`
+  const insertLabelSlot = db.prepare(`
+    INSERT INTO label_slots
+    (label_code, status)
+    VALUES (?, ?)
+    ON CONFLICT(label_code) DO NOTHING
+  `);
+
+  for (let i = 1; i <= 36; i += 1) {
+    const labelCode = `F${String(i).padStart(3, '0')}`;
+    insertLabelSlot.run(labelCode, 'free');
+  }
+
+  const insertProduct = db.prepare(`
     INSERT INTO products
     (
       id,
@@ -67,6 +79,7 @@ function seed() {
     ON CONFLICT(id) DO NOTHING
   `);
 
+  
   insertProduct.run(
     1,
     'Pommes Frites',
