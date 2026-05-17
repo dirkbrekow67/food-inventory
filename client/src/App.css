@@ -324,3 +324,47 @@ h4 {
   cursor: not-allowed;
   background: #94a3b8;
 }
+
+.form-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.form-title-row h3 {
+  margin-bottom: 0;
+}
+
+.secondary-button,
+.product-actions button {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-button:hover,
+.product-actions button:hover {
+  background: #f1f5f9;
+}
+
+.product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.product-actions .danger-button {
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.product-actions .danger-button:hover {
+  background: #fee2e2;
+}
+

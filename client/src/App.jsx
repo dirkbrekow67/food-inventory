@@ -36,6 +36,7 @@ function App() {
   });
 
   const [savingProduct, setSavingProduct] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
 
   useEffect(() => {
     async function loadData() {
@@ -81,7 +82,23 @@ function App() {
     }));
   }
 
-  async function handleCreateProduct(event) {
+  function resetProductForm() {
+    setProductForm({
+      name: "",
+      brand: "",
+      category: "",
+      country: "",
+      store: "",
+      buyAgainStatus: "neutral",
+      rating: "",
+      notes: "",
+      favorite: false,
+    });
+
+    setEditingProductId(null);
+  }
+
+  async function handleSaveProduct(event) {
     event.preventDefault();
 
     if (!productForm.name.trim()) {
@@ -93,52 +110,111 @@ function App() {
       setSavingProduct(true);
       setErrorMessage("");
 
-      const response = await fetch(`${API_BASE_URL}/products`, {
-        method: "POST",
+      const payload = {
+        name: productForm.name.trim(),
+        brand: productForm.brand.trim() || null,
+        category: productForm.category.trim() || null,
+        country: productForm.country.trim() || null,
+        store: productForm.store.trim() || null,
+        buyAgainStatus: productForm.buyAgainStatus,
+        rating: productForm.rating ? Number(productForm.rating) : null,
+        notes: productForm.notes.trim() || null,
+        favorite: productForm.favorite ? 1 : 0,
+      };
+
+      const url = editingProductId
+        ? `${API_BASE_URL}/products/${editingProductId}`
+        : `${API_BASE_URL}/products`;
+
+      const method = editingProductId ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: productForm.name.trim(),
-          brand: productForm.brand.trim() || null,
-          category: productForm.category.trim() || null,
-          country: productForm.country.trim() || null,
-          store: productForm.store.trim() || null,
-          buyAgainStatus: productForm.buyAgainStatus,
-          rating: productForm.rating ? Number(productForm.rating) : null,
-          notes: productForm.notes.trim() || null,
-          favorite: productForm.favorite ? 1 : 0,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         throw new Error("Produkt konnte nicht gespeichert werden.");
       }
 
-      const createdProduct = await response.json();
+      const savedProduct = await response.json();
 
-      setProducts((currentProducts) =>
-        [...currentProducts, createdProduct].sort((a, b) =>
+      setProducts((currentProducts) => {
+        const productExists = currentProducts.some(
+          (product) => product.id === savedProduct.id,
+        );
+
+        const nextProducts = productExists
+          ? currentProducts.map((product) =>
+              product.id === savedProduct.id ? savedProduct : product,
+            )
+          : [...currentProducts, savedProduct];
+
+        return nextProducts.sort((a, b) =>
           a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
-        ),
-      );
-
-      setProductForm({
-        name: "",
-        brand: "",
-        category: "",
-        country: "",
-        store: "",
-        buyAgainStatus: "neutral",
-        rating: "",
-        notes: "",
-        favorite: false,
+        );
       });
+
+      resetProductForm();
     } catch (error) {
       console.error(error);
       setErrorMessage("Produkt konnte nicht gespeichert werden.");
     } finally {
       setSavingProduct(false);
+    }
+  }
+
+  function startEditProduct(product) {
+    setEditingProductId(product.id);
+
+    setProductForm({
+      name: product.name || "",
+      brand: product.brand || "",
+      category: product.category || "",
+      country: product.country || "",
+      store: product.store || "",
+      buyAgainStatus: product.buy_again_status || "neutral",
+      rating: product.rating ? String(product.rating) : "",
+      notes: product.notes || "",
+      favorite: product.favorite === 1,
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function deactivateProduct(productId) {
+    const confirmed = window.confirm(
+      "Dieses Produkt wirklich deaktivieren? Es wird nicht endgültig gelöscht.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setErrorMessage("");
+
+      const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Produkt konnte nicht deaktiviert werden.");
+      }
+
+      setProducts((currentProducts) =>
+        currentProducts.filter((product) => product.id !== productId),
+      );
+
+      if (editingProductId === productId) {
+        resetProductForm();
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Produkt konnte nicht deaktiviert werden.");
     }
   }
 
@@ -165,7 +241,24 @@ function App() {
           </div>
         </div>
 
-        <form className="product-form" onSubmit={handleCreateProduct}>
+        <form className="product-form" onSubmit={handleSaveProduct}>
+          <div className="form-title-row">
+            <h3>
+              {editingProductId
+                ? "Produkt bearbeiten"
+                : "Neues Produkt anlegen"}
+            </h3>
+
+            {editingProductId && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={resetProductForm}
+              >
+                Bearbeitung abbrechen
+              </button>
+            )}
+          </div>
           <div className="form-grid">
             <label>
               Produktname *
@@ -285,7 +378,11 @@ function App() {
 
           <div className="form-actions">
             <button type="submit" disabled={savingProduct}>
-              {savingProduct ? "Speichern..." : "Produkt anlegen"}
+              {savingProduct
+                ? "Speichern..."
+                : editingProductId
+                  ? "Änderungen speichern"
+                  : "Produkt anlegen"}
             </button>
           </div>
         </form>
@@ -326,6 +423,19 @@ function App() {
               {product.notes && (
                 <p className="product-notes">{product.notes}</p>
               )}
+              <div className="product-actions">
+                <button type="button" onClick={() => startEditProduct(product)}>
+                  Bearbeiten
+                </button>
+
+                <button
+                  type="button"
+                  className="danger-button"
+                  onClick={() => deactivateProduct(product.id)}
+                >
+                  Deaktivieren
+                </button>
+              </div>
             </article>
           ))}
         </div>

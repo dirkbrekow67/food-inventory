@@ -90,4 +90,119 @@ router.post('/', (req, res) => {
   }
 });
 
+router.put('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existingProduct = db.prepare(`
+      SELECT *
+      FROM products
+      WHERE id = ?
+      AND status = 'active'
+    `).get(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Produkt wurde nicht gefunden.' });
+    }
+
+    const {
+      name,
+      brand = null,
+      category = null,
+      country = null,
+      store = null,
+      barcode = null,
+      buyAgainStatus = 'neutral',
+      rating = null,
+      notes = null,
+      favorite = 0,
+    } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Produktname ist erforderlich.' });
+    }
+
+    const allowedBuyAgainStatuses = [
+      'wieder_kaufen',
+      'neutral',
+      'nicht_wieder_kaufen',
+      'testen',
+    ];
+
+    const safeBuyAgainStatus = allowedBuyAgainStatuses.includes(buyAgainStatus)
+      ? buyAgainStatus
+      : 'neutral';
+
+    db.prepare(`
+      UPDATE products
+      SET
+        name = ?,
+        brand = ?,
+        category = ?,
+        country = ?,
+        store = ?,
+        barcode = ?,
+        buy_again_status = ?,
+        rating = ?,
+        notes = ?,
+        favorite = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(
+      name.trim(),
+      brand,
+      category,
+      country,
+      store,
+      barcode,
+      safeBuyAgainStatus,
+      rating,
+      notes,
+      favorite ? 1 : 0,
+      id
+    );
+
+    const updatedProduct = db.prepare(`
+      SELECT *
+      FROM products
+      WHERE id = ?
+    `).get(id);
+
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ error: 'Produkt konnte nicht aktualisiert werden.' });
+  }
+});
+
+router.delete('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existingProduct = db.prepare(`
+      SELECT *
+      FROM products
+      WHERE id = ?
+      AND status = 'active'
+    `).get(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Produkt wurde nicht gefunden.' });
+    }
+
+    db.prepare(`
+      UPDATE products
+      SET
+        status = 'inactive',
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(id);
+
+    res.json({ message: 'Produkt wurde deaktiviert.' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ error: 'Produkt konnte nicht deaktiviert werden.' });
+  }
+});
+
 module.exports = router;
