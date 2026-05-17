@@ -163,6 +163,9 @@ function App() {
   });
 
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
+  const [inventorySearchTerm, setInventorySearchTerm] = useState("");
+  const [inventoryStatusFilter, setInventoryStatusFilter] = useState("all");
+  const [inventoryStorageFilter, setInventoryStorageFilter] = useState("all");
 
   const [savingProduct, setSavingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
@@ -285,6 +288,60 @@ function App() {
         .flatMap((location) => location.units)
         .find((unit) => unit.id === selectedUnitId)?.compartments || []
     );
+  }
+
+  function getInventoryStorageFilterOptions() {
+    const storageOptions = inventoryItems.map((item) => ({
+      id: item.storage_unit_id,
+      name: item.storage_unit_name,
+    }));
+
+    return storageOptions
+      .filter(
+        (option, index, allOptions) =>
+          allOptions.findIndex((item) => item.id === option.id) === index,
+      )
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
+      );
+  }
+
+  function matchesInventorySearch(item, searchTerm) {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+    if (!normalizedSearchTerm) {
+      return true;
+    }
+
+    const searchableText = [
+      item.product_name,
+      item.product_brand,
+      item.product_category,
+      item.storage_unit_name,
+      item.storage_compartment_name,
+      item.notes,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(normalizedSearchTerm);
+  }
+
+  function getFilteredInventoryItems() {
+    return inventoryItems.filter((item) => {
+      const matchesSearch = matchesInventorySearch(item, inventorySearchTerm);
+
+      const matchesStatus =
+        inventoryStatusFilter === "all" ||
+        getInventoryDateStatus(item) === inventoryStatusFilter;
+
+      const matchesStorage =
+        inventoryStorageFilter === "all" ||
+        String(item.storage_unit_id) === inventoryStorageFilter;
+
+      return matchesSearch && matchesStatus && matchesStorage;
+    });
   }
 
   function parseRemainingFraction(value) {
@@ -528,6 +585,13 @@ function App() {
       setErrorMessage("Bestand konnte nicht entfernt werden.");
     }
   }
+
+  const filteredInventoryItems = getFilteredInventoryItems();
+  const inventoryStorageFilterOptions = getInventoryStorageFilterOptions();
+  const hasActiveInventoryFilters =
+    Boolean(inventorySearchTerm.trim()) ||
+    inventoryStatusFilter !== "all" ||
+    inventoryStorageFilter !== "all";
 
   return (
     <main className="app-shell">
@@ -1010,14 +1074,94 @@ function App() {
           </div>
         </form>
 
+        <div className="inventory-overview-header">
+          <div>
+            <h3>Bestandsübersicht</h3>
+            <p className="muted">
+              Suche und Filter für vorhandene Packungen, Dosen und Gebinde.
+            </p>
+          </div>
+
+          <span className="result-count">
+            {filteredInventoryItems.length} von {inventoryItems.length}{" "}
+            Einträgen
+          </span>
+        </div>
+
+        <div className="inventory-toolbar">
+          <label className="inventory-search">
+            Bestand suchen
+            <input
+              type="search"
+              value={inventorySearchTerm}
+              onChange={(event) => setInventorySearchTerm(event.target.value)}
+              placeholder="z. B. Pommes, Coop, Wohnzimmer, Schublade 2"
+            />
+          </label>
+
+          <div className="inventory-filter-row">
+            <label>
+              Status
+              <select
+                value={inventoryStatusFilter}
+                onChange={(event) =>
+                  setInventoryStatusFilter(event.target.value)
+                }
+              >
+                <option value="all">Alle</option>
+                <option value="ok">OK</option>
+                <option value="soon">Bald fällig</option>
+                <option value="expired">Abgelaufen</option>
+                <option value="no_date">Ohne Datum</option>
+              </select>
+            </label>
+
+            <label>
+              Lagergerät
+              <select
+                value={inventoryStorageFilter}
+                onChange={(event) =>
+                  setInventoryStorageFilter(event.target.value)
+                }
+              >
+                <option value="all">Alle Lagergeräte</option>
+                {inventoryStorageFilterOptions.map((option) => (
+                  <option value={option.id} key={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => {
+                setInventorySearchTerm("");
+                setInventoryStatusFilter("all");
+                setInventoryStorageFilter("all");
+              }}
+              disabled={!hasActiveInventoryFilters}
+            >
+              Filter zurücksetzen
+            </button>
+          </div>
+        </div>
+
         {loadingInventory && <p className="muted">Bestand wird geladen...</p>}
 
         {!loadingInventory && inventoryItems.length === 0 && (
           <p className="muted">Noch kein Bestand vorhanden.</p>
         )}
 
+        {!loadingInventory &&
+          inventoryItems.length > 0 &&
+          filteredInventoryItems.length === 0 && (
+            <p className="muted">Keine passenden Bestandseinträge gefunden.</p>
+          )}
+
         <div className="inventory-list">
-          {inventoryItems.map((item) => (
+          {filteredInventoryItems.map((item) => (
             <article className="inventory-card" key={item.id}>
               <div className="inventory-card-header">
                 <div>
