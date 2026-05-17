@@ -3,6 +3,28 @@ const db = require('../db');
 
 const router = express.Router();
 
+function addMonthsToDate(dateString, monthsToAdd) {
+  if (!dateString || !monthsToAdd) {
+    return null;
+  }
+
+  const date = new Date(`${dateString}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const originalDay = date.getDate();
+
+  date.setMonth(date.getMonth() + Number(monthsToAdd));
+
+  if (date.getDate() !== originalDay) {
+    date.setDate(0);
+  }
+
+  return date.toISOString().slice(0, 10);
+}
+
 router.get('/', (req, res) => {
   try {
     const items = db.prepare(`
@@ -59,6 +81,8 @@ router.post('/', (req, res) => {
       frozenDate = null,
       openedDate = null,
       notes = null,
+      isFrozenChilledFood = 0,
+      internalExtensionMonths = 6,
     } = req.body;
 
     if (!productId || !storageUnitId) {
@@ -77,42 +101,56 @@ router.post('/', (req, res) => {
       ? packageState
       : 'ungeoeffnet';
 
+      const safeInternalExtensionMonths = internalExtensionMonths
+        ? Number(internalExtensionMonths)
+        : 6;
+
+const internalUseUntilDate = isFrozenChilledFood
+  ? addMonthsToDate(frozenDate, safeInternalExtensionMonths)
+  : null;
+
     const result = db.prepare(`
-      INSERT INTO inventory_items
-      (
-        product_id,
-        storage_unit_id,
-        storage_compartment_id,
-        original_quantity,
-        original_unit,
-        remaining_quantity,
-        remaining_unit,
-        remaining_fraction_numerator,
-        remaining_fraction_denominator,
-        quantity_estimated,
-        package_state,
-        best_before_date,
-        frozen_date,
-        opened_date,
-        notes
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO inventory_items
+  (
+    product_id,
+    storage_unit_id,
+    storage_compartment_id,
+    original_quantity,
+    original_unit,
+    remaining_quantity,
+    remaining_unit,
+    remaining_fraction_numerator,
+    remaining_fraction_denominator,
+    quantity_estimated,
+    package_state,
+    best_before_date,
+    frozen_date,
+    opened_date,
+    is_frozen_chilled_food,
+    internal_extension_months,
+    internal_use_until_date,
+    notes
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      productId,
-      storageUnitId,
-      storageCompartmentId || null,
-      originalQuantity,
-      originalUnit,
-      remainingQuantity,
-      remainingUnit,
-      remainingFractionNumerator,
-      remainingFractionDenominator,
-      quantityEstimated ? 1 : 0,
-      safePackageState,
-      bestBeforeDate,
-      frozenDate,
-      openedDate,
-      notes
+    productId,
+    storageUnitId,
+    storageCompartmentId || null,
+    originalQuantity,
+    originalUnit,
+    remainingQuantity,
+    remainingUnit,
+    remainingFractionNumerator,
+    remainingFractionDenominator,
+    quantityEstimated ? 1 : 0,
+    safePackageState,
+    bestBeforeDate,
+    frozenDate,
+    openedDate,
+    isFrozenChilledFood ? 1 : 0,
+    safeInternalExtensionMonths,
+    internalUseUntilDate,
+    notes
     );
 
     const item = db.prepare(`

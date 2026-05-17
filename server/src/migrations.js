@@ -135,6 +135,23 @@ function createInventoryItemsTable() {
 
   addColumnIfMissing('inventory_items', 'qr_code', 'TEXT');
   addColumnIfMissing('inventory_items', 'image', 'TEXT');
+  addColumnIfMissing(
+  'inventory_items',
+  'is_frozen_chilled_food',
+  'INTEGER NOT NULL DEFAULT 0'
+);
+
+    addColumnIfMissing(
+    'inventory_items',
+    'internal_use_until_date',
+    'TEXT'
+    );
+
+    addColumnIfMissing(
+    'inventory_items',
+    'internal_extension_months',
+    'INTEGER NOT NULL DEFAULT 6'
+    );
 }
 
 function runMigrations() {

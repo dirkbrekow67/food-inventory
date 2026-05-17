@@ -86,11 +86,13 @@ function App() {
     remainingQuantity: "",
     remainingUnit: "g",
     remainingFraction: "",
-    quantityEstimated: true,
+    quantityEstimated: false,
     packageState: "ungeoeffnet",
     bestBeforeDate: "",
     frozenDate: "",
     openedDate: "",
+    isFrozenChilledFood: false,
+    internalExtensionMonths: "6",
     notes: "",
   });
 
@@ -185,11 +187,13 @@ function App() {
       remainingQuantity: "",
       remainingUnit: "g",
       remainingFraction: "",
-      quantityEstimated: true,
+      quantityEstimated: false,
       packageState: "ungeoeffnet",
       bestBeforeDate: "",
       frozenDate: "",
       openedDate: "",
+      isFrozenChilledFood: false,
+      internalExtensionMonths: "6",
       notes: "",
     });
   }
@@ -395,6 +399,10 @@ function App() {
           bestBeforeDate: inventoryForm.bestBeforeDate || null,
           frozenDate: inventoryForm.frozenDate || null,
           openedDate: inventoryForm.openedDate || null,
+          isFrozenChilledFood: inventoryForm.isFrozenChilledFood ? 1 : 0,
+          internalExtensionMonths: inventoryForm.internalExtensionMonths
+            ? Number(inventoryForm.internalExtensionMonths)
+            : 6,
           notes: inventoryForm.notes.trim() || null,
         }),
       });
@@ -861,6 +869,38 @@ function App() {
               />
             </label>
 
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={inventoryForm.isFrozenChilledFood}
+                onChange={(event) =>
+                  updateInventoryForm(
+                    "isFrozenChilledFood",
+                    event.target.checked,
+                  )
+                }
+              />
+              Kühlware eingefroren
+            </label>
+
+            <label>
+              Interne Frist
+              <select
+                value={inventoryForm.internalExtensionMonths}
+                onChange={(event) =>
+                  updateInventoryForm(
+                    "internalExtensionMonths",
+                    event.target.value,
+                  )
+                }
+                disabled={!inventoryForm.isFrozenChilledFood}
+              >
+                <option value="3">+ 3 Monate</option>
+                <option value="6">+ 6 Monate</option>
+                <option value="12">+ 12 Monate</option>
+              </select>
+            </label>
+
             <label>
               Geöffnet am
               <input
@@ -880,7 +920,7 @@ function App() {
                   updateInventoryForm("quantityEstimated", event.target.checked)
                 }
               />
-              Menge geschätzt
+              Restmenge geschätzt
             </label>
           </div>
 
@@ -937,6 +977,9 @@ function App() {
                 <span>{formatQuantity(item)}</span>
                 {item.best_before_date && (
                   <span>MHD: {item.best_before_date}</span>
+                )}
+                {item.internal_use_until_date && (
+                  <span>Intern bis: {item.internal_use_until_date}</span>
                 )}
               </div>
 
