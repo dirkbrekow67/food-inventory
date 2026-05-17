@@ -100,14 +100,53 @@ function createProductsTable() {
   addColumnIfMissing('products', 'favorite', 'INTEGER NOT NULL DEFAULT 0');
 }
 
+function createInventoryItemsTable() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS inventory_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER NOT NULL,
+      storage_unit_id INTEGER NOT NULL,
+      storage_compartment_id INTEGER,
+
+      original_quantity REAL,
+      original_unit TEXT,
+      remaining_quantity REAL,
+      remaining_unit TEXT,
+      remaining_fraction_numerator INTEGER,
+      remaining_fraction_denominator INTEGER,
+      quantity_estimated INTEGER NOT NULL DEFAULT 0,
+
+      package_state TEXT NOT NULL DEFAULT 'ungeoeffnet',
+      best_before_date TEXT,
+      frozen_date TEXT,
+      opened_date TEXT,
+
+      status TEXT NOT NULL DEFAULT 'available',
+      notes TEXT,
+
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
+      FOREIGN KEY (storage_unit_id) REFERENCES storage_units(id) ON DELETE RESTRICT,
+      FOREIGN KEY (storage_compartment_id) REFERENCES storage_compartments(id) ON DELETE RESTRICT
+    )
+  `).run();
+
+  addColumnIfMissing('inventory_items', 'qr_code', 'TEXT');
+  addColumnIfMissing('inventory_items', 'image', 'TEXT');
+}
+
 function runMigrations() {
   createStorageLocationsTable();
   createStorageUnitsTable();
   createStorageCompartmentsTable();
   createProductsTable();
+  createInventoryItemsTable();
 
   console.log('Datenbank-Migrationen abgeschlossen.');
 }
+
 
 module.exports = {
   runMigrations,

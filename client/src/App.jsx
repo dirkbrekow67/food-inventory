@@ -16,11 +16,53 @@ function getBuyAgainLabel(status) {
   }
 }
 
+function getPackageStateLabel(state) {
+  switch (state) {
+    case "angebrochen":
+      return "Angebrochen";
+    case "portioniert":
+      return "Portioniert";
+    default:
+      return "Ungeöffnet";
+  }
+}
+
+function formatQuantity(item) {
+  const parts = [];
+
+  if (item.remaining_quantity && item.remaining_unit) {
+    parts.push(
+      `${item.quantity_estimated ? "ca. " : ""}${item.remaining_quantity} ${item.remaining_unit}`,
+    );
+  }
+
+  if (
+    item.remaining_fraction_numerator &&
+    item.remaining_fraction_denominator
+  ) {
+    parts.push(
+      `${item.remaining_fraction_numerator}/${item.remaining_fraction_denominator}`,
+    );
+  }
+
+  if (parts.length > 0) {
+    return parts.join(" · ");
+  }
+
+  if (item.original_quantity && item.original_unit) {
+    return `${item.original_quantity} ${item.original_unit}`;
+  }
+
+  return "Menge nicht angegeben";
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState([]);
   const [loadingStorage, setLoadingStorage] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingInventory, setLoadingInventory] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
   const [productForm, setProductForm] = useState({
@@ -35,6 +77,25 @@ function App() {
     favorite: false,
   });
 
+  const [inventoryForm, setInventoryForm] = useState({
+    productId: "",
+    storageUnitId: "",
+    storageCompartmentId: "",
+    originalQuantity: "",
+    originalUnit: "g",
+    remainingQuantity: "",
+    remainingUnit: "g",
+    remainingFraction: "",
+    quantityEstimated: true,
+    packageState: "ungeoeffnet",
+    bestBeforeDate: "",
+    frozenDate: "",
+    openedDate: "",
+    notes: "",
+  });
+
+  const [savingInventoryItem, setSavingInventoryItem] = useState(false);
+
   const [savingProduct, setSavingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
 
@@ -43,10 +104,12 @@ function App() {
       try {
         setErrorMessage("");
 
-        const [storageResponse, productsResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/storage/tree`),
-          fetch(`${API_BASE_URL}/products`),
-        ]);
+        const [storageResponse, productsResponse, inventoryResponse] =
+          await Promise.all([
+            fetch(`${API_BASE_URL}/storage/tree`),
+            fetch(`${API_BASE_URL}/products`),
+            fetch(`${API_BASE_URL}/inventory`),
+          ]);
 
         if (!storageResponse.ok) {
           throw new Error("Lagerstruktur konnte nicht geladen werden.");
@@ -56,11 +119,17 @@ function App() {
           throw new Error("Produkte konnten nicht geladen werden.");
         }
 
+        if (!inventoryResponse.ok) {
+          throw new Error("Bestand konnte nicht geladen werden.");
+        }
+
         const storageData = await storageResponse.json();
         const productData = await productsResponse.json();
+        const inventoryData = await inventoryResponse.json();
 
         setStorageTree(storageData);
         setProducts(productData);
+        setInventoryItems(inventoryData);
       } catch (error) {
         console.error(error);
         setErrorMessage(
@@ -69,6 +138,7 @@ function App() {
       } finally {
         setLoadingStorage(false);
         setLoadingProducts(false);
+        setLoadingInventory(false);
       }
     }
 
@@ -96,6 +166,71 @@ function App() {
     });
 
     setEditingProductId(null);
+  }
+
+  function updateInventoryForm(field, value) {
+    setInventoryForm((currentForm) => ({
+      ...currentForm,
+      [field]: value,
+    }));
+  }
+
+  function resetInventoryForm() {
+    setInventoryForm({
+      productId: "",
+      storageUnitId: "",
+      storageCompartmentId: "",
+      originalQuantity: "",
+      originalUnit: "g",
+      remainingQuantity: "",
+      remainingUnit: "g",
+      remainingFraction: "",
+      quantityEstimated: true,
+      packageState: "ungeoeffnet",
+      bestBeforeDate: "",
+      frozenDate: "",
+      openedDate: "",
+      notes: "",
+    });
+  }
+
+  function getAllStorageUnits() {
+    return storageTree.flatMap((location) =>
+      location.units.map((unit) => ({
+        ...unit,
+        locationName: location.name,
+      })),
+    );
+  }
+
+  function getCompartmentsForSelectedUnit() {
+    const selectedUnitId = Number(inventoryForm.storageUnitId);
+
+    if (!selectedUnitId) {
+      return [];
+    }
+
+    return (
+      storageTree
+        .flatMap((location) => location.units)
+        .find((unit) => unit.id === selectedUnitId)?.compartments || []
+    );
+  }
+
+  function parseRemainingFraction(value) {
+    if (!value) {
+      return {
+        numerator: null,
+        denominator: null,
+      };
+    }
+
+    const [numerator, denominator] = value.split("/").map(Number);
+
+    return {
+      numerator,
+      denominator,
+    };
   }
 
   async function handleSaveProduct(event) {
@@ -215,6 +350,107 @@ function App() {
     } catch (error) {
       console.error(error);
       setErrorMessage("Produkt konnte nicht deaktiviert werden.");
+    }
+  }
+
+  async function handleCreateInventoryItem(event) {
+    event.preventDefault();
+
+    if (!inventoryForm.productId || !inventoryForm.storageUnitId) {
+      setErrorMessage("Bitte Produkt und Lagergerät auswählen.");
+      return;
+    }
+
+    try {
+      setSavingInventoryItem(true);
+      setErrorMessage("");
+
+      const fraction = parseRemainingFraction(inventoryForm.remainingFraction);
+
+      const response = await fetch(`${API_BASE_URL}/inventory`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: Number(inventoryForm.productId),
+          storageUnitId: Number(inventoryForm.storageUnitId),
+          storageCompartmentId: inventoryForm.storageCompartmentId
+            ? Number(inventoryForm.storageCompartmentId)
+            : null,
+
+          originalQuantity: inventoryForm.originalQuantity
+            ? Number(inventoryForm.originalQuantity)
+            : null,
+          originalUnit: inventoryForm.originalUnit || null,
+          remainingQuantity: inventoryForm.remainingQuantity
+            ? Number(inventoryForm.remainingQuantity)
+            : null,
+          remainingUnit: inventoryForm.remainingUnit || null,
+          remainingFractionNumerator: fraction.numerator,
+          remainingFractionDenominator: fraction.denominator,
+          quantityEstimated: inventoryForm.quantityEstimated ? 1 : 0,
+
+          packageState: inventoryForm.packageState,
+          bestBeforeDate: inventoryForm.bestBeforeDate || null,
+          frozenDate: inventoryForm.frozenDate || null,
+          openedDate: inventoryForm.openedDate || null,
+          notes: inventoryForm.notes.trim() || null,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Bestand konnte nicht gespeichert werden.");
+      }
+
+      const createdItem = await response.json();
+
+      setInventoryItems((currentItems) =>
+        [...currentItems, createdItem].sort((a, b) => {
+          if (!a.best_before_date && b.best_before_date) return 1;
+          if (a.best_before_date && !b.best_before_date) return -1;
+
+          return String(a.best_before_date || "").localeCompare(
+            String(b.best_before_date || ""),
+          );
+        }),
+      );
+
+      resetInventoryForm();
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Bestand konnte nicht gespeichert werden.");
+    } finally {
+      setSavingInventoryItem(false);
+    }
+  }
+
+  async function removeInventoryItem(itemId) {
+    const confirmed = window.confirm(
+      "Diesen Bestandseintrag entfernen? Er wird nicht endgültig gelöscht.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setErrorMessage("");
+
+      const response = await fetch(`${API_BASE_URL}/inventory/${itemId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Bestand konnte nicht entfernt werden.");
+      }
+
+      setInventoryItems((currentItems) =>
+        currentItems.filter((item) => item.id !== itemId),
+      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Bestand konnte nicht entfernt werden.");
     }
   }
 
@@ -434,6 +670,285 @@ function App() {
                   onClick={() => deactivateProduct(product.id)}
                 >
                   Deaktivieren
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="card">
+        <div className="section-header">
+          <div>
+            <h2>Bestand</h2>
+            <p>Konkrete Packungen mit Lagerort, MHD und Restmenge.</p>
+          </div>
+        </div>
+
+        <form className="inventory-form" onSubmit={handleCreateInventoryItem}>
+          <h3>Bestand erfassen</h3>
+
+          <div className="form-grid">
+            <label>
+              Produkt *
+              <select
+                value={inventoryForm.productId}
+                onChange={(event) =>
+                  updateInventoryForm("productId", event.target.value)
+                }
+              >
+                <option value="">Produkt auswählen</option>
+                {products.map((product) => (
+                  <option value={product.id} key={product.id}>
+                    {product.name}
+                    {product.brand ? ` · ${product.brand}` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Lagergerät *
+              <select
+                value={inventoryForm.storageUnitId}
+                onChange={(event) => {
+                  updateInventoryForm("storageUnitId", event.target.value);
+                  updateInventoryForm("storageCompartmentId", "");
+                }}
+              >
+                <option value="">Lagergerät auswählen</option>
+                {getAllStorageUnits().map((unit) => (
+                  <option value={unit.id} key={unit.id}>
+                    {unit.locationName} · {unit.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Fach / Schublade
+              <select
+                value={inventoryForm.storageCompartmentId}
+                onChange={(event) =>
+                  updateInventoryForm(
+                    "storageCompartmentId",
+                    event.target.value,
+                  )
+                }
+              >
+                <option value="">Kein Fach ausgewählt</option>
+                {getCompartmentsForSelectedUnit().map((compartment) => (
+                  <option value={compartment.id} key={compartment.id}>
+                    {compartment.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              MHD
+              <input
+                type="date"
+                value={inventoryForm.bestBeforeDate}
+                onChange={(event) =>
+                  updateInventoryForm("bestBeforeDate", event.target.value)
+                }
+              />
+            </label>
+
+            <label>
+              Originalmenge
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={inventoryForm.originalQuantity}
+                onChange={(event) =>
+                  updateInventoryForm("originalQuantity", event.target.value)
+                }
+                placeholder="z. B. 1000"
+              />
+            </label>
+
+            <label>
+              Original-Einheit
+              <select
+                value={inventoryForm.originalUnit}
+                onChange={(event) =>
+                  updateInventoryForm("originalUnit", event.target.value)
+                }
+              >
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+                <option value="ml">ml</option>
+                <option value="l">l</option>
+                <option value="Stück">Stück</option>
+                <option value="Packung">Packung</option>
+                <option value="Portion">Portion</option>
+              </select>
+            </label>
+
+            <label>
+              Restmenge
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={inventoryForm.remainingQuantity}
+                onChange={(event) =>
+                  updateInventoryForm("remainingQuantity", event.target.value)
+                }
+                placeholder="z. B. 350"
+              />
+            </label>
+
+            <label>
+              Rest-Einheit
+              <select
+                value={inventoryForm.remainingUnit}
+                onChange={(event) =>
+                  updateInventoryForm("remainingUnit", event.target.value)
+                }
+              >
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+                <option value="ml">ml</option>
+                <option value="l">l</option>
+                <option value="Stück">Stück</option>
+                <option value="Packung">Packung</option>
+                <option value="Portion">Portion</option>
+              </select>
+            </label>
+
+            <label>
+              Restanteil
+              <select
+                value={inventoryForm.remainingFraction}
+                onChange={(event) =>
+                  updateInventoryForm("remainingFraction", event.target.value)
+                }
+              >
+                <option value="">Kein Anteil</option>
+                <option value="1/1">voll</option>
+                <option value="3/4">3/4</option>
+                <option value="1/2">1/2</option>
+                <option value="1/4">1/4</option>
+              </select>
+            </label>
+
+            <label>
+              Packungszustand
+              <select
+                value={inventoryForm.packageState}
+                onChange={(event) =>
+                  updateInventoryForm("packageState", event.target.value)
+                }
+              >
+                <option value="ungeoeffnet">Ungeöffnet</option>
+                <option value="angebrochen">Angebrochen</option>
+                <option value="portioniert">Portioniert</option>
+              </select>
+            </label>
+
+            <label>
+              Eingefroren am
+              <input
+                type="date"
+                value={inventoryForm.frozenDate}
+                onChange={(event) =>
+                  updateInventoryForm("frozenDate", event.target.value)
+                }
+              />
+            </label>
+
+            <label>
+              Geöffnet am
+              <input
+                type="date"
+                value={inventoryForm.openedDate}
+                onChange={(event) =>
+                  updateInventoryForm("openedDate", event.target.value)
+                }
+              />
+            </label>
+
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={inventoryForm.quantityEstimated}
+                onChange={(event) =>
+                  updateInventoryForm("quantityEstimated", event.target.checked)
+                }
+              />
+              Menge geschätzt
+            </label>
+          </div>
+
+          <label>
+            Notiz
+            <textarea
+              value={inventoryForm.notes}
+              onChange={(event) =>
+                updateInventoryForm("notes", event.target.value)
+              }
+              placeholder="z. B. angebrochene Tüte, zuerst verbrauchen"
+              rows="3"
+            />
+          </label>
+
+          <div className="form-actions">
+            <button type="submit" disabled={savingInventoryItem}>
+              {savingInventoryItem ? "Speichern..." : "Bestand erfassen"}
+            </button>
+          </div>
+        </form>
+
+        {loadingInventory && <p className="muted">Bestand wird geladen...</p>}
+
+        {!loadingInventory && inventoryItems.length === 0 && (
+          <p className="muted">Noch kein Bestand vorhanden.</p>
+        )}
+
+        <div className="inventory-list">
+          {inventoryItems.map((item) => (
+            <article className="inventory-card" key={item.id}>
+              <div className="inventory-card-header">
+                <div>
+                  <h3>{item.product_name}</h3>
+                  <p className="muted">
+                    {[item.product_brand, item.product_category]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </div>
+
+                <span
+                  className={`package-state package-state-${item.package_state}`}
+                >
+                  {getPackageStateLabel(item.package_state)}
+                </span>
+              </div>
+
+              <div className="inventory-meta">
+                <span>{item.storage_unit_name}</span>
+                {item.storage_compartment_name && (
+                  <span>{item.storage_compartment_name}</span>
+                )}
+                <span>{formatQuantity(item)}</span>
+                {item.best_before_date && (
+                  <span>MHD: {item.best_before_date}</span>
+                )}
+              </div>
+
+              {item.notes && <p className="product-notes">{item.notes}</p>}
+
+              <div className="product-actions">
+                <button
+                  type="button"
+                  className="danger-button"
+                  onClick={() => removeInventoryItem(item.id)}
+                >
+                  Entfernen
                 </button>
               </div>
             </article>
