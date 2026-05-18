@@ -180,6 +180,8 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [historyDialogItem, setHistoryDialogItem] = useState(null);
   const [historyEditReason, setHistoryEditReason] = useState("sonstiges");
+  const [historyDeleteDialogItem, setHistoryDeleteDialogItem] = useState(null);
+  const [deletingHistoryItem, setDeletingHistoryItem] = useState(false);
   const [historyEditBuyAgainStatus, setHistoryEditBuyAgainStatus] =
     useState("neutral");
   const [historyEditExperienceReason, setHistoryEditExperienceReason] =
@@ -740,6 +742,51 @@ function App() {
       setErrorMessage("Bestand konnte nicht gespeichert werden.");
     } finally {
       setSavingInventoryItem(false);
+    }
+  }
+
+  function openHistoryDeleteDialog(item) {
+    setHistoryDeleteDialogItem(item);
+  }
+
+  function closeHistoryDeleteDialog() {
+    if (deletingHistoryItem) {
+      return;
+    }
+
+    setHistoryDeleteDialogItem(null);
+  }
+
+  async function confirmDeleteHistoryItem() {
+    if (!historyDeleteDialogItem) {
+      return;
+    }
+
+    try {
+      setDeletingHistoryItem(true);
+      setErrorMessage("");
+
+      const response = await fetch(
+        `${API_BASE_URL}/history/${historyDeleteDialogItem.id}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Historieneintrag konnte nicht gelöscht werden.");
+      }
+
+      setHistoryItems((currentItems) =>
+        currentItems.filter((item) => item.id !== historyDeleteDialogItem.id),
+      );
+
+      setHistoryDeleteDialogItem(null);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Historieneintrag konnte nicht gelöscht werden.");
+    } finally {
+      setDeletingHistoryItem(false);
     }
   }
 
@@ -1800,6 +1847,14 @@ function App() {
                 <button type="button" onClick={() => openHistoryDialog(item)}>
                   Bearbeiten
                 </button>
+
+                <button
+                  type="button"
+                  className="danger-button"
+                  onClick={() => openHistoryDeleteDialog(item)}
+                >
+                  Löschen
+                </button>
               </div>
             </article>
           ))}
@@ -2006,6 +2061,51 @@ function App() {
                 disabled={removingInventoryItem}
               >
                 {removingInventoryItem ? "Entfernen..." : "Bestand entfernen"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {historyDeleteDialogItem && (
+        <div className="dialog-backdrop" role="presentation">
+          <div
+            className="dialog-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="history-delete-dialog-title"
+          >
+            <h3 id="history-delete-dialog-title">Historieneintrag löschen</h3>
+
+            <p className="muted">
+              {historyDeleteDialogItem.product_name}
+              {historyDeleteDialogItem.label_code
+                ? ` · Etikett ${historyDeleteDialogItem.label_code}`
+                : ""}
+            </p>
+
+            <p className="dialog-warning">
+              Dieser Historieneintrag wird dauerhaft aus der Produkthistorie
+              entfernt. Produkt, Bestand und Etikettenfreigabe bleiben
+              unverändert.
+            </p>
+
+            <div className="dialog-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={closeHistoryDeleteDialog}
+                disabled={deletingHistoryItem}
+              >
+                Abbrechen
+              </button>
+
+              <button
+                type="button"
+                className="danger-confirm-button"
+                onClick={confirmDeleteHistoryItem}
+                disabled={deletingHistoryItem}
+              >
+                {deletingHistoryItem ? "Löschen..." : "Historie löschen"}
               </button>
             </div>
           </div>

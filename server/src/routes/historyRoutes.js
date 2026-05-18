@@ -160,4 +160,33 @@ router.put('/:id', (req, res) => {
   }
 });
 
+router.delete('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existingHistoryItem = selectHistoryItemById(id);
+
+    if (!existingHistoryItem) {
+      return res.status(404).json({
+        error: 'Historieneintrag wurde nicht gefunden.',
+      });
+    }
+
+    db.prepare(`
+      DELETE FROM inventory_history
+      WHERE id = ?
+    `).run(id);
+
+    res.json({
+      message: 'Historieneintrag wurde gelöscht.',
+      deletedHistoryItemId: Number(id),
+    });
+  } catch (error) {
+    console.error('Error deleting inventory history:', error);
+    res.status(500).json({
+      error: 'Historieneintrag konnte nicht gelöscht werden.',
+    });
+  }
+});
+
 module.exports = router;
