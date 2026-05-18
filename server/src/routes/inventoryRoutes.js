@@ -246,31 +246,120 @@ router.post('/', (req, res) => {
 router.delete('/:id', (req, res) => {
   try {
     const { id } = req.params;
+    const {
+      removalReason = 'verbraucht',
+      productBuyAgainStatus = null,
+    } = req.body || {};
 
-    const existingItem = db.prepare(`
-      SELECT *
-      FROM inventory_items
-      WHERE id = ?
-      AND status = 'available'
-    `).get(id);
+    const allowedRemovalReasons = [
+      'verbraucht',
+      'abgelaufen',
+      'entsorgt',
+      'falsch_erfasst',
+      'verschenkt',
+      'sonstiges',
+    ];
 
-    if (!existingItem) {
+    const allowedBuyAgainStatuses = [
+      'neutral',
+      'wieder_kaufen',
+      'nicht_wieder_kaufen',
+      'testen',
+    ];
+
+    const safeRemovalReason = allowedRemovalReasons.includes(removalReason)
+      ? removalReason
+      : 'sonstiges';
+
+    const safeProductBuyAgainStatus =
+      productBuyAgainStatus &&
+      allowedBuyAgainStatuses.includes(productBuyAgainStatus)
+        ? productBuyAgainStatus
+        : null;
+
+    const removeInventoryItem = db.transaction(() => {
+      const existingItem = db.prepare(`
+        SELECT *
+        FROM inventory_items
+        WHERE id = ?
+        AND status = 'available'
+      `).get(id);
+
+      if (!existingItem) {
+        const error = new Error('Bestandseintrag wurde nicht gefunden.');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      db.prepare(`
+        UPDATE inventory_items
+        SET
+          status = 'removed',
+          notes = CASE
+            WHEN notes IS NULL OR notes = ''
+              THEN ?
+            ELSE notes || ' | ' || ?
+          END,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(
+        `Entfernt: ${safeRemovalReason}`,
+        `Entfernt: ${safeRemovalReason}`,
+        id
+      );
+
+      if (existingItem.label_slot_id) {
+        db.prepare(`
+          UPDATE label_slots
+          SET
+            status = 'free',
+            current_inventory_item_id = NULL,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `).run(existingItem.label_slot_id);
+      }
+
+      let updatedProduct = null;
+
+      if (safeProductBuyAgainStatus) {
+        db.prepare(`
+          UPDATE products
+          SET
+            buy_again_status = ?,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `).run(safeProductBuyAgainStatus, existingItem.product_id);
+
+        updatedProduct = db.prepare(`
+          SELECT *
+          FROM products
+          WHERE id = ?
+        `).get(existingItem.product_id);
+      }
+
+      return {
+        releasedLabelSlotId: existingItem.label_slot_id || null,
+        product: updatedProduct,
+      };
+    });
+
+    const result = removeInventoryItem();
+
+    res.json({
+      message: 'Bestandseintrag wurde entfernt.',
+      removalReason: safeRemovalReason,
+      releasedLabelSlotId: result.releasedLabelSlotId,
+      product: result.product,
+    });
+  } catch (error) {
+    console.error('Error removing inventory item:', error);
+
+    if (error.statusCode === 404) {
       return res.status(404).json({
-        error: 'Bestandseintrag wurde nicht gefunden.',
+        error: error.message,
       });
     }
 
-    db.prepare(`
-      UPDATE inventory_items
-      SET
-        status = 'removed',
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(id);
-
-    res.json({ message: 'Bestandseintrag wurde entfernt.' });
-  } catch (error) {
-    console.error('Error removing inventory item:', error);
     res.status(500).json({
       error: 'Bestandseintrag konnte nicht entfernt werden.',
     });

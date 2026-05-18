@@ -290,6 +290,52 @@ function App() {
     );
   }
 
+  function getLatestInventoryItemForProduct(productId) {
+    return inventoryItems
+      .filter((item) => item.product_id === Number(productId))
+      .sort((a, b) =>
+        String(b.created_at).localeCompare(String(a.created_at)),
+      )[0];
+  }
+
+  function handleInventoryProductChange(productId) {
+    const latestItem = getLatestInventoryItemForProduct(productId);
+
+    setInventoryForm((currentForm) => ({
+      ...currentForm,
+      productId,
+
+      storageUnitId: latestItem ? String(latestItem.storage_unit_id) : "",
+      storageCompartmentId: latestItem?.storage_compartment_id
+        ? String(latestItem.storage_compartment_id)
+        : "",
+
+      originalQuantity: latestItem?.original_quantity
+        ? String(latestItem.original_quantity)
+        : "",
+      originalUnit: latestItem?.original_unit || "g",
+
+      remainingQuantity: "",
+      remainingUnit:
+        latestItem?.remaining_unit || latestItem?.original_unit || "g",
+      remainingFraction: "",
+
+      quantityEstimated: latestItem?.quantity_estimated === 1,
+      packageState: latestItem?.package_state || "ungeoeffnet",
+
+      bestBeforeDate: "",
+      frozenDate: "",
+      openedDate: "",
+
+      isFrozenChilledFood: latestItem?.is_frozen_chilled_food === 1,
+      internalExtensionMonths: latestItem?.internal_extension_months
+        ? String(latestItem.internal_extension_months)
+        : "6",
+
+      notes: "",
+    }));
+  }
+
   function getInventoryStorageFilterOptions() {
     const storageOptions = inventoryItems.map((item) => ({
       id: item.storage_unit_id,
@@ -558,29 +604,93 @@ function App() {
     }
   }
 
-  async function removeInventoryItem(itemId) {
-    const confirmed = window.confirm(
-      "Diesen Bestandseintrag entfernen? Er wird nicht endgültig gelöscht.",
+  async function removeInventoryItem(item) {
+    const removalReason = window.prompt(
+      [
+        "Warum wird der Bestand entfernt?",
+        "",
+        "Mögliche Gründe:",
+        "- verbraucht",
+        "- abgelaufen",
+        "- entsorgt",
+        "- falsch_erfasst",
+        "- verschenkt",
+        "- sonstiges",
+      ].join("\n"),
+      "verbraucht",
     );
 
-    if (!confirmed) {
+    if (removalReason === null) {
+      return;
+    }
+
+    const ratingChoice = window.prompt(
+      [
+        "Produktbewertung ändern?",
+        "",
+        "Mögliche Werte:",
+        "- unverändert",
+        "- wieder_kaufen",
+        "- nicht_wieder_kaufen",
+        "- testen",
+      ].join("\n"),
+      "unverändert",
+    );
+
+    if (ratingChoice === null) {
+      return;
+    }
+
+    const normalizedRatingChoice = ratingChoice.trim();
+
+    const allowedRatingChoices = [
+      "unverändert",
+      "wieder_kaufen",
+      "nicht_wieder_kaufen",
+      "testen",
+    ];
+
+    if (!allowedRatingChoices.includes(normalizedRatingChoice)) {
+      setErrorMessage(
+        "Ungültige Bewertung. Bitte unverändert, wieder_kaufen, nicht_wieder_kaufen oder testen eingeben.",
+      );
       return;
     }
 
     try {
       setErrorMessage("");
 
-      const response = await fetch(`${API_BASE_URL}/inventory/${itemId}`, {
+      const response = await fetch(`${API_BASE_URL}/inventory/${item.id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          removalReason: removalReason.trim() || "sonstiges",
+          productBuyAgainStatus:
+            normalizedRatingChoice === "unverändert"
+              ? null
+              : normalizedRatingChoice,
+        }),
       });
 
       if (!response.ok) {
         throw new Error("Bestand konnte nicht entfernt werden.");
       }
 
+      const result = await response.json();
+
       setInventoryItems((currentItems) =>
-        currentItems.filter((item) => item.id !== itemId),
+        currentItems.filter((currentItem) => currentItem.id !== item.id),
       );
+
+      if (result.product) {
+        setProducts((currentProducts) =>
+          currentProducts.map((product) =>
+            product.id === result.product.id ? result.product : product,
+          ),
+        );
+      }
     } catch (error) {
       console.error(error);
       setErrorMessage("Bestand konnte nicht entfernt werden.");
@@ -834,7 +944,7 @@ function App() {
               <select
                 value={inventoryForm.productId}
                 onChange={(event) =>
-                  updateInventoryForm("productId", event.target.value)
+                  handleInventoryProductChange(event.target.value)
                 }
               >
                 <option value="">Produkt auswählen</option>
@@ -1215,7 +1325,7 @@ function App() {
                 <button
                   type="button"
                   className="danger-button"
-                  onClick={() => removeInventoryItem(item.id)}
+                  onClick={() => removeInventoryItem(item)}
                 >
                   Entfernen
                 </button>
