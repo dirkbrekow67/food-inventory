@@ -122,6 +122,49 @@ function getInventoryDateStatusLabel(status) {
   }
 }
 
+function getRemovalReasonLabel(reason) {
+  switch (reason) {
+    case "verbraucht":
+      return "Verbraucht";
+    case "abgelaufen":
+      return "Abgelaufen";
+    case "entsorgt":
+      return "Entsorgt";
+    case "falsch_erfasst":
+      return "Falsch erfasst";
+    case "verschenkt":
+      return "Verschenkt";
+    case "sonstiges":
+      return "Sonstiges";
+    default:
+      return "Unbekannt";
+  }
+}
+
+function getExperienceReasonLabel(reason) {
+  switch (reason) {
+    case "zu_viel_gekauft":
+      return "Zu viel gekauft";
+    case "kein_bedarf":
+      return "Kein Bedarf";
+    case "vergessen_uebersehen":
+      return "Vergessen / übersehen";
+    case "lagerort_unguenstig":
+      return "Lagerort ungünstig";
+    case "qualitaet_schlecht":
+      return "Qualität schlecht";
+    case "rezeptur_geschmack_veraendert":
+      return "Rezeptur / Geschmack verändert";
+    case "preis_leistung_schlecht":
+      return "Preis-Leistung schlecht";
+    case "sonstiges":
+      return "Sonstiges";
+    case "keine":
+    default:
+      return "Keine besondere Erkenntnis";
+  }
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -129,6 +172,11 @@ function App() {
   const [loadingStorage, setLoadingStorage] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingInventory, setLoadingInventory] = useState(true);
+  const [historyItems, setHistoryItems] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [historySearchTerm, setHistorySearchTerm] = useState("");
+  const [historyReasonFilter, setHistoryReasonFilter] = useState("all");
+  const [historyBuyAgainFilter, setHistoryBuyAgainFilter] = useState("all");
   const [errorMessage, setErrorMessage] = useState("");
 
   const [productForm, setProductForm] = useState({
@@ -183,12 +231,17 @@ function App() {
       try {
         setErrorMessage("");
 
-        const [storageResponse, productsResponse, inventoryResponse] =
-          await Promise.all([
-            fetch(`${API_BASE_URL}/storage/tree`),
-            fetch(`${API_BASE_URL}/products`),
-            fetch(`${API_BASE_URL}/inventory`),
-          ]);
+        const [
+          storageResponse,
+          productsResponse,
+          inventoryResponse,
+          historyResponse,
+        ] = await Promise.all([
+          fetch(`${API_BASE_URL}/storage/tree`),
+          fetch(`${API_BASE_URL}/products`),
+          fetch(`${API_BASE_URL}/inventory`),
+          fetch(`${API_BASE_URL}/history`),
+        ]);
 
         if (!storageResponse.ok) {
           throw new Error("Lagerstruktur konnte nicht geladen werden.");
@@ -202,13 +255,19 @@ function App() {
           throw new Error("Bestand konnte nicht geladen werden.");
         }
 
+        if (!historyResponse.ok) {
+          throw new Error("Produkthistorie konnte nicht geladen werden.");
+        }
+
         const storageData = await storageResponse.json();
         const productData = await productsResponse.json();
         const inventoryData = await inventoryResponse.json();
+        const historyData = await historyResponse.json();
 
         setStorageTree(storageData);
         setProducts(productData);
         setInventoryItems(inventoryData);
+        setHistoryItems(historyData);
       } catch (error) {
         console.error(error);
         setErrorMessage(
@@ -218,6 +277,7 @@ function App() {
         setLoadingStorage(false);
         setLoadingProducts(false);
         setLoadingInventory(false);
+        setLoadingHistory(false);
       }
     }
 
@@ -396,6 +456,49 @@ function App() {
         String(item.storage_unit_id) === inventoryStorageFilter;
 
       return matchesSearch && matchesStatus && matchesStorage;
+    });
+  }
+
+  function matchesHistorySearch(item, searchTerm) {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+    if (!normalizedSearchTerm) {
+      return true;
+    }
+
+    const searchableText = [
+      item.product_name,
+      item.product_brand,
+      item.product_category,
+      item.product_country,
+      item.product_store,
+      item.label_code,
+      item.removal_reason,
+      item.product_buy_again_status_after_removal,
+      item.experience_reason,
+      item.experience_note,
+      item.notes,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(normalizedSearchTerm);
+  }
+
+  function getFilteredHistoryItems() {
+    return historyItems.filter((item) => {
+      const matchesSearch = matchesHistorySearch(item, historySearchTerm);
+
+      const matchesReason =
+        historyReasonFilter === "all" ||
+        item.removal_reason === historyReasonFilter;
+
+      const matchesBuyAgain =
+        historyBuyAgainFilter === "all" ||
+        item.product_buy_again_status_after_removal === historyBuyAgainFilter;
+
+      return matchesSearch && matchesReason && matchesBuyAgain;
     });
   }
 
@@ -681,6 +784,15 @@ function App() {
 
       const result = await response.json();
 
+      if (result.savedToHistory) {
+        const historyResponse = await fetch(`${API_BASE_URL}/history`);
+
+        if (historyResponse.ok) {
+          const historyData = await historyResponse.json();
+          setHistoryItems(historyData);
+        }
+      }
+
       setInventoryItems((currentItems) =>
         currentItems.filter(
           (currentItem) => currentItem.id !== removalDialogItem.id,
@@ -715,6 +827,11 @@ function App() {
     Boolean(inventorySearchTerm.trim()) ||
     inventoryStatusFilter !== "all" ||
     inventoryStorageFilter !== "all";
+  const filteredHistoryItems = getFilteredHistoryItems();
+  const hasActiveHistoryFilters =
+    Boolean(historySearchTerm.trim()) ||
+    historyReasonFilter !== "all" ||
+    historyBuyAgainFilter !== "all";
 
   return (
     <main className="app-shell">
@@ -1342,6 +1459,164 @@ function App() {
                   Entfernen
                 </button>
               </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="card">
+        <div className="section-header">
+          <div>
+            <h2>Produkthistorie</h2>
+            <p>
+              Gespeicherte Produkterfahrungen für spätere
+              Einkaufsentscheidungen.
+            </p>
+          </div>
+        </div>
+
+        <div className="history-overview-header">
+          <div>
+            <h3>Historieneinträge</h3>
+            <p className="muted">
+              Nur ausgewählte Entnahmen werden hier als Produkterfahrung
+              gespeichert.
+            </p>
+          </div>
+
+          <span className="result-count">
+            {filteredHistoryItems.length} von {historyItems.length} Einträgen
+          </span>
+        </div>
+
+        <div className="history-toolbar">
+          <label className="history-search">
+            Historie suchen
+            <input
+              type="search"
+              value={historySearchTerm}
+              onChange={(event) => setHistorySearchTerm(event.target.value)}
+              placeholder="z. B. Ravioli, Coop, Italien, F001, vergessen"
+            />
+          </label>
+
+          <div className="history-filter-row">
+            <label>
+              Grund
+              <select
+                value={historyReasonFilter}
+                onChange={(event) => setHistoryReasonFilter(event.target.value)}
+              >
+                <option value="all">Alle Gründe</option>
+                <option value="verbraucht">Verbraucht</option>
+                <option value="abgelaufen">Abgelaufen</option>
+                <option value="entsorgt">Entsorgt</option>
+                <option value="verschenkt">Verschenkt</option>
+                <option value="sonstiges">Sonstiges</option>
+              </select>
+            </label>
+
+            <label>
+              Bewertung danach
+              <select
+                value={historyBuyAgainFilter}
+                onChange={(event) =>
+                  setHistoryBuyAgainFilter(event.target.value)
+                }
+              >
+                <option value="all">Alle Bewertungen</option>
+                <option value="neutral">Neutral</option>
+                <option value="wieder_kaufen">Wieder kaufen</option>
+                <option value="nicht_wieder_kaufen">Nicht wieder kaufen</option>
+                <option value="testen">Erst testen</option>
+              </select>
+            </label>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => {
+                setHistorySearchTerm("");
+                setHistoryReasonFilter("all");
+                setHistoryBuyAgainFilter("all");
+              }}
+              disabled={!hasActiveHistoryFilters}
+            >
+              Filter zurücksetzen
+            </button>
+          </div>
+        </div>
+
+        {loadingHistory && (
+          <p className="muted">Produkthistorie wird geladen...</p>
+        )}
+
+        {!loadingHistory && historyItems.length === 0 && (
+          <p className="muted">Noch keine Produkthistorie vorhanden.</p>
+        )}
+
+        {!loadingHistory &&
+          historyItems.length > 0 &&
+          filteredHistoryItems.length === 0 && (
+            <p className="muted">Keine passenden Historieneinträge gefunden.</p>
+          )}
+
+        <div className="history-list">
+          {filteredHistoryItems.map((item) => (
+            <article className="history-card" key={item.id}>
+              <div className="history-card-header">
+                <div>
+                  <h3>{item.product_name}</h3>
+                  <p className="muted">
+                    {[item.product_brand, item.product_category]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </div>
+
+                <div className="inventory-status-group">
+                  {item.label_code && (
+                    <span className="label-code">{item.label_code}</span>
+                  )}
+
+                  <span className="history-reason">
+                    {getRemovalReasonLabel(item.removal_reason)}
+                  </span>
+
+                  {item.product_buy_again_status_after_removal && (
+                    <span
+                      className={`buy-again buy-again-${item.product_buy_again_status_after_removal}`}
+                    >
+                      {getBuyAgainLabel(
+                        item.product_buy_again_status_after_removal,
+                      )}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="history-meta">
+                {item.product_country && <span>{item.product_country}</span>}
+                {item.product_store && <span>{item.product_store}</span>}
+                {item.removed_at && (
+                  <span>
+                    Entfernt: {formatDateGerman(item.removed_at.slice(0, 10))}
+                  </span>
+                )}
+                {item.experience_reason && (
+                  <span>
+                    {getExperienceReasonLabel(item.experience_reason)}
+                  </span>
+                )}
+              </div>
+
+              {item.experience_note && (
+                <p className="product-notes">{item.experience_note}</p>
+              )}
+
+              {item.notes && (
+                <p className="history-technical-note">{item.notes}</p>
+              )}
             </article>
           ))}
         </div>

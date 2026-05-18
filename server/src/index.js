@@ -5,6 +5,7 @@ const { runMigrations } = require('./migrations');
 const storageRoutes = require('./routes/storageRoutes');
 const productRoutes = require('./routes/productRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const historyRoutes = require('./routes/historyRoutes');
 
 runMigrations();
 
@@ -24,6 +25,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/storage', storageRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/history', historyRoutes);
 
 app.listen(PORT, () => {
   console.log(`Food inventory server läuft auf http://localhost:${PORT}`);
