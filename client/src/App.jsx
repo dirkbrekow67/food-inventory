@@ -177,6 +177,7 @@ function App() {
   const [historySearchTerm, setHistorySearchTerm] = useState("");
   const [historyReasonFilter, setHistoryReasonFilter] = useState("all");
   const [historyBuyAgainFilter, setHistoryBuyAgainFilter] = useState("all");
+  const [historyProductFilter, setHistoryProductFilter] = useState("all");
   const [errorMessage, setErrorMessage] = useState("");
   const [historyDialogItem, setHistoryDialogItem] = useState(null);
   const [historyEditReason, setHistoryEditReason] = useState("sonstiges");
@@ -489,6 +490,17 @@ function App() {
     };
   }
 
+  function showProductHistory(product) {
+    setHistoryProductFilter(String(product.id));
+    setHistorySearchTerm("");
+    setHistoryReasonFilter("all");
+    setHistoryBuyAgainFilter("all");
+
+    document
+      .getElementById("product-history-section")
+      ?.scrollIntoView({ behavior: "smooth" });
+  }
+
   function matchesHistorySearch(item, searchTerm) {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
@@ -528,7 +540,13 @@ function App() {
         historyBuyAgainFilter === "all" ||
         item.product_buy_again_status_after_removal === historyBuyAgainFilter;
 
-      return matchesSearch && matchesReason && matchesBuyAgain;
+      const matchesProduct =
+        historyProductFilter === "all" ||
+        String(item.product_id) === historyProductFilter;
+
+      return (
+        matchesSearch && matchesReason && matchesBuyAgain && matchesProduct
+      );
     });
   }
 
@@ -982,7 +1000,13 @@ function App() {
   const hasActiveHistoryFilters =
     Boolean(historySearchTerm.trim()) ||
     historyReasonFilter !== "all" ||
-    historyBuyAgainFilter !== "all";
+    historyBuyAgainFilter !== "all" ||
+    historyProductFilter !== "all";
+
+  const selectedHistoryProduct =
+    historyProductFilter === "all"
+      ? null
+      : products.find((product) => String(product.id) === historyProductFilter);
 
   return (
     <main className="app-shell">
@@ -1228,6 +1252,15 @@ function App() {
                 <button type="button" onClick={() => startEditProduct(product)}>
                   Bearbeiten
                 </button>
+
+                {getProductHistorySummary(product.id).count > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => showProductHistory(product)}
+                  >
+                    Historie anzeigen
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -1690,7 +1723,7 @@ function App() {
         </div>
       </section>
 
-      <section className="card">
+      <section className="card" id="product-history-section">
         <div className="section-header">
           <div>
             <h2>Produkthistorie</h2>
@@ -1708,6 +1741,16 @@ function App() {
               Nur ausgewählte Entnahmen werden hier als Produkterfahrung
               gespeichert.
             </p>
+
+            {historyProductFilter !== "all" && (
+              <p className="muted">
+                Gefiltert nach Produkt:{" "}
+                {selectedHistoryProduct
+                  ? selectedHistoryProduct.name
+                  : `Produkt-ID ${historyProductFilter}`}
+                .
+              </p>
+            )}
           </div>
 
           <span className="result-count">
@@ -1765,6 +1808,7 @@ function App() {
                 setHistorySearchTerm("");
                 setHistoryReasonFilter("all");
                 setHistoryBuyAgainFilter("all");
+                setHistoryProductFilter("all");
               }}
               disabled={!hasActiveHistoryFilters}
             >
