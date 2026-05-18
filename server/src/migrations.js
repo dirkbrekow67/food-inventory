@@ -136,11 +136,17 @@ function createInventoryHistoryTable() {
       removed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       removal_reason TEXT NOT NULL,
       product_buy_again_status_after_removal TEXT,
+      experience_reason TEXT,
+      experience_note TEXT,
       notes TEXT,
 
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+
+  addColumnIfMissing('inventory_history', 'experience_reason', 'TEXT');
+  addColumnIfMissing('inventory_history', 'experience_note', 'TEXT');
+
 }
 
 function createInventoryItemsTable() {

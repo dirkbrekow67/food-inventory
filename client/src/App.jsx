@@ -171,6 +171,9 @@ function App() {
   const [removalProductStatus, setRemovalProductStatus] =
     useState("unverändert");
   const [removingInventoryItem, setRemovingInventoryItem] = useState(false);
+  const [saveRemovalToHistory, setSaveRemovalToHistory] = useState(false);
+  const [experienceReason, setExperienceReason] = useState("keine");
+  const [experienceNote, setExperienceNote] = useState("");
 
   const [savingProduct, setSavingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
@@ -609,10 +612,25 @@ function App() {
     }
   }
 
+  function shouldSuggestHistory(reason, productStatus) {
+    if (reason === "falsch_erfasst") {
+      return false;
+    }
+
+    if (reason === "abgelaufen" || reason === "entsorgt") {
+      return true;
+    }
+
+    return productStatus !== "unverändert";
+  }
+
   function openRemovalDialog(item) {
     setRemovalDialogItem(item);
     setRemovalReason("verbraucht");
     setRemovalProductStatus("unverändert");
+    setSaveRemovalToHistory(false);
+    setExperienceReason("keine");
+    setExperienceNote("");
   }
 
   function closeRemovalDialog() {
@@ -623,6 +641,9 @@ function App() {
     setRemovalDialogItem(null);
     setRemovalReason("verbraucht");
     setRemovalProductStatus("unverändert");
+    setSaveRemovalToHistory(false);
+    setExperienceReason("keine");
+    setExperienceNote("");
   }
 
   async function confirmRemoveInventoryItem() {
@@ -647,6 +668,9 @@ function App() {
               removalProductStatus === "unverändert"
                 ? null
                 : removalProductStatus,
+            saveToHistory: saveRemovalToHistory,
+            experienceReason,
+            experienceNote,
           }),
         },
       );
@@ -674,6 +698,9 @@ function App() {
       setRemovalDialogItem(null);
       setRemovalReason("verbraucht");
       setRemovalProductStatus("unverändert");
+      setSaveRemovalToHistory(false);
+      setExperienceReason("keine");
+      setExperienceNote("");
     } catch (error) {
       console.error(error);
       setErrorMessage("Bestand konnte nicht entfernt werden.");
@@ -1396,7 +1423,18 @@ function App() {
                 Grund
                 <select
                   value={removalReason}
-                  onChange={(event) => setRemovalReason(event.target.value)}
+                  onChange={(event) => {
+                    const nextReason = event.target.value;
+                    setRemovalReason(nextReason);
+                    setSaveRemovalToHistory(
+                      shouldSuggestHistory(nextReason, removalProductStatus),
+                    );
+
+                    if (nextReason === "falsch_erfasst") {
+                      setExperienceReason("keine");
+                      setExperienceNote("");
+                    }
+                  }}
                   disabled={removingInventoryItem}
                 >
                   <option value="verbraucht">Verbraucht</option>
@@ -1412,9 +1450,13 @@ function App() {
                 Produktbewertung
                 <select
                   value={removalProductStatus}
-                  onChange={(event) =>
-                    setRemovalProductStatus(event.target.value)
-                  }
+                  onChange={(event) => {
+                    const nextStatus = event.target.value;
+                    setRemovalProductStatus(nextStatus);
+                    setSaveRemovalToHistory(
+                      shouldSuggestHistory(removalReason, nextStatus),
+                    );
+                  }}
                   disabled={removingInventoryItem}
                 >
                   <option value="unverändert">Unverändert</option>
@@ -1425,6 +1467,67 @@ function App() {
                   <option value="testen">Erst testen</option>
                 </select>
               </label>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={saveRemovalToHistory}
+                  onChange={(event) =>
+                    setSaveRemovalToHistory(event.target.checked)
+                  }
+                  disabled={
+                    removingInventoryItem || removalReason === "falsch_erfasst"
+                  }
+                />
+                In Produkthistorie speichern
+              </label>
+
+              {saveRemovalToHistory && (
+                <>
+                  <label>
+                    Erkenntnis
+                    <select
+                      value={experienceReason}
+                      onChange={(event) =>
+                        setExperienceReason(event.target.value)
+                      }
+                      disabled={removingInventoryItem}
+                    >
+                      <option value="keine">Keine besondere Erkenntnis</option>
+                      <option value="zu_viel_gekauft">Zu viel gekauft</option>
+                      <option value="kein_bedarf">Kein Bedarf</option>
+                      <option value="vergessen_uebersehen">
+                        Vergessen / übersehen
+                      </option>
+                      <option value="lagerort_unguenstig">
+                        Lagerort ungünstig
+                      </option>
+                      <option value="qualitaet_schlecht">
+                        Qualität schlecht
+                      </option>
+                      <option value="rezeptur_geschmack_veraendert">
+                        Rezeptur / Geschmack verändert
+                      </option>
+                      <option value="preis_leistung_schlecht">
+                        Preis-Leistung schlecht
+                      </option>
+                      <option value="sonstiges">Sonstiges</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Notiz zur Produkterfahrung
+                    <textarea
+                      value={experienceNote}
+                      onChange={(event) =>
+                        setExperienceNote(event.target.value)
+                      }
+                      disabled={removingInventoryItem}
+                      placeholder="z. B. lag lange herum, wurde vergessen, schmeckt anders als früher"
+                      rows="3"
+                    />
+                  </label>
+                </>
+              )}
             </div>
 
             <div className="dialog-actions">

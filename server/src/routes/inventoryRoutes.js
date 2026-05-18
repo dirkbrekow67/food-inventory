@@ -249,6 +249,9 @@ router.delete('/:id', (req, res) => {
     const {
       removalReason = 'verbraucht',
       productBuyAgainStatus = null,
+      saveToHistory = false,
+      experienceReason = 'keine',
+      experienceNote = null,
     } = req.body || {};
 
     const allowedRemovalReasons = [
@@ -266,6 +269,30 @@ router.delete('/:id', (req, res) => {
       'nicht_wieder_kaufen',
       'testen',
     ];
+
+    const allowedExperienceReasons = [
+      'keine',
+      'zu_viel_gekauft',
+      'kein_bedarf',
+      'vergessen_uebersehen',
+      'lagerort_unguenstig',
+      'qualitaet_schlecht',
+      'rezeptur_geschmack_veraendert',
+      'preis_leistung_schlecht',
+      'sonstiges',
+    ];
+
+    const safeExperienceReason = allowedExperienceReasons.includes(experienceReason)
+      ? experienceReason
+      : 'sonstiges';
+
+    const safeExperienceNote =
+      typeof experienceNote === 'string' && experienceNote.trim()
+        ? experienceNote.trim()
+        : null;
+
+    const shouldSaveToHistory =
+      saveToHistory === true || saveToHistory === 1 || saveToHistory === 'true';
 
     const safeRemovalReason = allowedRemovalReasons.includes(removalReason)
       ? removalReason
@@ -351,7 +378,8 @@ router.delete('/:id', (req, res) => {
       }
       const historyProductBuyAgainStatus = safeProductBuyAgainStatus || existingItem.product_buy_again_status;
 
-      db.prepare(`
+      if (shouldSaveToHistory) {
+        db.prepare(`
           INSERT INTO inventory_history
           (
             product_id,
@@ -363,9 +391,11 @@ router.delete('/:id', (req, res) => {
             label_code,
             removal_reason,
             product_buy_again_status_after_removal,
+            experience_reason,
+            experience_note,
             notes
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           existingItem.product_id,
           existingItem.product_name,
@@ -376,8 +406,11 @@ router.delete('/:id', (req, res) => {
           existingItem.label_code,
           safeRemovalReason,
           historyProductBuyAgainStatus,
+          safeExperienceReason,
+          safeExperienceNote,
           existingItem.notes
         );
+      }
 
       return {
         releasedLabelSlotId: existingItem.label_slot_id || null,
@@ -390,6 +423,7 @@ router.delete('/:id', (req, res) => {
     res.json({
       message: 'Bestandseintrag wurde entfernt.',
       removalReason: safeRemovalReason,
+      savedToHistory: shouldSaveToHistory,
       releasedLabelSlotId: result.releasedLabelSlotId,
       product: result.product,
     });
