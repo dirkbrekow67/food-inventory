@@ -459,6 +459,24 @@ function App() {
     });
   }
 
+  function getHistoryItemsForProduct(productId) {
+    return historyItems.filter((item) => item.product_id === Number(productId));
+  }
+
+  function getLatestHistoryItemForProduct(productId) {
+    return getHistoryItemsForProduct(productId)[0] || null;
+  }
+
+  function getProductHistorySummary(productId) {
+    const productHistoryItems = getHistoryItemsForProduct(productId);
+    const latestHistoryItem = getLatestHistoryItemForProduct(productId);
+
+    return {
+      count: productHistoryItems.length,
+      latestItem: latestHistoryItem,
+    };
+  }
+
   function matchesHistorySearch(item, searchTerm) {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
@@ -1035,6 +1053,41 @@ function App() {
                 {getBuyAgainLabel(product.buy_again_status)}
               </div>
 
+              {getProductHistorySummary(product.id).count > 0 && (
+                <div className="product-history-hint">
+                  <strong>
+                    Historie: {getProductHistorySummary(product.id).count}{" "}
+                    {getProductHistorySummary(product.id).count === 1
+                      ? "Eintrag"
+                      : "Einträge"}
+                  </strong>
+
+                  {getProductHistorySummary(product.id).latestItem && (
+                    <span>
+                      Letzte Erfahrung:{" "}
+                      {getRemovalReasonLabel(
+                        getProductHistorySummary(product.id).latestItem
+                          .removal_reason,
+                      )}
+                      {getProductHistorySummary(product.id).latestItem
+                        .product_buy_again_status_after_removal
+                        ? ` · ${getBuyAgainLabel(
+                            getProductHistorySummary(product.id).latestItem
+                              .product_buy_again_status_after_removal,
+                          )}`
+                        : ""}
+                      {getProductHistorySummary(product.id).latestItem
+                        .experience_reason
+                        ? ` · ${getExperienceReasonLabel(
+                            getProductHistorySummary(product.id).latestItem
+                              .experience_reason,
+                          )}`
+                        : ""}
+                    </span>
+                  )}
+                </div>
+              )}
+
               {product.notes && (
                 <p className="product-notes">{product.notes}</p>
               )}
@@ -1085,6 +1138,46 @@ function App() {
                 ))}
               </select>
             </label>
+
+            {inventoryForm.productId &&
+              getProductHistorySummary(inventoryForm.productId).count > 0 && (
+                <div className="inventory-history-hint">
+                  <strong>
+                    {getProductHistorySummary(inventoryForm.productId).count}{" "}
+                    gespeicherte{" "}
+                    {getProductHistorySummary(inventoryForm.productId).count ===
+                    1
+                      ? "Erfahrung"
+                      : "Erfahrungen"}
+                  </strong>
+
+                  {getProductHistorySummary(inventoryForm.productId)
+                    .latestItem && (
+                    <span>
+                      Letzte Erfahrung:{" "}
+                      {getRemovalReasonLabel(
+                        getProductHistorySummary(inventoryForm.productId)
+                          .latestItem.removal_reason,
+                      )}
+                      {getProductHistorySummary(inventoryForm.productId)
+                        .latestItem.product_buy_again_status_after_removal
+                        ? ` · ${getBuyAgainLabel(
+                            getProductHistorySummary(inventoryForm.productId)
+                              .latestItem
+                              .product_buy_again_status_after_removal,
+                          )}`
+                        : ""}
+                      {getProductHistorySummary(inventoryForm.productId)
+                        .latestItem.experience_reason
+                        ? ` · ${getExperienceReasonLabel(
+                            getProductHistorySummary(inventoryForm.productId)
+                              .latestItem.experience_reason,
+                          )}`
+                        : ""}
+                    </span>
+                  )}
+                </div>
+              )}
 
             <label>
               Lagergerät *

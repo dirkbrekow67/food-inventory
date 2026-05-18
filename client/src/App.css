@@ -788,6 +788,29 @@ h4 {
   font-size: 0.9rem;
 }
 
+.product-history-hint,
+.inventory-history-hint {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 0.9rem;
+}
+
+.product-history-hint strong,
+.inventory-history-hint strong {
+  color: #1d4ed8;
+}
+
+.product-history-hint span,
+.inventory-history-hint span {
+  color: #334155;
+}
+
 @media (max-width: 560px) {
   .dialog-actions {
     flex-direction: column-reverse;
@@ -808,6 +831,6 @@ h4 {
   }
   .history-overview-header {
   flex-direction: column;
-}
+  }
 }
 
