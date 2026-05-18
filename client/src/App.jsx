@@ -166,6 +166,11 @@ function App() {
   const [inventorySearchTerm, setInventorySearchTerm] = useState("");
   const [inventoryStatusFilter, setInventoryStatusFilter] = useState("all");
   const [inventoryStorageFilter, setInventoryStorageFilter] = useState("all");
+  const [removalDialogItem, setRemovalDialogItem] = useState(null);
+  const [removalReason, setRemovalReason] = useState("verbraucht");
+  const [removalProductStatus, setRemovalProductStatus] =
+    useState("unverändert");
+  const [removingInventoryItem, setRemovingInventoryItem] = useState(false);
 
   const [savingProduct, setSavingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
@@ -604,75 +609,47 @@ function App() {
     }
   }
 
-  async function removeInventoryItem(item) {
-    const removalReason = window.prompt(
-      [
-        "Warum wird der Bestand entfernt?",
-        "",
-        "Mögliche Gründe:",
-        "- verbraucht",
-        "- abgelaufen",
-        "- entsorgt",
-        "- falsch_erfasst",
-        "- verschenkt",
-        "- sonstiges",
-      ].join("\n"),
-      "verbraucht",
-    );
+  function openRemovalDialog(item) {
+    setRemovalDialogItem(item);
+    setRemovalReason("verbraucht");
+    setRemovalProductStatus("unverändert");
+  }
 
-    if (removalReason === null) {
+  function closeRemovalDialog() {
+    if (removingInventoryItem) {
       return;
     }
 
-    const ratingChoice = window.prompt(
-      [
-        "Produktbewertung ändern?",
-        "",
-        "Mögliche Werte:",
-        "- unverändert",
-        "- wieder_kaufen",
-        "- nicht_wieder_kaufen",
-        "- testen",
-      ].join("\n"),
-      "unverändert",
-    );
+    setRemovalDialogItem(null);
+    setRemovalReason("verbraucht");
+    setRemovalProductStatus("unverändert");
+  }
 
-    if (ratingChoice === null) {
-      return;
-    }
-
-    const normalizedRatingChoice = ratingChoice.trim();
-
-    const allowedRatingChoices = [
-      "unverändert",
-      "wieder_kaufen",
-      "nicht_wieder_kaufen",
-      "testen",
-    ];
-
-    if (!allowedRatingChoices.includes(normalizedRatingChoice)) {
-      setErrorMessage(
-        "Ungültige Bewertung. Bitte unverändert, wieder_kaufen, nicht_wieder_kaufen oder testen eingeben.",
-      );
+  async function confirmRemoveInventoryItem() {
+    if (!removalDialogItem) {
       return;
     }
 
     try {
+      setRemovingInventoryItem(true);
       setErrorMessage("");
 
-      const response = await fetch(`${API_BASE_URL}/inventory/${item.id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE_URL}/inventory/${removalDialogItem.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            removalReason,
+            productBuyAgainStatus:
+              removalProductStatus === "unverändert"
+                ? null
+                : removalProductStatus,
+          }),
         },
-        body: JSON.stringify({
-          removalReason: removalReason.trim() || "sonstiges",
-          productBuyAgainStatus:
-            normalizedRatingChoice === "unverändert"
-              ? null
-              : normalizedRatingChoice,
-        }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Bestand konnte nicht entfernt werden.");
@@ -681,7 +658,9 @@ function App() {
       const result = await response.json();
 
       setInventoryItems((currentItems) =>
-        currentItems.filter((currentItem) => currentItem.id !== item.id),
+        currentItems.filter(
+          (currentItem) => currentItem.id !== removalDialogItem.id,
+        ),
       );
 
       if (result.product) {
@@ -691,9 +670,15 @@ function App() {
           ),
         );
       }
+
+      setRemovalDialogItem(null);
+      setRemovalReason("verbraucht");
+      setRemovalProductStatus("unverändert");
     } catch (error) {
       console.error(error);
       setErrorMessage("Bestand konnte nicht entfernt werden.");
+    } finally {
+      setRemovingInventoryItem(false);
     }
   }
 
@@ -1325,7 +1310,7 @@ function App() {
                 <button
                   type="button"
                   className="danger-button"
-                  onClick={() => removeInventoryItem(item)}
+                  onClick={() => openRemovalDialog(item)}
                 >
                   Entfernen
                 </button>
@@ -1384,6 +1369,86 @@ function App() {
           ))}
         </div>
       </section>
+      {removalDialogItem && (
+        <div className="dialog-backdrop" role="presentation">
+          <div
+            className="dialog-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="removal-dialog-title"
+          >
+            <h3 id="removal-dialog-title">Bestand entfernen</h3>
+
+            <p className="muted">
+              {removalDialogItem.product_name}
+              {removalDialogItem.label_code
+                ? ` · Etikett ${removalDialogItem.label_code}`
+                : ""}
+            </p>
+
+            <p className="dialog-warning">
+              Der Bestandseintrag wird entfernt. Eine vorhandene Etiketten-ID
+              wird wieder freigegeben und kann später erneut verwendet werden.
+            </p>
+
+            <div className="dialog-form">
+              <label>
+                Grund
+                <select
+                  value={removalReason}
+                  onChange={(event) => setRemovalReason(event.target.value)}
+                  disabled={removingInventoryItem}
+                >
+                  <option value="verbraucht">Verbraucht</option>
+                  <option value="abgelaufen">Abgelaufen</option>
+                  <option value="entsorgt">Entsorgt</option>
+                  <option value="falsch_erfasst">Falsch erfasst</option>
+                  <option value="verschenkt">Verschenkt</option>
+                  <option value="sonstiges">Sonstiges</option>
+                </select>
+              </label>
+
+              <label>
+                Produktbewertung
+                <select
+                  value={removalProductStatus}
+                  onChange={(event) =>
+                    setRemovalProductStatus(event.target.value)
+                  }
+                  disabled={removingInventoryItem}
+                >
+                  <option value="unverändert">Unverändert</option>
+                  <option value="wieder_kaufen">Wieder kaufen</option>
+                  <option value="nicht_wieder_kaufen">
+                    Nicht wieder kaufen
+                  </option>
+                  <option value="testen">Erst testen</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="dialog-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={closeRemovalDialog}
+                disabled={removingInventoryItem}
+              >
+                Abbrechen
+              </button>
+
+              <button
+                type="button"
+                className="danger-confirm-button"
+                onClick={confirmRemoveInventoryItem}
+                disabled={removingInventoryItem}
+              >
+                {removingInventoryItem ? "Entfernen..." : "Bestand entfernen"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -586,6 +586,100 @@ h4 {
   white-space: nowrap;
 }
 
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(15 23 42 / 0.45);
+}
+
+.dialog-card {
+  width: min(520px, 100%);
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgb(15 23 42 / 0.28);
+}
+
+.dialog-card h3 {
+  margin-bottom: 6px;
+}
+
+.dialog-warning {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.dialog-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.dialog-form label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.dialog-form select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.dialog-form select:focus {
+  outline: 3px solid #bfdbfe;
+  border-color: #2563eb;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.danger-confirm-button {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.danger-confirm-button:hover {
+  background: #b91c1c;
+}
+
+.danger-confirm-button:disabled {
+  cursor: not-allowed;
+  background: #fca5a5;
+}
+
+@media (max-width: 560px) {
+  .dialog-actions {
+    flex-direction: column-reverse;
+  }
+
+  .dialog-actions button {
+    width: 100%;
+  }
+}
+
 @media (max-width: 720px) {
   .inventory-overview-header {
     flex-direction: column;
