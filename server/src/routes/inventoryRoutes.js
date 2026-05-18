@@ -279,11 +279,24 @@ router.delete('/:id', (req, res) => {
 
     const removeInventoryItem = db.transaction(() => {
       const existingItem = db.prepare(`
-        SELECT *
-        FROM inventory_items
-        WHERE id = ?
-        AND status = 'available'
-      `).get(id);
+          SELECT
+            inventory_items.*,
+
+            products.name AS product_name,
+            products.brand AS product_brand,
+            products.category AS product_category,
+            products.country AS product_country,
+            products.store AS product_store,
+            products.buy_again_status AS product_buy_again_status,
+
+            label_slots.label_code AS label_code
+          FROM inventory_items
+          JOIN products ON products.id = inventory_items.product_id
+          LEFT JOIN label_slots
+            ON label_slots.id = inventory_items.label_slot_id
+          WHERE inventory_items.id = ?
+          AND inventory_items.status = 'available'
+        `).get(id);
 
       if (!existingItem) {
         const error = new Error('Bestandseintrag wurde nicht gefunden.');
@@ -336,6 +349,35 @@ router.delete('/:id', (req, res) => {
           WHERE id = ?
         `).get(existingItem.product_id);
       }
+      const historyProductBuyAgainStatus = safeProductBuyAgainStatus || existingItem.product_buy_again_status;
+
+      db.prepare(`
+          INSERT INTO inventory_history
+          (
+            product_id,
+            product_name,
+            product_brand,
+            product_category,
+            product_country,
+            product_store,
+            label_code,
+            removal_reason,
+            product_buy_again_status_after_removal,
+            notes
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          existingItem.product_id,
+          existingItem.product_name,
+          existingItem.product_brand,
+          existingItem.product_category,
+          existingItem.product_country,
+          existingItem.product_store,
+          existingItem.label_code,
+          safeRemovalReason,
+          historyProductBuyAgainStatus,
+          existingItem.notes
+        );
 
       return {
         releasedLabelSlotId: existingItem.label_slot_id || null,

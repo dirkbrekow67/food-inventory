@@ -119,6 +119,30 @@ function createLabelSlotsTable() {
   `).run();
 }
 
+function createInventoryHistoryTable() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS inventory_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+      product_id INTEGER,
+      product_name TEXT NOT NULL,
+      product_brand TEXT,
+      product_category TEXT,
+      product_country TEXT,
+      product_store TEXT,
+
+      label_code TEXT,
+
+      removed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      removal_reason TEXT NOT NULL,
+      product_buy_again_status_after_removal TEXT,
+      notes TEXT,
+
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+}
+
 function createInventoryItemsTable() {
   db.prepare(`
     CREATE TABLE IF NOT EXISTS inventory_items (
@@ -175,9 +199,11 @@ function runMigrations() {
   createProductsTable();
   createLabelSlotsTable();
   createInventoryItemsTable();
+  createInventoryHistoryTable();
 
   console.log('Datenbank-Migrationen abgeschlossen.');
 }
+
 
 module.exports = {
   runMigrations,
