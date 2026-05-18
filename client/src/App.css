@@ -811,6 +811,25 @@ h4 {
   color: #334155;
 }
 
+.primary-confirm-button {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-confirm-button:hover {
+  background: #1d4ed8;
+}
+
+.primary-confirm-button:disabled {
+  cursor: not-allowed;
+  background: #93c5fd;
+}
+
 @media (max-width: 560px) {
   .dialog-actions {
     flex-direction: column-reverse;
@@ -829,6 +848,7 @@ h4 {
   .result-count {
     align-self: flex-start;
   }
+  
   .history-overview-header {
   flex-direction: column;
   }

@@ -178,6 +178,16 @@ function App() {
   const [historyReasonFilter, setHistoryReasonFilter] = useState("all");
   const [historyBuyAgainFilter, setHistoryBuyAgainFilter] = useState("all");
   const [errorMessage, setErrorMessage] = useState("");
+  const [historyDialogItem, setHistoryDialogItem] = useState(null);
+  const [historyEditReason, setHistoryEditReason] = useState("sonstiges");
+  const [historyEditBuyAgainStatus, setHistoryEditBuyAgainStatus] =
+    useState("neutral");
+  const [historyEditExperienceReason, setHistoryEditExperienceReason] =
+    useState("keine");
+  const [historyEditExperienceNote, setHistoryEditExperienceNote] =
+    useState("");
+  const [historyEditNotes, setHistoryEditNotes] = useState("");
+  const [savingHistoryItem, setSavingHistoryItem] = useState(false);
 
   const [productForm, setProductForm] = useState({
     name: "",
@@ -730,6 +740,82 @@ function App() {
       setErrorMessage("Bestand konnte nicht gespeichert werden.");
     } finally {
       setSavingInventoryItem(false);
+    }
+  }
+
+  function openHistoryDialog(item) {
+    setHistoryDialogItem(item);
+    setHistoryEditReason(item.removal_reason || "sonstiges");
+    setHistoryEditBuyAgainStatus(
+      item.product_buy_again_status_after_removal || "neutral",
+    );
+    setHistoryEditExperienceReason(item.experience_reason || "keine");
+    setHistoryEditExperienceNote(item.experience_note || "");
+    setHistoryEditNotes(item.notes || "");
+  }
+
+  function closeHistoryDialog() {
+    if (savingHistoryItem) {
+      return;
+    }
+
+    setHistoryDialogItem(null);
+    setHistoryEditReason("sonstiges");
+    setHistoryEditBuyAgainStatus("neutral");
+    setHistoryEditExperienceReason("keine");
+    setHistoryEditExperienceNote("");
+    setHistoryEditNotes("");
+  }
+
+  async function confirmSaveHistoryItem() {
+    if (!historyDialogItem) {
+      return;
+    }
+
+    try {
+      setSavingHistoryItem(true);
+      setErrorMessage("");
+
+      const response = await fetch(
+        `${API_BASE_URL}/history/${historyDialogItem.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            removalReason: historyEditReason,
+            productBuyAgainStatus: historyEditBuyAgainStatus,
+            experienceReason: historyEditExperienceReason,
+            experienceNote: historyEditExperienceNote,
+            notes: historyEditNotes,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Historieneintrag konnte nicht gespeichert werden.");
+      }
+
+      const updatedHistoryItem = await response.json();
+
+      setHistoryItems((currentItems) =>
+        currentItems.map((item) =>
+          item.id === updatedHistoryItem.id ? updatedHistoryItem : item,
+        ),
+      );
+
+      setHistoryDialogItem(null);
+      setHistoryEditReason("sonstiges");
+      setHistoryEditBuyAgainStatus("neutral");
+      setHistoryEditExperienceReason("keine");
+      setHistoryEditExperienceNote("");
+      setHistoryEditNotes("");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Historieneintrag konnte nicht gespeichert werden.");
+    } finally {
+      setSavingHistoryItem(false);
     }
   }
 
@@ -1710,6 +1796,11 @@ function App() {
               {item.notes && (
                 <p className="history-technical-note">{item.notes}</p>
               )}
+              <div className="product-actions">
+                <button type="button" onClick={() => openHistoryDialog(item)}>
+                  Bearbeiten
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -1915,6 +2006,139 @@ function App() {
                 disabled={removingInventoryItem}
               >
                 {removingInventoryItem ? "Entfernen..." : "Bestand entfernen"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {historyDialogItem && (
+        <div className="dialog-backdrop" role="presentation">
+          <div
+            className="dialog-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="history-dialog-title"
+          >
+            <h3 id="history-dialog-title">Historieneintrag bearbeiten</h3>
+
+            <p className="muted">
+              {historyDialogItem.product_name}
+              {historyDialogItem.label_code
+                ? ` · Etikett ${historyDialogItem.label_code}`
+                : ""}
+            </p>
+
+            <p className="dialog-warning">
+              Hier wird nur die Produkthistorie nachbearbeitet. Bestand,
+              Produkt-ID und Etikettenfreigabe bleiben unverändert.
+            </p>
+
+            <div className="dialog-form">
+              <label>
+                Grund
+                <select
+                  value={historyEditReason}
+                  onChange={(event) => setHistoryEditReason(event.target.value)}
+                  disabled={savingHistoryItem}
+                >
+                  <option value="verbraucht">Verbraucht</option>
+                  <option value="abgelaufen">Abgelaufen</option>
+                  <option value="entsorgt">Entsorgt</option>
+                  <option value="falsch_erfasst">Falsch erfasst</option>
+                  <option value="verschenkt">Verschenkt</option>
+                  <option value="sonstiges">Sonstiges</option>
+                </select>
+              </label>
+
+              <label>
+                Bewertung danach
+                <select
+                  value={historyEditBuyAgainStatus}
+                  onChange={(event) =>
+                    setHistoryEditBuyAgainStatus(event.target.value)
+                  }
+                  disabled={savingHistoryItem}
+                >
+                  <option value="neutral">Neutral</option>
+                  <option value="wieder_kaufen">Wieder kaufen</option>
+                  <option value="nicht_wieder_kaufen">
+                    Nicht wieder kaufen
+                  </option>
+                  <option value="testen">Erst testen</option>
+                </select>
+              </label>
+
+              <label>
+                Erkenntnis
+                <select
+                  value={historyEditExperienceReason}
+                  onChange={(event) =>
+                    setHistoryEditExperienceReason(event.target.value)
+                  }
+                  disabled={savingHistoryItem}
+                >
+                  <option value="keine">Keine besondere Erkenntnis</option>
+                  <option value="zu_viel_gekauft">Zu viel gekauft</option>
+                  <option value="kein_bedarf">Kein Bedarf</option>
+                  <option value="vergessen_uebersehen">
+                    Vergessen / übersehen
+                  </option>
+                  <option value="lagerort_unguenstig">
+                    Lagerort ungünstig
+                  </option>
+                  <option value="qualitaet_schlecht">Qualität schlecht</option>
+                  <option value="rezeptur_geschmack_veraendert">
+                    Rezeptur / Geschmack verändert
+                  </option>
+                  <option value="preis_leistung_schlecht">
+                    Preis-Leistung schlecht
+                  </option>
+                  <option value="sonstiges">Sonstiges</option>
+                </select>
+              </label>
+
+              <label>
+                Notiz zur Produkterfahrung
+                <textarea
+                  value={historyEditExperienceNote}
+                  onChange={(event) =>
+                    setHistoryEditExperienceNote(event.target.value)
+                  }
+                  disabled={savingHistoryItem}
+                  placeholder="z. B. lag lange herum, wurde vergessen, schmeckt anders als früher"
+                  rows="3"
+                />
+              </label>
+
+              <label>
+                Interne Notiz
+                <textarea
+                  value={historyEditNotes}
+                  onChange={(event) => setHistoryEditNotes(event.target.value)}
+                  disabled={savingHistoryItem}
+                  placeholder="z. B. ursprüngliche technische Notiz oder Ergänzung"
+                  rows="3"
+                />
+              </label>
+            </div>
+
+            <div className="dialog-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={closeHistoryDialog}
+                disabled={savingHistoryItem}
+              >
+                Abbrechen
+              </button>
+
+              <button
+                type="button"
+                className="primary-confirm-button"
+                onClick={confirmSaveHistoryItem}
+                disabled={savingHistoryItem}
+              >
+                {savingHistoryItem ? "Speichern..." : "Historie speichern"}
               </button>
             </div>
           </div>
