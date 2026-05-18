@@ -314,6 +314,7 @@ function App() {
     }
 
     const searchableText = [
+      item.label_code,
       item.product_name,
       item.product_brand,
       item.product_category,
@@ -1174,6 +1175,10 @@ function App() {
                 </div>
 
                 <div className="inventory-status-group">
+                  {item.label_code && (
+                    <span className="label-code">{item.label_code}</span>
+                  )}
+
                   <span
                     className={`package-state package-state-${item.package_state}`}
                   >

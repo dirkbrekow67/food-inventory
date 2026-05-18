@@ -25,6 +25,41 @@ function addMonthsToDate(dateString, monthsToAdd) {
   return date.toISOString().slice(0, 10);
 }
 
+function selectInventoryItemById(id) {
+  return db.prepare(`
+    SELECT
+      inventory_items.*,
+
+      products.name AS product_name,
+      products.brand AS product_brand,
+      products.category AS product_category,
+      products.buy_again_status AS product_buy_again_status,
+
+      storage_units.name AS storage_unit_name,
+      storage_units.type AS storage_unit_type,
+
+      storage_compartments.name AS storage_compartment_name,
+      storage_compartments.type AS storage_compartment_type,
+
+      label_slots.label_code AS label_code,
+      label_slots.status AS label_status,
+
+      COALESCE(
+        inventory_items.internal_use_until_date,
+        inventory_items.best_before_date
+      ) AS effective_use_date
+
+    FROM inventory_items
+    JOIN products ON products.id = inventory_items.product_id
+    JOIN storage_units ON storage_units.id = inventory_items.storage_unit_id
+    LEFT JOIN storage_compartments
+      ON storage_compartments.id = inventory_items.storage_compartment_id
+    LEFT JOIN label_slots
+      ON label_slots.id = inventory_items.label_slot_id
+    WHERE inventory_items.id = ?
+  `).get(id);
+}
+
 router.get('/', (req, res) => {
   try {
     const items = db.prepare(`
@@ -42,6 +77,9 @@ router.get('/', (req, res) => {
         storage_compartments.name AS storage_compartment_name,
         storage_compartments.type AS storage_compartment_type,
 
+        label_slots.label_code AS label_code,
+        label_slots.status AS label_status,
+
         COALESCE(
           inventory_items.internal_use_until_date,
           inventory_items.best_before_date
@@ -52,6 +90,8 @@ router.get('/', (req, res) => {
       JOIN storage_units ON storage_units.id = inventory_items.storage_unit_id
       LEFT JOIN storage_compartments
         ON storage_compartments.id = inventory_items.storage_compartment_id
+      LEFT JOIN label_slots
+        ON label_slots.id = inventory_items.label_slot_id
       WHERE inventory_items.status = 'available'
       ORDER BY
         effective_use_date IS NULL,
@@ -114,81 +154,91 @@ router.post('/', (req, res) => {
       ? addMonthsToDate(frozenDate, safeInternalExtensionMonths)
       : null;
 
-    const result = db.prepare(`
-      INSERT INTO inventory_items
-      (
-        product_id,
-        storage_unit_id,
-        storage_compartment_id,
-        original_quantity,
-        original_unit,
-        remaining_quantity,
-        remaining_unit,
-        remaining_fraction_numerator,
-        remaining_fraction_denominator,
-        quantity_estimated,
-        package_state,
-        best_before_date,
-        frozen_date,
-        opened_date,
-        is_frozen_chilled_food,
-        internal_extension_months,
-        internal_use_until_date,
+    const createInventoryItem = db.transaction(() => {
+      const freeLabelSlot = db.prepare(`
+        SELECT *
+        FROM label_slots
+        WHERE status = 'free'
+        ORDER BY label_code
+        LIMIT 1
+      `).get();
+
+      if (!freeLabelSlot) {
+        const error = new Error('Keine freie Etiketten-ID verfügbar.');
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const result = db.prepare(`
+        INSERT INTO inventory_items
+        (
+          product_id,
+          storage_unit_id,
+          storage_compartment_id,
+          original_quantity,
+          original_unit,
+          remaining_quantity,
+          remaining_unit,
+          remaining_fraction_numerator,
+          remaining_fraction_denominator,
+          quantity_estimated,
+          package_state,
+          best_before_date,
+          frozen_date,
+          opened_date,
+          is_frozen_chilled_food,
+          internal_extension_months,
+          internal_use_until_date,
+          label_slot_id,
+          notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        productId,
+        storageUnitId,
+        storageCompartmentId || null,
+        originalQuantity,
+        originalUnit,
+        remainingQuantity,
+        remainingUnit,
+        remainingFractionNumerator,
+        remainingFractionDenominator,
+        quantityEstimated ? 1 : 0,
+        safePackageState,
+        bestBeforeDate,
+        frozenDate,
+        openedDate,
+        isFrozenChilledFood ? 1 : 0,
+        safeInternalExtensionMonths,
+        internalUseUntilDate,
+        freeLabelSlot.id,
         notes
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      productId,
-      storageUnitId,
-      storageCompartmentId || null,
-      originalQuantity,
-      originalUnit,
-      remainingQuantity,
-      remainingUnit,
-      remainingFractionNumerator,
-      remainingFractionDenominator,
-      quantityEstimated ? 1 : 0,
-      safePackageState,
-      bestBeforeDate,
-      frozenDate,
-      openedDate,
-      isFrozenChilledFood ? 1 : 0,
-      safeInternalExtensionMonths,
-      internalUseUntilDate,
-      notes
-    );
+      );
 
-    const item = db.prepare(`
-      SELECT
-        inventory_items.*,
+      db.prepare(`
+        UPDATE label_slots
+        SET
+          status = 'used',
+          current_inventory_item_id = ?,
+          last_used_at = CURRENT_TIMESTAMP,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(result.lastInsertRowid, freeLabelSlot.id);
 
-        products.name AS product_name,
-        products.brand AS product_brand,
-        products.category AS product_category,
-        products.buy_again_status AS product_buy_again_status,
+      return result.lastInsertRowid;
+    });
 
-        storage_units.name AS storage_unit_name,
-        storage_units.type AS storage_unit_type,
-
-        storage_compartments.name AS storage_compartment_name,
-        storage_compartments.type AS storage_compartment_type,
-
-        COALESCE(
-          inventory_items.internal_use_until_date,
-          inventory_items.best_before_date
-        ) AS effective_use_date
-
-      FROM inventory_items
-      JOIN products ON products.id = inventory_items.product_id
-      JOIN storage_units ON storage_units.id = inventory_items.storage_unit_id
-      LEFT JOIN storage_compartments
-        ON storage_compartments.id = inventory_items.storage_compartment_id
-      WHERE inventory_items.id = ?
-    `).get(result.lastInsertRowid);
+    const newInventoryItemId = createInventoryItem();
+    const item = selectInventoryItemById(newInventoryItemId);
 
     res.status(201).json(item);
   } catch (error) {
     console.error('Error creating inventory item:', error);
+
+    if (error.statusCode === 409) {
+      return res.status(409).json({ error: error.message });
+    }
+
     res.status(500).json({ error: 'Bestand konnte nicht angelegt werden.' });
   }
 });

@@ -572,6 +572,20 @@ h4 {
   background: #f8fafc;
 }
 
+.label-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #ede9fe;
+  color: #5b21b6;
+  font-size: 0.86rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 @media (max-width: 720px) {
   .inventory-overview-header {
     flex-direction: column;
