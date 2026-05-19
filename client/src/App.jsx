@@ -13,6 +13,8 @@ import {
   getRemovalReasonLabel,
 } from "./utils/formattersUtils";
 
+import { emptyInventoryForm, emptyProductForm } from "./constants/formDefaults";
+
 const API_BASE_URL = "http://localhost:3101/api";
 
 function App() {
@@ -42,36 +44,8 @@ function App() {
   const [historyEditNotes, setHistoryEditNotes] = useState("");
   const [savingHistoryItem, setSavingHistoryItem] = useState(false);
 
-  const [productForm, setProductForm] = useState({
-    name: "",
-    brand: "",
-    category: "",
-    country: "",
-    store: "",
-    buyAgainStatus: "neutral",
-    rating: "",
-    notes: "",
-    favorite: false,
-  });
-
-  const [inventoryForm, setInventoryForm] = useState({
-    productId: "",
-    storageUnitId: "",
-    storageCompartmentId: "",
-    originalQuantity: "",
-    originalUnit: "g",
-    remainingQuantity: "",
-    remainingUnit: "g",
-    remainingFraction: "",
-    quantityEstimated: false,
-    packageState: "ungeoeffnet",
-    bestBeforeDate: "",
-    frozenDate: "",
-    openedDate: "",
-    isFrozenChilledFood: false,
-    internalExtensionMonths: "6",
-    notes: "",
-  });
+  const [productForm, setProductForm] = useState(() => emptyProductForm);
+  const [inventoryForm, setInventoryForm] = useState(() => emptyInventoryForm);
 
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
   const [inventorySearchTerm, setInventorySearchTerm] = useState("");
@@ -155,18 +129,7 @@ function App() {
   }
 
   function resetProductForm() {
-    setProductForm({
-      name: "",
-      brand: "",
-      category: "",
-      country: "",
-      store: "",
-      buyAgainStatus: "neutral",
-      rating: "",
-      notes: "",
-      favorite: false,
-    });
-
+    setProductForm({ ...emptyProductForm });
     setEditingProductId(null);
   }
 
@@ -178,24 +141,7 @@ function App() {
   }
 
   function resetInventoryForm() {
-    setInventoryForm({
-      productId: "",
-      storageUnitId: "",
-      storageCompartmentId: "",
-      originalQuantity: "",
-      originalUnit: "g",
-      remainingQuantity: "",
-      remainingUnit: "g",
-      remainingFraction: "",
-      quantityEstimated: false,
-      packageState: "ungeoeffnet",
-      bestBeforeDate: "",
-      frozenDate: "",
-      openedDate: "",
-      isFrozenChilledFood: false,
-      internalExtensionMonths: "6",
-      notes: "",
-    });
+    setInventoryForm({ ...emptyInventoryForm });
   }
 
   function getAllStorageUnits() {

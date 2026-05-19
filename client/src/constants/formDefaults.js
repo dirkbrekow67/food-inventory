@@ -1,0 +1,30 @@
+export const emptyProductForm = {
+  name: "",
+  brand: "",
+  category: "",
+  country: "",
+  store: "",
+  buyAgainStatus: "neutral",
+  rating: "",
+  notes: "",
+  favorite: false,
+};
+
+export const emptyInventoryForm = {
+  productId: "",
+  storageUnitId: "",
+  storageCompartmentId: "",
+  originalQuantity: "",
+  originalUnit: "g",
+  remainingQuantity: "",
+  remainingUnit: "g",
+  remainingFraction: "",
+  quantityEstimated: false,
+  packageState: "ungeoeffnet",
+  bestBeforeDate: "",
+  frozenDate: "",
+  openedDate: "",
+  isFrozenChilledFood: false,
+  internalExtensionMonths: "6",
+  notes: "",
+};
