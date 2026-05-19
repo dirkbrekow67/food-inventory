@@ -45,6 +45,17 @@ import {
   updateHistoryItemById,
 } from "./api/inventoryApi";
 
+import {
+  getAllStorageUnits,
+  getCompartmentsForSelectedUnit,
+  getFilteredHistoryItems,
+  getFilteredInventoryItems,
+  getInventoryStorageFilterOptions,
+  getLatestInventoryItemForProduct,
+  getProductHistorySummary,
+  parseRemainingFraction,
+} from "./utils/inventoryDataUtils";
+
 function renderSelectOptions(options) {
   return options.map((option) => (
     <option value={option.value} key={option.value}>
@@ -155,39 +166,11 @@ function App() {
     setInventoryForm({ ...emptyInventoryForm });
   }
 
-  function getAllStorageUnits() {
-    return storageTree.flatMap((location) =>
-      location.units.map((unit) => ({
-        ...unit,
-        locationName: location.name,
-      })),
-    );
-  }
-
-  function getCompartmentsForSelectedUnit() {
-    const selectedUnitId = Number(inventoryForm.storageUnitId);
-
-    if (!selectedUnitId) {
-      return [];
-    }
-
-    return (
-      storageTree
-        .flatMap((location) => location.units)
-        .find((unit) => unit.id === selectedUnitId)?.compartments || []
-    );
-  }
-
-  function getLatestInventoryItemForProduct(productId) {
-    return inventoryItems
-      .filter((item) => item.product_id === Number(productId))
-      .sort((a, b) =>
-        String(b.created_at).localeCompare(String(a.created_at)),
-      )[0];
-  }
-
   function handleInventoryProductChange(productId) {
-    const latestItem = getLatestInventoryItemForProduct(productId);
+    const latestItem = getLatestInventoryItemForProduct(
+      inventoryItems,
+      productId,
+    );
 
     setInventoryForm((currentForm) => ({
       ...currentForm,
@@ -224,79 +207,6 @@ function App() {
     }));
   }
 
-  function getInventoryStorageFilterOptions() {
-    const storageOptions = inventoryItems.map((item) => ({
-      id: item.storage_unit_id,
-      name: item.storage_unit_name,
-    }));
-
-    return storageOptions
-      .filter(
-        (option, index, allOptions) =>
-          allOptions.findIndex((item) => item.id === option.id) === index,
-      )
-      .sort((a, b) =>
-        a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
-      );
-  }
-
-  function matchesInventorySearch(item, searchTerm) {
-    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-
-    if (!normalizedSearchTerm) {
-      return true;
-    }
-
-    const searchableText = [
-      item.label_code,
-      item.product_name,
-      item.product_brand,
-      item.product_category,
-      item.storage_unit_name,
-      item.storage_compartment_name,
-      item.notes,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-
-    return searchableText.includes(normalizedSearchTerm);
-  }
-
-  function getFilteredInventoryItems() {
-    return inventoryItems.filter((item) => {
-      const matchesSearch = matchesInventorySearch(item, inventorySearchTerm);
-
-      const matchesStatus =
-        inventoryStatusFilter === "all" ||
-        getInventoryDateStatus(item) === inventoryStatusFilter;
-
-      const matchesStorage =
-        inventoryStorageFilter === "all" ||
-        String(item.storage_unit_id) === inventoryStorageFilter;
-
-      return matchesSearch && matchesStatus && matchesStorage;
-    });
-  }
-
-  function getHistoryItemsForProduct(productId) {
-    return historyItems.filter((item) => item.product_id === Number(productId));
-  }
-
-  function getLatestHistoryItemForProduct(productId) {
-    return getHistoryItemsForProduct(productId)[0] || null;
-  }
-
-  function getProductHistorySummary(productId) {
-    const productHistoryItems = getHistoryItemsForProduct(productId);
-    const latestHistoryItem = getLatestHistoryItemForProduct(productId);
-
-    return {
-      count: productHistoryItems.length,
-      latestItem: latestHistoryItem,
-    };
-  }
-
   function showProductHistory(product) {
     setHistoryProductFilter(String(product.id));
     setHistorySearchTerm("");
@@ -306,71 +216,6 @@ function App() {
     document
       .getElementById("product-history-section")
       ?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  function matchesHistorySearch(item, searchTerm) {
-    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-
-    if (!normalizedSearchTerm) {
-      return true;
-    }
-
-    const searchableText = [
-      item.product_name,
-      item.product_brand,
-      item.product_category,
-      item.product_country,
-      item.product_store,
-      item.label_code,
-      item.removal_reason,
-      item.product_buy_again_status_after_removal,
-      item.experience_reason,
-      item.experience_note,
-      item.notes,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-
-    return searchableText.includes(normalizedSearchTerm);
-  }
-
-  function getFilteredHistoryItems() {
-    return historyItems.filter((item) => {
-      const matchesSearch = matchesHistorySearch(item, historySearchTerm);
-
-      const matchesReason =
-        historyReasonFilter === "all" ||
-        item.removal_reason === historyReasonFilter;
-
-      const matchesBuyAgain =
-        historyBuyAgainFilter === "all" ||
-        item.product_buy_again_status_after_removal === historyBuyAgainFilter;
-
-      const matchesProduct =
-        historyProductFilter === "all" ||
-        String(item.product_id) === historyProductFilter;
-
-      return (
-        matchesSearch && matchesReason && matchesBuyAgain && matchesProduct
-      );
-    });
-  }
-
-  function parseRemainingFraction(value) {
-    if (!value) {
-      return {
-        numerator: null,
-        denominator: null,
-      };
-    }
-
-    const [numerator, denominator] = value.split("/").map(Number);
-
-    return {
-      numerator,
-      denominator,
-    };
   }
 
   async function handleSaveProduct(event) {
@@ -721,13 +566,29 @@ function App() {
     }
   }
 
-  const filteredInventoryItems = getFilteredInventoryItems();
-  const inventoryStorageFilterOptions = getInventoryStorageFilterOptions();
+  const filteredInventoryItems = getFilteredInventoryItems(
+    inventoryItems,
+    inventorySearchTerm,
+    inventoryStatusFilter,
+    inventoryStorageFilter,
+  );
+
+  const inventoryStorageFilterOptions =
+    getInventoryStorageFilterOptions(inventoryItems);
+
   const hasActiveInventoryFilters =
     Boolean(inventorySearchTerm.trim()) ||
     inventoryStatusFilter !== "all" ||
     inventoryStorageFilter !== "all";
-  const filteredHistoryItems = getFilteredHistoryItems();
+
+  const filteredHistoryItems = getFilteredHistoryItems(
+    historyItems,
+    historySearchTerm,
+    historyReasonFilter,
+    historyBuyAgainFilter,
+    historyProductFilter,
+  );
+
   const hasActiveHistoryFilters =
     Boolean(historySearchTerm.trim()) ||
     historyReasonFilter !== "all" ||
@@ -738,6 +599,10 @@ function App() {
     historyProductFilter === "all"
       ? null
       : products.find((product) => String(product.id) === historyProductFilter);
+
+  const selectedInventoryProductHistorySummary = inventoryForm.productId
+    ? getProductHistorySummary(historyItems, inventoryForm.productId)
+    : null;
 
   return (
     <main className="app-shell">
@@ -780,6 +645,7 @@ function App() {
               </button>
             )}
           </div>
+
           <div className="form-grid">
             <label>
               Produktname *
@@ -907,94 +773,105 @@ function App() {
         )}
 
         <div className="product-grid">
-          {products.map((product) => (
-            <article className="product-card" key={product.id}>
-              <div className="product-card-header">
-                <div>
-                  <h3>{product.name}</h3>
-                  <p className="muted">
-                    {[product.brand, product.category]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
-                </div>
-                {product.favorite === 1 && <span className="favorite">★</span>}
-              </div>
+          {products.map((product) => {
+            const productHistorySummary = getProductHistorySummary(
+              historyItems,
+              product.id,
+            );
 
-              <div className="product-meta">
-                {product.country && <span>{product.country}</span>}
-                {product.store && <span>{product.store}</span>}
-                {product.rating && <span>{product.rating}/5</span>}
-              </div>
-
-              <div
-                className={`buy-again buy-again-${product.buy_again_status}`}
-              >
-                {getBuyAgainLabel(product.buy_again_status)}
-              </div>
-
-              {getProductHistorySummary(product.id).count > 0 && (
-                <div className="product-history-hint">
-                  <strong>
-                    Historie: {getProductHistorySummary(product.id).count}{" "}
-                    {getProductHistorySummary(product.id).count === 1
-                      ? "Eintrag"
-                      : "Einträge"}
-                  </strong>
-
-                  {getProductHistorySummary(product.id).latestItem && (
-                    <span>
-                      Letzte Erfahrung:{" "}
-                      {getRemovalReasonLabel(
-                        getProductHistorySummary(product.id).latestItem
-                          .removal_reason,
-                      )}
-                      {getProductHistorySummary(product.id).latestItem
-                        .product_buy_again_status_after_removal
-                        ? ` · ${getBuyAgainLabel(
-                            getProductHistorySummary(product.id).latestItem
-                              .product_buy_again_status_after_removal,
-                          )}`
-                        : ""}
-                      {getProductHistorySummary(product.id).latestItem
-                        .experience_reason
-                        ? ` · ${getExperienceReasonLabel(
-                            getProductHistorySummary(product.id).latestItem
-                              .experience_reason,
-                          )}`
-                        : ""}
-                    </span>
+            return (
+              <article className="product-card" key={product.id}>
+                <div className="product-card-header">
+                  <div>
+                    <h3>{product.name}</h3>
+                    <p className="muted">
+                      {[product.brand, product.category]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                  {product.favorite === 1 && (
+                    <span className="favorite">★</span>
                   )}
                 </div>
-              )}
 
-              {product.notes && (
-                <p className="product-notes">{product.notes}</p>
-              )}
-              <div className="product-actions">
-                <button type="button" onClick={() => startEditProduct(product)}>
-                  Bearbeiten
-                </button>
+                <div className="product-meta">
+                  {product.country && <span>{product.country}</span>}
+                  {product.store && <span>{product.store}</span>}
+                  {product.rating && <span>{product.rating}/5</span>}
+                </div>
 
-                {getProductHistorySummary(product.id).count > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => showProductHistory(product)}
-                  >
-                    Historie anzeigen
-                  </button>
+                <div
+                  className={`buy-again buy-again-${product.buy_again_status}`}
+                >
+                  {getBuyAgainLabel(product.buy_again_status)}
+                </div>
+
+                {productHistorySummary.count > 0 && (
+                  <div className="product-history-hint">
+                    <strong>
+                      Historie: {productHistorySummary.count}{" "}
+                      {productHistorySummary.count === 1
+                        ? "Eintrag"
+                        : "Einträge"}
+                    </strong>
+
+                    {productHistorySummary.latestItem && (
+                      <span>
+                        Letzte Erfahrung:{" "}
+                        {getRemovalReasonLabel(
+                          productHistorySummary.latestItem.removal_reason,
+                        )}
+                        {productHistorySummary.latestItem
+                          .product_buy_again_status_after_removal
+                          ? ` · ${getBuyAgainLabel(
+                              productHistorySummary.latestItem
+                                .product_buy_again_status_after_removal,
+                            )}`
+                          : ""}
+                        {productHistorySummary.latestItem.experience_reason
+                          ? ` · ${getExperienceReasonLabel(
+                              productHistorySummary.latestItem
+                                .experience_reason,
+                            )}`
+                          : ""}
+                      </span>
+                    )}
+                  </div>
                 )}
 
-                <button
-                  type="button"
-                  className="danger-button"
-                  onClick={() => deactivateProduct(product.id)}
-                >
-                  Deaktivieren
-                </button>
-              </div>
-            </article>
-          ))}
+                {product.notes && (
+                  <p className="product-notes">{product.notes}</p>
+                )}
+
+                <div className="product-actions">
+                  <button
+                    type="button"
+                    onClick={() => startEditProduct(product)}
+                  >
+                    Bearbeiten
+                  </button>
+
+                  {productHistorySummary.count > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => showProductHistory(product)}
+                    >
+                      Historie anzeigen
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className="danger-button"
+                    onClick={() => deactivateProduct(product.id)}
+                  >
+                    Deaktivieren
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -1028,45 +905,40 @@ function App() {
               </select>
             </label>
 
-            {inventoryForm.productId &&
-              getProductHistorySummary(inventoryForm.productId).count > 0 && (
-                <div className="inventory-history-hint">
-                  <strong>
-                    {getProductHistorySummary(inventoryForm.productId).count}{" "}
-                    gespeicherte{" "}
-                    {getProductHistorySummary(inventoryForm.productId).count ===
-                    1
-                      ? "Erfahrung"
-                      : "Erfahrungen"}
-                  </strong>
+            {selectedInventoryProductHistorySummary?.count > 0 && (
+              <div className="inventory-history-hint">
+                <strong>
+                  {selectedInventoryProductHistorySummary.count} gespeicherte{" "}
+                  {selectedInventoryProductHistorySummary.count === 1
+                    ? "Erfahrung"
+                    : "Erfahrungen"}
+                </strong>
 
-                  {getProductHistorySummary(inventoryForm.productId)
-                    .latestItem && (
-                    <span>
-                      Letzte Erfahrung:{" "}
-                      {getRemovalReasonLabel(
-                        getProductHistorySummary(inventoryForm.productId)
-                          .latestItem.removal_reason,
-                      )}
-                      {getProductHistorySummary(inventoryForm.productId)
-                        .latestItem.product_buy_again_status_after_removal
-                        ? ` · ${getBuyAgainLabel(
-                            getProductHistorySummary(inventoryForm.productId)
-                              .latestItem
-                              .product_buy_again_status_after_removal,
-                          )}`
-                        : ""}
-                      {getProductHistorySummary(inventoryForm.productId)
-                        .latestItem.experience_reason
-                        ? ` · ${getExperienceReasonLabel(
-                            getProductHistorySummary(inventoryForm.productId)
-                              .latestItem.experience_reason,
-                          )}`
-                        : ""}
-                    </span>
-                  )}
-                </div>
-              )}
+                {selectedInventoryProductHistorySummary.latestItem && (
+                  <span>
+                    Letzte Erfahrung:{" "}
+                    {getRemovalReasonLabel(
+                      selectedInventoryProductHistorySummary.latestItem
+                        .removal_reason,
+                    )}
+                    {selectedInventoryProductHistorySummary.latestItem
+                      .product_buy_again_status_after_removal
+                      ? ` · ${getBuyAgainLabel(
+                          selectedInventoryProductHistorySummary.latestItem
+                            .product_buy_again_status_after_removal,
+                        )}`
+                      : ""}
+                    {selectedInventoryProductHistorySummary.latestItem
+                      .experience_reason
+                      ? ` · ${getExperienceReasonLabel(
+                          selectedInventoryProductHistorySummary.latestItem
+                            .experience_reason,
+                        )}`
+                      : ""}
+                  </span>
+                )}
+              </div>
+            )}
 
             <label>
               Lagergerät *
@@ -1078,7 +950,7 @@ function App() {
                 }}
               >
                 <option value="">Lagergerät auswählen</option>
-                {getAllStorageUnits().map((unit) => (
+                {getAllStorageUnits(storageTree).map((unit) => (
                   <option value={unit.id} key={unit.id}>
                     {unit.locationName} · {unit.name}
                   </option>
@@ -1098,7 +970,10 @@ function App() {
                 }
               >
                 <option value="">Kein Fach ausgewählt</option>
-                {getCompartmentsForSelectedUnit().map((compartment) => (
+                {getCompartmentsForSelectedUnit(
+                  storageTree,
+                  inventoryForm.storageUnitId,
+                ).map((compartment) => (
                   <option value={compartment.id} key={compartment.id}>
                     {compartment.name}
                   </option>
@@ -1595,6 +1470,7 @@ function App() {
               {item.notes && (
                 <p className="history-technical-note">{item.notes}</p>
               )}
+
               <div className="product-actions">
                 <button type="button" onClick={() => openHistoryDialog(item)}>
                   Bearbeiten
@@ -1662,6 +1538,7 @@ function App() {
           ))}
         </div>
       </section>
+
       {removalDialogItem && (
         <div className="dialog-backdrop" role="presentation">
           <div
@@ -1678,6 +1555,7 @@ function App() {
                 ? ` · Etikett ${removalDialogItem.label_code}`
                 : ""}
             </p>
+
             {removalDialogItem.product_favorite === 1 && (
               <p className="muted">★ Standardartikel</p>
             )}
@@ -1738,6 +1616,7 @@ function App() {
                   {renderSelectOptions(removalProductStatusOptions)}
                 </select>
               </label>
+
               <label className="checkbox-label">
                 <input
                   type="checkbox"
@@ -1805,6 +1684,7 @@ function App() {
           </div>
         </div>
       )}
+
       {historyDeleteDialogItem && (
         <div className="dialog-backdrop" role="presentation">
           <div
@@ -1850,6 +1730,7 @@ function App() {
           </div>
         </div>
       )}
+
       {historyDialogItem && (
         <div className="dialog-backdrop" role="presentation">
           <div
