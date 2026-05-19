@@ -304,6 +304,18 @@ router.delete('/:id', (req, res) => {
         ? productBuyAgainStatus
         : null;
 
+    const effectiveShouldSaveToHistory =
+      safeRemovalReason === 'falsch_erfasst' ? false : shouldSaveToHistory;
+
+    const effectiveProductBuyAgainStatus =
+      safeRemovalReason === 'falsch_erfasst' ? null : safeProductBuyAgainStatus;
+
+    const effectiveExperienceReason =
+      safeRemovalReason === 'falsch_erfasst' ? 'keine' : safeExperienceReason;
+
+    const effectiveExperienceNote =
+      safeRemovalReason === 'falsch_erfasst' ? null : safeExperienceNote;
+
     const removeInventoryItem = db.transaction(() => {
       const existingItem = db.prepare(`
           SELECT
@@ -361,14 +373,14 @@ router.delete('/:id', (req, res) => {
 
       let updatedProduct = null;
 
-      if (safeProductBuyAgainStatus) {
+      if (effectiveProductBuyAgainStatus) {
         db.prepare(`
           UPDATE products
           SET
             buy_again_status = ?,
             updated_at = CURRENT_TIMESTAMP
           WHERE id = ?
-        `).run(safeProductBuyAgainStatus, existingItem.product_id);
+        `).run(effectiveProductBuyAgainStatus, existingItem.product_id);
 
         updatedProduct = db.prepare(`
           SELECT *
@@ -376,9 +388,11 @@ router.delete('/:id', (req, res) => {
           WHERE id = ?
         `).get(existingItem.product_id);
       }
-      const historyProductBuyAgainStatus = safeProductBuyAgainStatus || existingItem.product_buy_again_status;
 
-      if (shouldSaveToHistory) {
+      const historyProductBuyAgainStatus =
+        effectiveProductBuyAgainStatus || existingItem.product_buy_again_status;
+
+      if (effectiveShouldSaveToHistory) {
         db.prepare(`
           INSERT INTO inventory_history
           (
@@ -406,8 +420,8 @@ router.delete('/:id', (req, res) => {
           existingItem.label_code,
           safeRemovalReason,
           historyProductBuyAgainStatus,
-          safeExperienceReason,
-          safeExperienceNote,
+          effectiveExperienceReason,
+          effectiveExperienceNote,
           existingItem.notes
         );
       }
@@ -423,7 +437,7 @@ router.delete('/:id', (req, res) => {
     res.json({
       message: 'Bestandseintrag wurde entfernt.',
       removalReason: safeRemovalReason,
-      savedToHistory: shouldSaveToHistory,
+      savedToHistory: effectiveShouldSaveToHistory,
       releasedLabelSlotId: result.releasedLabelSlotId,
       product: result.product,
     });

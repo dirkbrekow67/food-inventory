@@ -1984,14 +1984,18 @@ function App() {
                   onChange={(event) => {
                     const nextReason = event.target.value;
                     setRemovalReason(nextReason);
+
+                    if (nextReason === "falsch_erfasst") {
+                      setRemovalProductStatus("unverändert");
+                      setSaveRemovalToHistory(false);
+                      setExperienceReason("keine");
+                      setExperienceNote("");
+                      return;
+                    }
+
                     setSaveRemovalToHistory(
                       shouldSuggestHistory(nextReason, removalProductStatus),
                     );
-
-                    if (nextReason === "falsch_erfasst") {
-                      setExperienceReason("keine");
-                      setExperienceNote("");
-                    }
                   }}
                   disabled={removingInventoryItem}
                 >
@@ -2011,11 +2015,19 @@ function App() {
                   onChange={(event) => {
                     const nextStatus = event.target.value;
                     setRemovalProductStatus(nextStatus);
+
+                    if (removalReason === "falsch_erfasst") {
+                      setSaveRemovalToHistory(false);
+                      return;
+                    }
+
                     setSaveRemovalToHistory(
                       shouldSuggestHistory(removalReason, nextStatus),
                     );
                   }}
-                  disabled={removingInventoryItem}
+                  disabled={
+                    removingInventoryItem || removalReason === "falsch_erfasst"
+                  }
                 >
                   <option value="unverändert">Unverändert</option>
                   <option value="wieder_kaufen">Wieder kaufen</option>
