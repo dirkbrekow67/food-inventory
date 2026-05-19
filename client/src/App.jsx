@@ -34,6 +34,13 @@ import {
   removalReasonOptions,
 } from "./constants/selectOptions";
 
+import {
+  loadHistoryItems,
+  loadInventoryItems,
+  loadProducts,
+  loadStorageTree,
+} from "./api/inventoryApi";
+
 function renderSelectOptions(options) {
   return options.map((option) => (
     <option value={option.value} key={option.value}>
@@ -93,38 +100,13 @@ function App() {
       try {
         setErrorMessage("");
 
-        const [
-          storageResponse,
-          productsResponse,
-          inventoryResponse,
-          historyResponse,
-        ] = await Promise.all([
-          fetch(`${API_BASE_URL}/storage/tree`),
-          fetch(`${API_BASE_URL}/products`),
-          fetch(`${API_BASE_URL}/inventory`),
-          fetch(`${API_BASE_URL}/history`),
-        ]);
-
-        if (!storageResponse.ok) {
-          throw new Error("Lagerstruktur konnte nicht geladen werden.");
-        }
-
-        if (!productsResponse.ok) {
-          throw new Error("Produkte konnten nicht geladen werden.");
-        }
-
-        if (!inventoryResponse.ok) {
-          throw new Error("Bestand konnte nicht geladen werden.");
-        }
-
-        if (!historyResponse.ok) {
-          throw new Error("Produkthistorie konnte nicht geladen werden.");
-        }
-
-        const storageData = await storageResponse.json();
-        const productData = await productsResponse.json();
-        const inventoryData = await inventoryResponse.json();
-        const historyData = await historyResponse.json();
+        const [storageData, productData, inventoryData, historyData] =
+          await Promise.all([
+            loadStorageTree(),
+            loadProducts(),
+            loadInventoryItems(),
+            loadHistoryItems(),
+          ]);
 
         setStorageTree(storageData);
         setProducts(productData);
