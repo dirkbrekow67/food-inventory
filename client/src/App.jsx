@@ -1,169 +1,19 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+import {
+  formatDateGerman,
+  formatQuantity,
+  getBuyAgainLabel,
+  getExperienceReasonLabel,
+  getInventoryDateStatus,
+  getInventoryDateStatusLabel,
+  getInventoryEffectiveDate,
+  getPackageStateLabel,
+  getRemovalReasonLabel,
+} from "./utils/formattersUtils";
+
 const API_BASE_URL = "http://localhost:3101/api";
-
-function getBuyAgainLabel(status) {
-  switch (status) {
-    case "wieder_kaufen":
-      return "Wieder kaufen";
-    case "nicht_wieder_kaufen":
-      return "Nicht wieder kaufen";
-    case "testen":
-      return "Erst testen";
-    default:
-      return "Neutral";
-  }
-}
-
-function getPackageStateLabel(state) {
-  switch (state) {
-    case "angebrochen":
-      return "Angebrochen";
-    case "portioniert":
-      return "Portioniert";
-    default:
-      return "Ungeöffnet";
-  }
-}
-
-function formatQuantity(item) {
-  const parts = [];
-
-  if (item.remaining_quantity && item.remaining_unit) {
-    parts.push(
-      `${item.quantity_estimated ? "ca. " : ""}${item.remaining_quantity} ${item.remaining_unit}`,
-    );
-  }
-
-  if (
-    item.remaining_fraction_numerator &&
-    item.remaining_fraction_denominator
-  ) {
-    parts.push(
-      `${item.remaining_fraction_numerator}/${item.remaining_fraction_denominator}`,
-    );
-  }
-
-  if (parts.length > 0) {
-    return parts.join(" · ");
-  }
-
-  if (item.original_quantity && item.original_unit) {
-    return `${item.original_quantity} ${item.original_unit}`;
-  }
-
-  return "Menge nicht angegeben";
-}
-
-function formatDateGerman(dateString) {
-  if (!dateString) {
-    return "";
-  }
-
-  const [year, month, day] = dateString.split("-");
-
-  if (!year || !month || !day) {
-    return dateString;
-  }
-
-  return `${day}.${month}.${year}`;
-}
-
-function getInventoryEffectiveDate(item) {
-  return (
-    item.effective_use_date ||
-    item.internal_use_until_date ||
-    item.best_before_date ||
-    ""
-  );
-}
-
-function getInventoryDateStatus(item) {
-  const effectiveDate = getInventoryEffectiveDate(item);
-
-  if (!effectiveDate) {
-    return "no_date";
-  }
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const targetDate = new Date(`${effectiveDate}T00:00:00`);
-
-  if (Number.isNaN(targetDate.getTime())) {
-    return "no_date";
-  }
-
-  const differenceInMs = targetDate.getTime() - today.getTime();
-  const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
-
-  if (differenceInDays < 0) {
-    return "expired";
-  }
-
-  if (differenceInDays <= 30) {
-    return "soon";
-  }
-
-  return "ok";
-}
-
-function getInventoryDateStatusLabel(status) {
-  switch (status) {
-    case "expired":
-      return "Abgelaufen";
-    case "soon":
-      return "Bald fällig";
-    case "ok":
-      return "OK";
-    default:
-      return "Ohne Datum";
-  }
-}
-
-function getRemovalReasonLabel(reason) {
-  switch (reason) {
-    case "verbraucht":
-      return "Verbraucht";
-    case "abgelaufen":
-      return "Abgelaufen";
-    case "entsorgt":
-      return "Entsorgt";
-    case "falsch_erfasst":
-      return "Falsch erfasst";
-    case "verschenkt":
-      return "Verschenkt";
-    case "sonstiges":
-      return "Sonstiges";
-    default:
-      return "Unbekannt";
-  }
-}
-
-function getExperienceReasonLabel(reason) {
-  switch (reason) {
-    case "zu_viel_gekauft":
-      return "Zu viel gekauft";
-    case "kein_bedarf":
-      return "Kein Bedarf";
-    case "vergessen_uebersehen":
-      return "Vergessen / übersehen";
-    case "lagerort_unguenstig":
-      return "Lagerort ungünstig";
-    case "qualitaet_schlecht":
-      return "Qualität schlecht";
-    case "rezeptur_geschmack_veraendert":
-      return "Rezeptur / Geschmack verändert";
-    case "preis_leistung_schlecht":
-      return "Preis-Leistung schlecht";
-    case "sonstiges":
-      return "Sonstiges";
-    case "keine":
-    default:
-      return "Keine besondere Erkenntnis";
-  }
-}
 
 function App() {
   const [storageTree, setStorageTree] = useState([]);
@@ -1867,17 +1717,27 @@ function App() {
 
               <div className="history-meta">
                 {item.product_country && <span>{item.product_country}</span>}
-                {item.product_store && <span>{item.product_store}</span>}
+
+                {item.product_store && (
+                  <span>
+                    {item.product_store.toLowerCase() === "egal"
+                      ? "Bezugsquelle beliebig"
+                      : item.product_store}
+                  </span>
+                )}
+
                 {item.removed_at && (
                   <span>
                     Entfernt: {formatDateGerman(item.removed_at.slice(0, 10))}
                   </span>
                 )}
-                {item.experience_reason && (
-                  <span>
-                    {getExperienceReasonLabel(item.experience_reason)}
-                  </span>
-                )}
+
+                {item.experience_reason &&
+                  item.experience_reason !== "keine" && (
+                    <span>
+                      {getExperienceReasonLabel(item.experience_reason)}
+                    </span>
+                  )}
               </div>
 
               {item.experience_note && (
