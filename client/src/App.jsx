@@ -15,7 +15,7 @@ import {
 
 import { emptyInventoryForm, emptyProductForm } from "./constants/formDefaults";
 
-const API_BASE_URL = "http://localhost:3101/api";
+import { API_BASE_URL } from "./config/apiConfig";
 
 function App() {
   const [storageTree, setStorageTree] = useState([]);
