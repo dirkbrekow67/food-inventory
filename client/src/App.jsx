@@ -17,6 +17,30 @@ import { emptyInventoryForm, emptyProductForm } from "./constants/formDefaults";
 
 import { API_BASE_URL } from "./config/apiConfig";
 
+import {
+  buyAgainStatusOptions,
+  experienceReasonOptions,
+  historyBuyAgainFilterOptions,
+  historyRemovalReasonFilterOptions,
+  internalExtensionMonthOptions,
+  inventoryStatusFilterOptions,
+  packageStateOptions,
+  productCategoryOptions,
+  quantityUnitOptions,
+  ratingOptions,
+  remainingFractionOptions,
+  removalProductStatusOptions,
+  removalReasonOptions,
+} from "./constants/selectOptions";
+
+function renderSelectOptions(options) {
+  return options.map((option) => (
+    <option value={option.value} key={option.value}>
+      {option.label}
+    </option>
+  ));
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -872,14 +896,14 @@ function App() {
 
             <label>
               Kategorie
-              <input
-                type="text"
+              <select
                 value={productForm.category}
                 onChange={(event) =>
                   updateProductForm("category", event.target.value)
                 }
-                placeholder="z. B. Tiefkühlware"
-              />
+              >
+                {renderSelectOptions(productCategoryOptions)}
+              </select>
             </label>
 
             <label>
@@ -914,10 +938,7 @@ function App() {
                   updateProductForm("buyAgainStatus", event.target.value)
                 }
               >
-                <option value="neutral">Neutral</option>
-                <option value="wieder_kaufen">Wieder kaufen</option>
-                <option value="nicht_wieder_kaufen">Nicht wieder kaufen</option>
-                <option value="testen">Erst testen</option>
+                {renderSelectOptions(buyAgainStatusOptions)}
               </select>
             </label>
 
@@ -1212,13 +1233,7 @@ function App() {
                   updateInventoryForm("originalUnit", event.target.value)
                 }
               >
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-                <option value="ml">ml</option>
-                <option value="l">l</option>
-                <option value="Stück">Stück</option>
-                <option value="Packung">Packung</option>
-                <option value="Portion">Portion</option>
+                {renderSelectOptions(quantityUnitOptions)}
               </select>
             </label>
 
@@ -1244,13 +1259,7 @@ function App() {
                   updateInventoryForm("remainingUnit", event.target.value)
                 }
               >
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-                <option value="ml">ml</option>
-                <option value="l">l</option>
-                <option value="Stück">Stück</option>
-                <option value="Packung">Packung</option>
-                <option value="Portion">Portion</option>
+                {renderSelectOptions(quantityUnitOptions)}
               </select>
             </label>
 
