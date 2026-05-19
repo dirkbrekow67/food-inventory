@@ -2200,7 +2200,6 @@ function App() {
                   <option value="verbraucht">Verbraucht</option>
                   <option value="abgelaufen">Abgelaufen</option>
                   <option value="entsorgt">Entsorgt</option>
-                  <option value="falsch_erfasst">Falsch erfasst</option>
                   <option value="verschenkt">Verschenkt</option>
                   <option value="sonstiges">Sonstiges</option>
                 </select>

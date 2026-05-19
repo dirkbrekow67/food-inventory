@@ -7,7 +7,6 @@ const allowedRemovalReasons = [
   'verbraucht',
   'abgelaufen',
   'entsorgt',
-  'falsch_erfasst',
   'verschenkt',
   'sonstiges',
 ];
