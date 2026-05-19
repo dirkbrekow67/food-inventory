@@ -33,23 +33,26 @@ const allowedExperienceReasons = [
 function selectHistoryItemById(id) {
   return db.prepare(`
     SELECT
-      id,
-      product_id,
-      product_name,
-      product_brand,
-      product_category,
-      product_country,
-      product_store,
-      label_code,
-      removed_at,
-      removal_reason,
-      product_buy_again_status_after_removal,
-      experience_reason,
-      experience_note,
-      notes,
-      created_at
+      inventory_history.id,
+      inventory_history.product_id,
+      inventory_history.product_name,
+      inventory_history.product_brand,
+      inventory_history.product_category,
+      inventory_history.product_country,
+      inventory_history.product_store,
+      inventory_history.label_code,
+      inventory_history.removed_at,
+      inventory_history.removal_reason,
+      inventory_history.product_buy_again_status_after_removal,
+      inventory_history.experience_reason,
+      inventory_history.experience_note,
+      inventory_history.notes,
+      inventory_history.created_at,
+      products.favorite AS product_favorite
     FROM inventory_history
-    WHERE id = ?
+    LEFT JOIN products
+      ON products.id = inventory_history.product_id
+    WHERE inventory_history.id = ?
   `).get(id);
 }
 
@@ -57,25 +60,28 @@ router.get('/', (req, res) => {
   try {
     const historyItems = db.prepare(`
       SELECT
-        id,
-        product_id,
-        product_name,
-        product_brand,
-        product_category,
-        product_country,
-        product_store,
-        label_code,
-        removed_at,
-        removal_reason,
-        product_buy_again_status_after_removal,
-        experience_reason,
-        experience_note,
-        notes,
-        created_at
+        inventory_history.id,
+        inventory_history.product_id,
+        inventory_history.product_name,
+        inventory_history.product_brand,
+        inventory_history.product_category,
+        inventory_history.product_country,
+        inventory_history.product_store,
+        inventory_history.label_code,
+        inventory_history.removed_at,
+        inventory_history.removal_reason,
+        inventory_history.product_buy_again_status_after_removal,
+        inventory_history.experience_reason,
+        inventory_history.experience_note,
+        inventory_history.notes,
+        inventory_history.created_at,
+        products.favorite AS product_favorite
       FROM inventory_history
+      LEFT JOIN products
+        ON products.id = inventory_history.product_id
       ORDER BY
-        removed_at DESC,
-        id DESC
+        inventory_history.removed_at DESC,
+        inventory_history.id DESC
     `).all();
 
     res.json(historyItems);

@@ -1527,6 +1527,10 @@ function App() {
                     <span className="label-code">{item.label_code}</span>
                   )}
 
+                  {item.product_favorite === 1 && (
+                    <span className="favorite-badge">★ Standardartikel</span>
+                  )}
+
                   <span
                     className={`package-state package-state-${item.package_state}`}
                   >
@@ -1699,6 +1703,10 @@ function App() {
                     <span className="label-code">{item.label_code}</span>
                   )}
 
+                  {item.product_favorite === 1 && (
+                    <span className="favorite-badge">★ Standardartikel</span>
+                  )}
+
                   <span className="history-reason">
                     {getRemovalReasonLabel(item.removal_reason)}
                   </span>
@@ -1830,6 +1838,9 @@ function App() {
                 ? ` · Etikett ${removalDialogItem.label_code}`
                 : ""}
             </p>
+            {removalDialogItem.product_favorite === 1 && (
+              <p className="muted">★ Standardartikel</p>
+            )}
 
             <p className="dialog-warning">
               Der Bestandseintrag wird entfernt. Eine vorhandene Etiketten-ID

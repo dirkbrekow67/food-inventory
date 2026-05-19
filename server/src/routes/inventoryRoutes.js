@@ -34,6 +34,7 @@ function selectInventoryItemById(id) {
       products.brand AS product_brand,
       products.category AS product_category,
       products.buy_again_status AS product_buy_again_status,
+      products.favorite AS product_favorite,
 
       storage_units.name AS storage_unit_name,
       storage_units.type AS storage_unit_type,
@@ -70,6 +71,7 @@ router.get('/', (req, res) => {
         products.brand AS product_brand,
         products.category AS product_category,
         products.buy_again_status AS product_buy_again_status,
+        products.favorite AS product_favorite,
 
         storage_units.name AS storage_unit_name,
         storage_units.type AS storage_unit_type,
@@ -327,6 +329,7 @@ router.delete('/:id', (req, res) => {
             products.country AS product_country,
             products.store AS product_store,
             products.buy_again_status AS product_buy_again_status,
+            products.favorite AS product_favorite,
 
             label_slots.label_code AS label_code
           FROM inventory_items
