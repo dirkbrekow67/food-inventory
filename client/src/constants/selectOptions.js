@@ -114,3 +114,11 @@ export const experienceReasonOptions = [
   { value: "preis_leistung_schlecht", label: "Preis-Leistung schlecht" },
   { value: "sonstiges", label: "Sonstiges" },
 ];
+
+export const historyEditRemovalReasonOptions = [
+  { value: "verbraucht", label: "Verbraucht" },
+  { value: "abgelaufen", label: "Abgelaufen" },
+  { value: "entsorgt", label: "Entsorgt" },
+  { value: "verschenkt", label: "Verschenkt" },
+  { value: "sonstiges", label: "Sonstiges" },
+];

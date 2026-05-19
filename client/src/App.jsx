@@ -21,6 +21,7 @@ import {
   buyAgainStatusOptions,
   experienceReasonOptions,
   historyBuyAgainFilterOptions,
+  historyEditRemovalReasonOptions,
   historyRemovalReasonFilterOptions,
   internalExtensionMonthOptions,
   inventoryStatusFilterOptions,
@@ -950,12 +951,7 @@ function App() {
                   updateProductForm("rating", event.target.value)
                 }
               >
-                <option value="">Keine Bewertung</option>
-                <option value="1">1/5</option>
-                <option value="2">2/5</option>
-                <option value="3">3/5</option>
-                <option value="4">4/5</option>
-                <option value="5">5/5</option>
+                {renderSelectOptions(ratingOptions)}
               </select>
             </label>
 
@@ -1271,11 +1267,7 @@ function App() {
                   updateInventoryForm("remainingFraction", event.target.value)
                 }
               >
-                <option value="">Kein Anteil</option>
-                <option value="1/1">voll</option>
-                <option value="3/4">3/4</option>
-                <option value="1/2">1/2</option>
-                <option value="1/4">1/4</option>
+                {renderSelectOptions(remainingFractionOptions)}
               </select>
             </label>
 
@@ -1287,9 +1279,7 @@ function App() {
                   updateInventoryForm("packageState", event.target.value)
                 }
               >
-                <option value="ungeoeffnet">Ungeöffnet</option>
-                <option value="angebrochen">Angebrochen</option>
-                <option value="portioniert">Portioniert</option>
+                {renderSelectOptions(packageStateOptions)}
               </select>
             </label>
 
@@ -1330,9 +1320,7 @@ function App() {
                 }
                 disabled={!inventoryForm.isFrozenChilledFood}
               >
-                <option value="3">+ 3 Monate</option>
-                <option value="6">+ 6 Monate</option>
-                <option value="12">+ 12 Monate</option>
+                {renderSelectOptions(internalExtensionMonthOptions)}
               </select>
             </label>
 
@@ -1412,11 +1400,7 @@ function App() {
                   setInventoryStatusFilter(event.target.value)
                 }
               >
-                <option value="all">Alle</option>
-                <option value="ok">OK</option>
-                <option value="soon">Bald fällig</option>
-                <option value="expired">Abgelaufen</option>
-                <option value="no_date">Ohne Datum</option>
+                {renderSelectOptions(inventoryStatusFilterOptions)}
               </select>
             </label>
 
@@ -1585,12 +1569,7 @@ function App() {
                 value={historyReasonFilter}
                 onChange={(event) => setHistoryReasonFilter(event.target.value)}
               >
-                <option value="all">Alle Gründe</option>
-                <option value="verbraucht">Verbraucht</option>
-                <option value="abgelaufen">Abgelaufen</option>
-                <option value="entsorgt">Entsorgt</option>
-                <option value="verschenkt">Verschenkt</option>
-                <option value="sonstiges">Sonstiges</option>
+                {renderSelectOptions(historyRemovalReasonFilterOptions)}
               </select>
             </label>
 
@@ -1602,11 +1581,7 @@ function App() {
                   setHistoryBuyAgainFilter(event.target.value)
                 }
               >
-                <option value="all">Alle Bewertungen</option>
-                <option value="neutral">Neutral</option>
-                <option value="wieder_kaufen">Wieder kaufen</option>
-                <option value="nicht_wieder_kaufen">Nicht wieder kaufen</option>
-                <option value="testen">Erst testen</option>
+                {renderSelectOptions(historyBuyAgainFilterOptions)}
               </select>
             </label>
 
@@ -1825,12 +1800,7 @@ function App() {
                   }}
                   disabled={removingInventoryItem}
                 >
-                  <option value="verbraucht">Verbraucht</option>
-                  <option value="abgelaufen">Abgelaufen</option>
-                  <option value="entsorgt">Entsorgt</option>
-                  <option value="falsch_erfasst">Falsch erfasst</option>
-                  <option value="verschenkt">Verschenkt</option>
-                  <option value="sonstiges">Sonstiges</option>
+                  {renderSelectOptions(removalReasonOptions)}
                 </select>
               </label>
 
@@ -1855,12 +1825,7 @@ function App() {
                     removingInventoryItem || removalReason === "falsch_erfasst"
                   }
                 >
-                  <option value="unverändert">Unverändert</option>
-                  <option value="wieder_kaufen">Wieder kaufen</option>
-                  <option value="nicht_wieder_kaufen">
-                    Nicht wieder kaufen
-                  </option>
-                  <option value="testen">Erst testen</option>
+                  {renderSelectOptions(removalProductStatusOptions)}
                 </select>
               </label>
               <label className="checkbox-label">
@@ -1888,25 +1853,7 @@ function App() {
                       }
                       disabled={removingInventoryItem}
                     >
-                      <option value="keine">Keine besondere Erkenntnis</option>
-                      <option value="zu_viel_gekauft">Zu viel gekauft</option>
-                      <option value="kein_bedarf">Kein Bedarf</option>
-                      <option value="vergessen_uebersehen">
-                        Vergessen / übersehen
-                      </option>
-                      <option value="lagerort_unguenstig">
-                        Lagerort ungünstig
-                      </option>
-                      <option value="qualitaet_schlecht">
-                        Qualität schlecht
-                      </option>
-                      <option value="rezeptur_geschmack_veraendert">
-                        Rezeptur / Geschmack verändert
-                      </option>
-                      <option value="preis_leistung_schlecht">
-                        Preis-Leistung schlecht
-                      </option>
-                      <option value="sonstiges">Sonstiges</option>
+                      {renderSelectOptions(experienceReasonOptions)}
                     </select>
                   </label>
 
@@ -2023,11 +1970,7 @@ function App() {
                   onChange={(event) => setHistoryEditReason(event.target.value)}
                   disabled={savingHistoryItem}
                 >
-                  <option value="verbraucht">Verbraucht</option>
-                  <option value="abgelaufen">Abgelaufen</option>
-                  <option value="entsorgt">Entsorgt</option>
-                  <option value="verschenkt">Verschenkt</option>
-                  <option value="sonstiges">Sonstiges</option>
+                  {renderSelectOptions(historyEditRemovalReasonOptions)}
                 </select>
               </label>
 
@@ -2040,12 +1983,7 @@ function App() {
                   }
                   disabled={savingHistoryItem}
                 >
-                  <option value="neutral">Neutral</option>
-                  <option value="wieder_kaufen">Wieder kaufen</option>
-                  <option value="nicht_wieder_kaufen">
-                    Nicht wieder kaufen
-                  </option>
-                  <option value="testen">Erst testen</option>
+                  {renderSelectOptions(buyAgainStatusOptions)}
                 </select>
               </label>
 
@@ -2058,23 +1996,7 @@ function App() {
                   }
                   disabled={savingHistoryItem}
                 >
-                  <option value="keine">Keine besondere Erkenntnis</option>
-                  <option value="zu_viel_gekauft">Zu viel gekauft</option>
-                  <option value="kein_bedarf">Kein Bedarf</option>
-                  <option value="vergessen_uebersehen">
-                    Vergessen / übersehen
-                  </option>
-                  <option value="lagerort_unguenstig">
-                    Lagerort ungünstig
-                  </option>
-                  <option value="qualitaet_schlecht">Qualität schlecht</option>
-                  <option value="rezeptur_geschmack_veraendert">
-                    Rezeptur / Geschmack verändert
-                  </option>
-                  <option value="preis_leistung_schlecht">
-                    Preis-Leistung schlecht
-                  </option>
-                  <option value="sonstiges">Sonstiges</option>
+                  {renderSelectOptions(experienceReasonOptions)}
                 </select>
               </label>
 
