@@ -334,12 +334,16 @@ function App() {
     setHistoryDeleteDialogItem(item);
   }
 
+  function resetHistoryDeleteDialogState() {
+    setHistoryDeleteDialogItem(null);
+  }
+
   function closeHistoryDeleteDialog() {
     if (deletingHistoryItem) {
       return;
     }
 
-    setHistoryDeleteDialogItem(null);
+    resetHistoryDeleteDialogState();
   }
 
   async function confirmDeleteHistoryItem() {
@@ -357,7 +361,7 @@ function App() {
         updateHistoryListAfterDelete(currentItems, historyDeleteDialogItem.id),
       );
 
-      setHistoryDeleteDialogItem(null);
+      resetHistoryDeleteDialogState();
     } catch (error) {
       console.error(error);
       setErrorMessage("Historieneintrag konnte nicht gelöscht werden.");
