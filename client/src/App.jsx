@@ -83,6 +83,8 @@ import {
   createRemovalPayload,
 } from "./utils/removalDataUtils";
 
+const initialHistoryEditState = createInitialHistoryEditState();
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -98,16 +100,22 @@ function App() {
   const [historyProductFilter, setHistoryProductFilter] = useState("all");
   const [errorMessage, setErrorMessage] = useState("");
   const [historyDialogItem, setHistoryDialogItem] = useState(null);
-  const [historyEditReason, setHistoryEditReason] = useState("sonstiges");
+  const [historyEditReason, setHistoryEditReason] = useState(
+    initialHistoryEditState.historyEditReason,
+  );
   const [historyDeleteDialogItem, setHistoryDeleteDialogItem] = useState(null);
   const [deletingHistoryItem, setDeletingHistoryItem] = useState(false);
-  const [historyEditBuyAgainStatus, setHistoryEditBuyAgainStatus] =
-    useState("neutral");
+  const [historyEditBuyAgainStatus, setHistoryEditBuyAgainStatus] = useState(
+    initialHistoryEditState.historyEditBuyAgainStatus,
+  );
   const [historyEditExperienceReason, setHistoryEditExperienceReason] =
-    useState("keine");
-  const [historyEditExperienceNote, setHistoryEditExperienceNote] =
-    useState("");
-  const [historyEditNotes, setHistoryEditNotes] = useState("");
+    useState(initialHistoryEditState.historyEditExperienceReason);
+  const [historyEditExperienceNote, setHistoryEditExperienceNote] = useState(
+    initialHistoryEditState.historyEditExperienceNote,
+  );
+  const [historyEditNotes, setHistoryEditNotes] = useState(
+    initialHistoryEditState.historyEditNotes,
+  );
   const [savingHistoryItem, setSavingHistoryItem] = useState(false);
 
   const [productForm, setProductForm] = useState(() => emptyProductForm);
@@ -384,8 +392,6 @@ function App() {
   }
 
   function resetHistoryEditState() {
-    const initialHistoryEditState = createInitialHistoryEditState();
-
     setHistoryDialogItem(null);
     setHistoryEditReason(initialHistoryEditState.historyEditReason);
     setHistoryEditBuyAgainStatus(
