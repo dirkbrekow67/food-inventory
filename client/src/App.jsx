@@ -58,6 +58,12 @@ import {
 
 import { renderSelectOptions } from "./components/form/FormSelectOptions";
 
+import {
+  createProductFormFromProduct,
+  createProductPayload,
+  updateProductListAfterSave,
+} from "./utils/productDataUtils";
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -224,35 +230,13 @@ function App() {
       setSavingProduct(true);
       setErrorMessage("");
 
-      const payload = {
-        name: productForm.name.trim(),
-        brand: productForm.brand.trim() || null,
-        category: productForm.category.trim() || null,
-        country: productForm.country.trim() || null,
-        store: productForm.store.trim() || null,
-        buyAgainStatus: productForm.buyAgainStatus,
-        rating: productForm.rating ? Number(productForm.rating) : null,
-        notes: productForm.notes.trim() || null,
-        favorite: productForm.favorite ? 1 : 0,
-      };
+      const payload = createProductPayload(productForm);
 
       const savedProduct = await saveProduct(editingProductId, payload);
 
-      setProducts((currentProducts) => {
-        const productExists = currentProducts.some(
-          (product) => product.id === savedProduct.id,
-        );
-
-        const nextProducts = productExists
-          ? currentProducts.map((product) =>
-              product.id === savedProduct.id ? savedProduct : product,
-            )
-          : [...currentProducts, savedProduct];
-
-        return nextProducts.sort((a, b) =>
-          a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
-        );
-      });
+      setProducts((currentProducts) =>
+        updateProductListAfterSave(currentProducts, savedProduct),
+      );
 
       resetProductForm();
     } catch (error) {
@@ -266,17 +250,7 @@ function App() {
   function startEditProduct(product) {
     setEditingProductId(product.id);
 
-    setProductForm({
-      name: product.name || "",
-      brand: product.brand || "",
-      category: product.category || "",
-      country: product.country || "",
-      store: product.store || "",
-      buyAgainStatus: product.buy_again_status || "neutral",
-      rating: product.rating ? String(product.rating) : "",
-      notes: product.notes || "",
-      favorite: product.favorite === 1,
-    });
+    setProductForm(createProductFormFromProduct(product));
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
