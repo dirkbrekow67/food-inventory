@@ -63,6 +63,7 @@ import {
   createProductFormFromProduct,
   createProductPayload,
   updateProductListAfterDeactivate,
+  updateProductListAfterInventoryRemoval,
   updateProductListAfterSave,
 } from "./utils/productDataUtils";
 
@@ -500,13 +501,9 @@ function App() {
         updateInventoryListAfterRemove(currentItems, removalDialogItem.id),
       );
 
-      if (result.product) {
-        setProducts((currentProducts) =>
-          currentProducts.map((product) =>
-            product.id === result.product.id ? result.product : product,
-          ),
-        );
-      }
+      setProducts((currentProducts) =>
+        updateProductListAfterInventoryRemoval(currentProducts, result.product),
+      );
 
       const initialRemovalState = createInitialRemovalState();
 

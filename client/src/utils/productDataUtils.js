@@ -1,4 +1,4 @@
-// productDataUtils.js
+// client/src/utils/productDataUtils.js
 export function createProductPayload(productForm) {
   return {
     name: productForm.name.trim(),
@@ -45,4 +45,17 @@ export function updateProductListAfterSave(currentProducts, savedProduct) {
 
 export function updateProductListAfterDeactivate(currentProducts, productId) {
   return currentProducts.filter((product) => product.id !== productId);
+}
+
+export function updateProductListAfterInventoryRemoval(
+  currentProducts,
+  updatedProduct,
+) {
+  if (!updatedProduct) {
+    return currentProducts;
+  }
+
+  return currentProducts.map((product) =>
+    product.id === updatedProduct.id ? updatedProduct : product,
+  );
 }
