@@ -457,11 +457,7 @@ function App() {
     setExperienceNote(initialRemovalState.experienceNote);
   }
 
-  function closeRemovalDialog() {
-    if (removingInventoryItem) {
-      return;
-    }
-
+  function resetRemovalState() {
     const initialRemovalState = createInitialRemovalState();
 
     setRemovalDialogItem(null);
@@ -470,6 +466,14 @@ function App() {
     setSaveRemovalToHistory(initialRemovalState.saveRemovalToHistory);
     setExperienceReason(initialRemovalState.experienceReason);
     setExperienceNote(initialRemovalState.experienceNote);
+  }
+
+  function closeRemovalDialog() {
+    if (removingInventoryItem) {
+      return;
+    }
+
+    resetRemovalState();
   }
 
   async function confirmRemoveInventoryItem() {
@@ -505,14 +509,7 @@ function App() {
         updateProductListAfterInventoryRemoval(currentProducts, result.product),
       );
 
-      const initialRemovalState = createInitialRemovalState();
-
-      setRemovalDialogItem(null);
-      setRemovalReason(initialRemovalState.removalReason);
-      setRemovalProductStatus(initialRemovalState.removalProductStatus);
-      setSaveRemovalToHistory(initialRemovalState.saveRemovalToHistory);
-      setExperienceReason(initialRemovalState.experienceReason);
-      setExperienceNote(initialRemovalState.experienceNote);
+      resetRemovalState();
     } catch (error) {
       console.error(error);
       setErrorMessage("Bestand konnte nicht entfernt werden.");
