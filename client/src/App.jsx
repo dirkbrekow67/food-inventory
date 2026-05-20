@@ -84,6 +84,7 @@ import {
 } from "./utils/removalDataUtils";
 
 const initialHistoryEditState = createInitialHistoryEditState();
+const initialRemovalState = createInitialRemovalState();
 
 function App() {
   const [storageTree, setStorageTree] = useState([]);
@@ -126,13 +127,22 @@ function App() {
   const [inventoryStatusFilter, setInventoryStatusFilter] = useState("all");
   const [inventoryStorageFilter, setInventoryStorageFilter] = useState("all");
   const [removalDialogItem, setRemovalDialogItem] = useState(null);
-  const [removalReason, setRemovalReason] = useState("verbraucht");
-  const [removalProductStatus, setRemovalProductStatus] =
-    useState("unverändert");
+  const [removalReason, setRemovalReason] = useState(
+    initialRemovalState.removalReason,
+  );
+  const [removalProductStatus, setRemovalProductStatus] = useState(
+    initialRemovalState.removalProductStatus,
+  );
   const [removingInventoryItem, setRemovingInventoryItem] = useState(false);
-  const [saveRemovalToHistory, setSaveRemovalToHistory] = useState(false);
-  const [experienceReason, setExperienceReason] = useState("keine");
-  const [experienceNote, setExperienceNote] = useState("");
+  const [saveRemovalToHistory, setSaveRemovalToHistory] = useState(
+    initialRemovalState.saveRemovalToHistory,
+  );
+  const [experienceReason, setExperienceReason] = useState(
+    initialRemovalState.experienceReason,
+  );
+  const [experienceNote, setExperienceNote] = useState(
+    initialRemovalState.experienceNote,
+  );
 
   const [savingProduct, setSavingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
@@ -448,8 +458,6 @@ function App() {
   }
 
   function openRemovalDialog(item) {
-    const initialRemovalState = createInitialRemovalState();
-
     setRemovalDialogItem(item);
     setRemovalReason(initialRemovalState.removalReason);
     setRemovalProductStatus(initialRemovalState.removalProductStatus);
@@ -459,8 +467,6 @@ function App() {
   }
 
   function resetRemovalState() {
-    const initialRemovalState = createInitialRemovalState();
-
     setRemovalDialogItem(null);
     setRemovalReason(initialRemovalState.removalReason);
     setRemovalProductStatus(initialRemovalState.removalProductStatus);
