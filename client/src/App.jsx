@@ -53,7 +53,6 @@ import {
   getInventoryStorageFilterOptions,
   getLatestInventoryItemForProduct,
   getProductHistorySummary,
-  parseRemainingFraction,
 } from "./utils/inventoryDataUtils";
 
 import { renderSelectOptions } from "./components/form/FormSelectOptions";
@@ -63,6 +62,8 @@ import {
   createProductPayload,
   updateProductListAfterSave,
 } from "./utils/productDataUtils";
+
+import { createInventoryPayload } from "./utils/inventoryFormUtils";
 
 function App() {
   const [storageTree, setStorageTree] = useState([]);
@@ -294,37 +295,7 @@ function App() {
       setSavingInventoryItem(true);
       setErrorMessage("");
 
-      const fraction = parseRemainingFraction(inventoryForm.remainingFraction);
-
-      const payload = {
-        productId: Number(inventoryForm.productId),
-        storageUnitId: Number(inventoryForm.storageUnitId),
-        storageCompartmentId: inventoryForm.storageCompartmentId
-          ? Number(inventoryForm.storageCompartmentId)
-          : null,
-
-        originalQuantity: inventoryForm.originalQuantity
-          ? Number(inventoryForm.originalQuantity)
-          : null,
-        originalUnit: inventoryForm.originalUnit || null,
-        remainingQuantity: inventoryForm.remainingQuantity
-          ? Number(inventoryForm.remainingQuantity)
-          : null,
-        remainingUnit: inventoryForm.remainingUnit || null,
-        remainingFractionNumerator: fraction.numerator,
-        remainingFractionDenominator: fraction.denominator,
-        quantityEstimated: inventoryForm.quantityEstimated ? 1 : 0,
-
-        packageState: inventoryForm.packageState,
-        bestBeforeDate: inventoryForm.bestBeforeDate || null,
-        frozenDate: inventoryForm.frozenDate || null,
-        openedDate: inventoryForm.openedDate || null,
-        isFrozenChilledFood: inventoryForm.isFrozenChilledFood ? 1 : 0,
-        internalExtensionMonths: inventoryForm.internalExtensionMonths
-          ? Number(inventoryForm.internalExtensionMonths)
-          : 6,
-        notes: inventoryForm.notes.trim() || null,
-      };
+      const payload = createInventoryPayload(inventoryForm);
 
       const createdItem = await createInventoryItem(payload);
 
