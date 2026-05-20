@@ -47,3 +47,13 @@ export function createHistoryEditStateFromItem(item) {
     historyEditNotes: item.notes || "",
   };
 }
+
+export function updateHistoryListAfterDelete(currentItems, historyItemId) {
+  return currentItems.filter((item) => item.id !== historyItemId);
+}
+
+export function updateHistoryListAfterSave(currentItems, updatedHistoryItem) {
+  return currentItems.map((item) =>
+    item.id === updatedHistoryItem.id ? updatedHistoryItem : item,
+  );
+}

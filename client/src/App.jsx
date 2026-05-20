@@ -71,6 +71,8 @@ import {
   createHistoryUpdatePayload,
   createInitialHistoryEditState,
   shouldSuggestHistory,
+  updateHistoryListAfterDelete,
+  updateHistoryListAfterSave,
 } from "./utils/historyDataUtils";
 
 import {
@@ -349,7 +351,7 @@ function App() {
       await deleteHistoryItemById(historyDeleteDialogItem.id);
 
       setHistoryItems((currentItems) =>
-        currentItems.filter((item) => item.id !== historyDeleteDialogItem.id),
+        updateHistoryListAfterDelete(currentItems, historyDeleteDialogItem.id),
       );
 
       setHistoryDeleteDialogItem(null);
@@ -416,9 +418,7 @@ function App() {
       );
 
       setHistoryItems((currentItems) =>
-        currentItems.map((item) =>
-          item.id === updatedHistoryItem.id ? updatedHistoryItem : item,
-        ),
+        updateHistoryListAfterSave(currentItems, updatedHistoryItem),
       );
 
       const initialHistoryEditState = createInitialHistoryEditState();
