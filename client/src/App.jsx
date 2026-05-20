@@ -67,7 +67,9 @@ import {
 import { createInventoryPayload } from "./utils/inventoryFormUtils";
 
 import {
+  createHistoryEditStateFromItem,
   createHistoryUpdatePayload,
+  createInitialHistoryEditState,
   shouldSuggestHistory,
 } from "./utils/historyDataUtils";
 
@@ -360,14 +362,16 @@ function App() {
   }
 
   function openHistoryDialog(item) {
+    const historyEditState = createHistoryEditStateFromItem(item);
+
     setHistoryDialogItem(item);
-    setHistoryEditReason(item.removal_reason || "sonstiges");
-    setHistoryEditBuyAgainStatus(
-      item.product_buy_again_status_after_removal || "neutral",
+    setHistoryEditReason(historyEditState.historyEditReason);
+    setHistoryEditBuyAgainStatus(historyEditState.historyEditBuyAgainStatus);
+    setHistoryEditExperienceReason(
+      historyEditState.historyEditExperienceReason,
     );
-    setHistoryEditExperienceReason(item.experience_reason || "keine");
-    setHistoryEditExperienceNote(item.experience_note || "");
-    setHistoryEditNotes(item.notes || "");
+    setHistoryEditExperienceNote(historyEditState.historyEditExperienceNote);
+    setHistoryEditNotes(historyEditState.historyEditNotes);
   }
 
   function closeHistoryDialog() {
@@ -375,12 +379,20 @@ function App() {
       return;
     }
 
+    const initialHistoryEditState = createInitialHistoryEditState();
+
     setHistoryDialogItem(null);
-    setHistoryEditReason("sonstiges");
-    setHistoryEditBuyAgainStatus("neutral");
-    setHistoryEditExperienceReason("keine");
-    setHistoryEditExperienceNote("");
-    setHistoryEditNotes("");
+    setHistoryEditReason(initialHistoryEditState.historyEditReason);
+    setHistoryEditBuyAgainStatus(
+      initialHistoryEditState.historyEditBuyAgainStatus,
+    );
+    setHistoryEditExperienceReason(
+      initialHistoryEditState.historyEditExperienceReason,
+    );
+    setHistoryEditExperienceNote(
+      initialHistoryEditState.historyEditExperienceNote,
+    );
+    setHistoryEditNotes(initialHistoryEditState.historyEditNotes);
   }
 
   async function confirmSaveHistoryItem() {
@@ -409,12 +421,20 @@ function App() {
         ),
       );
 
+      const initialHistoryEditState = createInitialHistoryEditState();
+
       setHistoryDialogItem(null);
-      setHistoryEditReason("sonstiges");
-      setHistoryEditBuyAgainStatus("neutral");
-      setHistoryEditExperienceReason("keine");
-      setHistoryEditExperienceNote("");
-      setHistoryEditNotes("");
+      setHistoryEditReason(initialHistoryEditState.historyEditReason);
+      setHistoryEditBuyAgainStatus(
+        initialHistoryEditState.historyEditBuyAgainStatus,
+      );
+      setHistoryEditExperienceReason(
+        initialHistoryEditState.historyEditExperienceReason,
+      );
+      setHistoryEditExperienceNote(
+        initialHistoryEditState.historyEditExperienceNote,
+      );
+      setHistoryEditNotes(initialHistoryEditState.historyEditNotes);
     } catch (error) {
       console.error(error);
       setErrorMessage("Historieneintrag konnte nicht gespeichert werden.");
