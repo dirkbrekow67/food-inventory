@@ -1,4 +1,7 @@
-import { getInventoryDateStatus } from "./formattersUtils";
+import {
+  getInventoryDateStatus,
+  getInventoryEffectiveDate,
+} from "./formattersUtils";
 
 export function getAllStorageUnits(storageTree) {
   return storageTree.flatMap((location) =>
@@ -176,4 +179,16 @@ export function parseRemainingFraction(value) {
     numerator,
     denominator,
   };
+}
+
+export function updateInventoryListAfterCreate(currentItems, createdItem) {
+  return [...currentItems, createdItem].sort((a, b) => {
+    const dateA = getInventoryEffectiveDate(a);
+    const dateB = getInventoryEffectiveDate(b);
+
+    if (!dateA && dateB) return 1;
+    if (dateA && !dateB) return -1;
+
+    return String(dateA || "").localeCompare(String(dateB || ""));
+  });
 }

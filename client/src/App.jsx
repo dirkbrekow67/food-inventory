@@ -8,7 +8,6 @@ import {
   getExperienceReasonLabel,
   getInventoryDateStatus,
   getInventoryDateStatusLabel,
-  getInventoryEffectiveDate,
   getPackageStateLabel,
   getRemovalReasonLabel,
 } from "./utils/formattersUtils";
@@ -53,6 +52,7 @@ import {
   getInventoryStorageFilterOptions,
   getLatestInventoryItemForProduct,
   getProductHistorySummary,
+  updateInventoryListAfterCreate,
 } from "./utils/inventoryDataUtils";
 
 import { renderSelectOptions } from "./components/form/FormSelectOptions";
@@ -300,15 +300,7 @@ function App() {
       const createdItem = await createInventoryItem(payload);
 
       setInventoryItems((currentItems) =>
-        [...currentItems, createdItem].sort((a, b) => {
-          const dateA = getInventoryEffectiveDate(a);
-          const dateB = getInventoryEffectiveDate(b);
-
-          if (!dateA && dateB) return 1;
-          if (dateA && !dateB) return -1;
-
-          return String(dateA || "").localeCompare(String(dateB || ""));
-        }),
+        updateInventoryListAfterCreate(currentItems, createdItem),
       );
 
       resetInventoryForm();
