@@ -48,9 +48,6 @@ import {
 import {
   getAllStorageUnits,
   getCompartmentsForSelectedUnit,
-  getFilteredHistoryItems,
-  getFilteredInventoryItems,
-  getInventoryStorageFilterOptions,
   getLatestInventoryItemForProduct,
   getProductHistorySummary,
   updateInventoryListAfterCreate,
@@ -574,8 +571,6 @@ function App() {
     inventorySearchTerm,
     inventoryStatusFilter,
     inventoryStorageFilter,
-    getFilteredInventoryItems,
-    getInventoryStorageFilterOptions,
   });
 
   const {
@@ -591,8 +586,6 @@ function App() {
     historyProductFilter,
     products,
     inventoryForm,
-    getFilteredHistoryItems,
-    getProductHistorySummary,
   });
 
   return (

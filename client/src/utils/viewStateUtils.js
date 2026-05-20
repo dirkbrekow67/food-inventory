@@ -1,12 +1,17 @@
 // client/src/utils/viewStateUtils.js
 
+import {
+  getFilteredHistoryItems,
+  getFilteredInventoryItems,
+  getInventoryStorageFilterOptions,
+  getProductHistorySummary,
+} from "./inventoryDataUtils";
+
 export function getInventoryViewState({
   inventoryItems,
   inventorySearchTerm,
   inventoryStatusFilter,
   inventoryStorageFilter,
-  getFilteredInventoryItems,
-  getInventoryStorageFilterOptions,
 }) {
   const filteredInventoryItems = getFilteredInventoryItems(
     inventoryItems,
@@ -38,8 +43,6 @@ export function getHistoryViewState({
   historyProductFilter,
   products,
   inventoryForm,
-  getFilteredHistoryItems,
-  getProductHistorySummary,
 }) {
   const filteredHistoryItems = getFilteredHistoryItems(
     historyItems,
