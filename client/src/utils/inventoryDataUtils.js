@@ -1,3 +1,5 @@
+// client/src/utils/inventoryDataUtils.js
+
 import {
   getInventoryDateStatus,
   getInventoryEffectiveDate,
@@ -191,4 +193,8 @@ export function updateInventoryListAfterCreate(currentItems, createdItem) {
 
     return String(dateA || "").localeCompare(String(dateB || ""));
   });
+}
+
+export function updateInventoryListAfterRemove(currentItems, inventoryItemId) {
+  return currentItems.filter((item) => item.id !== inventoryItemId);
 }

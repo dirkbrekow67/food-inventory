@@ -1,4 +1,4 @@
-// App.jsx
+// client/src/App.jsx
 import { useEffect, useState } from "react";
 import "./App.css";
 
@@ -54,6 +54,7 @@ import {
   getLatestInventoryItemForProduct,
   getProductHistorySummary,
   updateInventoryListAfterCreate,
+  updateInventoryListAfterRemove,
 } from "./utils/inventoryDataUtils";
 
 import { renderSelectOptions } from "./components/form/FormSelectOptions";
@@ -496,9 +497,7 @@ function App() {
       }
 
       setInventoryItems((currentItems) =>
-        currentItems.filter(
-          (currentItem) => currentItem.id !== removalDialogItem.id,
-        ),
+        updateInventoryListAfterRemove(currentItems, removalDialogItem.id),
       );
 
       if (result.product) {
