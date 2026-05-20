@@ -56,13 +56,7 @@ import {
   parseRemainingFraction,
 } from "./utils/inventoryDataUtils";
 
-function renderSelectOptions(options) {
-  return options.map((option) => (
-    <option value={option.value} key={option.value}>
-      {option.label}
-    </option>
-  ));
-}
+import { renderSelectOptions } from "./components/form/FormSelectOptions";
 
 function App() {
   const [storageTree, setStorageTree] = useState([]);
