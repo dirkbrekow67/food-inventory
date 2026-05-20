@@ -1,3 +1,4 @@
+// productDataUtils.js
 export function createProductPayload(productForm) {
   return {
     name: productForm.name.trim(),
@@ -40,4 +41,8 @@ export function updateProductListAfterSave(currentProducts, savedProduct) {
   return nextProducts.sort((a, b) =>
     a.name.localeCompare(b.name, "de", { sensitivity: "base" }),
   );
+}
+
+export function updateProductListAfterDeactivate(currentProducts, productId) {
+  return currentProducts.filter((product) => product.id !== productId);
 }

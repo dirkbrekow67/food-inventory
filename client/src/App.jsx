@@ -61,6 +61,7 @@ import { renderSelectOptions } from "./components/form/FormSelectOptions";
 import {
   createProductFormFromProduct,
   createProductPayload,
+  updateProductListAfterDeactivate,
   updateProductListAfterSave,
 } from "./utils/productDataUtils";
 
@@ -286,7 +287,7 @@ function App() {
       await deactivateProductById(productId);
 
       setProducts((currentProducts) =>
-        currentProducts.filter((product) => product.id !== productId),
+        updateProductListAfterDeactivate(currentProducts, productId),
       );
 
       if (editingProductId === productId) {
