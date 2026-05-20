@@ -65,6 +65,11 @@ import {
 
 import { createInventoryPayload } from "./utils/inventoryFormUtils";
 
+import {
+  createHistoryUpdatePayload,
+  shouldSuggestHistory,
+} from "./utils/historyDataUtils";
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -383,13 +388,13 @@ function App() {
 
       const updatedHistoryItem = await updateHistoryItemById(
         historyDialogItem.id,
-        {
-          removalReason: historyEditReason,
-          productBuyAgainStatus: historyEditBuyAgainStatus,
-          experienceReason: historyEditExperienceReason,
-          experienceNote: historyEditExperienceNote,
-          notes: historyEditNotes,
-        },
+        createHistoryUpdatePayload({
+          historyEditReason,
+          historyEditBuyAgainStatus,
+          historyEditExperienceReason,
+          historyEditExperienceNote,
+          historyEditNotes,
+        }),
       );
 
       setHistoryItems((currentItems) =>
@@ -410,18 +415,6 @@ function App() {
     } finally {
       setSavingHistoryItem(false);
     }
-  }
-
-  function shouldSuggestHistory(reason, productStatus) {
-    if (reason === "falsch_erfasst") {
-      return false;
-    }
-
-    if (reason === "abgelaufen" || reason === "entsorgt") {
-      return true;
-    }
-
-    return productStatus !== "unverändert";
   }
 
   function openRemovalDialog(item) {
