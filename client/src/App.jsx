@@ -1,3 +1,4 @@
+// App.jsx
 import { useEffect, useState } from "react";
 import "./App.css";
 
@@ -69,6 +70,11 @@ import {
   createHistoryUpdatePayload,
   shouldSuggestHistory,
 } from "./utils/historyDataUtils";
+
+import {
+  createInitialRemovalState,
+  createRemovalPayload,
+} from "./utils/removalDataUtils";
 
 function App() {
   const [storageTree, setStorageTree] = useState([]);
@@ -418,12 +424,14 @@ function App() {
   }
 
   function openRemovalDialog(item) {
+    const initialRemovalState = createInitialRemovalState();
+
     setRemovalDialogItem(item);
-    setRemovalReason("verbraucht");
-    setRemovalProductStatus("unverändert");
-    setSaveRemovalToHistory(false);
-    setExperienceReason("keine");
-    setExperienceNote("");
+    setRemovalReason(initialRemovalState.removalReason);
+    setRemovalProductStatus(initialRemovalState.removalProductStatus);
+    setSaveRemovalToHistory(initialRemovalState.saveRemovalToHistory);
+    setExperienceReason(initialRemovalState.experienceReason);
+    setExperienceNote(initialRemovalState.experienceNote);
   }
 
   function closeRemovalDialog() {
@@ -431,12 +439,14 @@ function App() {
       return;
     }
 
+    const initialRemovalState = createInitialRemovalState();
+
     setRemovalDialogItem(null);
-    setRemovalReason("verbraucht");
-    setRemovalProductStatus("unverändert");
-    setSaveRemovalToHistory(false);
-    setExperienceReason("keine");
-    setExperienceNote("");
+    setRemovalReason(initialRemovalState.removalReason);
+    setRemovalProductStatus(initialRemovalState.removalProductStatus);
+    setSaveRemovalToHistory(initialRemovalState.saveRemovalToHistory);
+    setExperienceReason(initialRemovalState.experienceReason);
+    setExperienceNote(initialRemovalState.experienceNote);
   }
 
   async function confirmRemoveInventoryItem() {
@@ -448,14 +458,16 @@ function App() {
       setRemovingInventoryItem(true);
       setErrorMessage("");
 
-      const result = await removeInventoryItemById(removalDialogItem.id, {
-        removalReason,
-        productBuyAgainStatus:
-          removalProductStatus === "unverändert" ? null : removalProductStatus,
-        saveToHistory: saveRemovalToHistory,
-        experienceReason,
-        experienceNote,
-      });
+      const result = await removeInventoryItemById(
+        removalDialogItem.id,
+        createRemovalPayload({
+          removalReason,
+          removalProductStatus,
+          saveRemovalToHistory,
+          experienceReason,
+          experienceNote,
+        }),
+      );
 
       if (result.savedToHistory) {
         const historyData = await loadHistoryItems();
@@ -476,12 +488,14 @@ function App() {
         );
       }
 
+      const initialRemovalState = createInitialRemovalState();
+
       setRemovalDialogItem(null);
-      setRemovalReason("verbraucht");
-      setRemovalProductStatus("unverändert");
-      setSaveRemovalToHistory(false);
-      setExperienceReason("keine");
-      setExperienceNote("");
+      setRemovalReason(initialRemovalState.removalReason);
+      setRemovalProductStatus(initialRemovalState.removalProductStatus);
+      setSaveRemovalToHistory(initialRemovalState.saveRemovalToHistory);
+      setExperienceReason(initialRemovalState.experienceReason);
+      setExperienceNote(initialRemovalState.experienceNote);
     } catch (error) {
       console.error(error);
       setErrorMessage("Bestand konnte nicht entfernt werden.");
