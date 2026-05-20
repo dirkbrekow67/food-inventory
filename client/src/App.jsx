@@ -379,11 +379,7 @@ function App() {
     setHistoryEditNotes(historyEditState.historyEditNotes);
   }
 
-  function closeHistoryDialog() {
-    if (savingHistoryItem) {
-      return;
-    }
-
+  function resetHistoryEditState() {
     const initialHistoryEditState = createInitialHistoryEditState();
 
     setHistoryDialogItem(null);
@@ -398,6 +394,14 @@ function App() {
       initialHistoryEditState.historyEditExperienceNote,
     );
     setHistoryEditNotes(initialHistoryEditState.historyEditNotes);
+  }
+
+  function closeHistoryDialog() {
+    if (savingHistoryItem) {
+      return;
+    }
+
+    resetHistoryEditState();
   }
 
   async function confirmSaveHistoryItem() {
@@ -424,20 +428,7 @@ function App() {
         updateHistoryListAfterSave(currentItems, updatedHistoryItem),
       );
 
-      const initialHistoryEditState = createInitialHistoryEditState();
-
-      setHistoryDialogItem(null);
-      setHistoryEditReason(initialHistoryEditState.historyEditReason);
-      setHistoryEditBuyAgainStatus(
-        initialHistoryEditState.historyEditBuyAgainStatus,
-      );
-      setHistoryEditExperienceReason(
-        initialHistoryEditState.historyEditExperienceReason,
-      );
-      setHistoryEditExperienceNote(
-        initialHistoryEditState.historyEditExperienceNote,
-      );
-      setHistoryEditNotes(initialHistoryEditState.historyEditNotes);
+      resetHistoryEditState();
     } catch (error) {
       console.error(error);
       setErrorMessage("Historieneintrag konnte nicht gespeichert werden.");
