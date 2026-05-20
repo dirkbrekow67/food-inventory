@@ -83,8 +83,21 @@ import {
   createRemovalPayload,
 } from "./utils/removalDataUtils";
 
+import {
+  createInitialHistoryFilterState,
+  createInitialInventoryFilterState,
+} from "./utils/filterStateUtils";
+
+import {
+  getHistoryViewState,
+  getInventoryViewState,
+} from "./utils/viewStateUtils";
+
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
+
+const initialInventoryFilterState = createInitialInventoryFilterState();
+const initialHistoryFilterState = createInitialHistoryFilterState();
 
 function App() {
   const [storageTree, setStorageTree] = useState([]);
@@ -95,10 +108,18 @@ function App() {
   const [loadingInventory, setLoadingInventory] = useState(true);
   const [historyItems, setHistoryItems] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
-  const [historySearchTerm, setHistorySearchTerm] = useState("");
-  const [historyReasonFilter, setHistoryReasonFilter] = useState("all");
-  const [historyBuyAgainFilter, setHistoryBuyAgainFilter] = useState("all");
-  const [historyProductFilter, setHistoryProductFilter] = useState("all");
+  const [historySearchTerm, setHistorySearchTerm] = useState(
+    initialHistoryFilterState.historySearchTerm,
+  );
+  const [historyReasonFilter, setHistoryReasonFilter] = useState(
+    initialHistoryFilterState.historyReasonFilter,
+  );
+  const [historyBuyAgainFilter, setHistoryBuyAgainFilter] = useState(
+    initialHistoryFilterState.historyBuyAgainFilter,
+  );
+  const [historyProductFilter, setHistoryProductFilter] = useState(
+    initialHistoryFilterState.historyProductFilter,
+  );
   const [errorMessage, setErrorMessage] = useState("");
   const [historyDialogItem, setHistoryDialogItem] = useState(null);
   const [historyEditReason, setHistoryEditReason] = useState(
@@ -123,9 +144,15 @@ function App() {
   const [inventoryForm, setInventoryForm] = useState(() => emptyInventoryForm);
 
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
-  const [inventorySearchTerm, setInventorySearchTerm] = useState("");
-  const [inventoryStatusFilter, setInventoryStatusFilter] = useState("all");
-  const [inventoryStorageFilter, setInventoryStorageFilter] = useState("all");
+  const [inventorySearchTerm, setInventorySearchTerm] = useState(
+    initialInventoryFilterState.inventorySearchTerm,
+  );
+  const [inventoryStatusFilter, setInventoryStatusFilter] = useState(
+    initialInventoryFilterState.inventoryStatusFilter,
+  );
+  const [inventoryStorageFilter, setInventoryStorageFilter] = useState(
+    initialInventoryFilterState.inventoryStorageFilter,
+  );
   const [removalDialogItem, setRemovalDialogItem] = useState(null);
   const [removalReason, setRemovalReason] = useState(
     initialRemovalState.removalReason,
@@ -203,6 +230,21 @@ function App() {
     setInventoryForm({ ...emptyInventoryForm });
   }
 
+  function resetInventoryFilters() {
+    setInventorySearchTerm(initialInventoryFilterState.inventorySearchTerm);
+    setInventoryStatusFilter(initialInventoryFilterState.inventoryStatusFilter);
+    setInventoryStorageFilter(
+      initialInventoryFilterState.inventoryStorageFilter,
+    );
+  }
+
+  function resetHistoryFilters() {
+    setHistorySearchTerm(initialHistoryFilterState.historySearchTerm);
+    setHistoryReasonFilter(initialHistoryFilterState.historyReasonFilter);
+    setHistoryBuyAgainFilter(initialHistoryFilterState.historyBuyAgainFilter);
+    setHistoryProductFilter(initialHistoryFilterState.historyProductFilter);
+  }
+
   function handleInventoryProductChange(productId) {
     const latestItem = getLatestInventoryItemForProduct(
       inventoryItems,
@@ -245,10 +287,8 @@ function App() {
   }
 
   function showProductHistory(product) {
+    resetHistoryFilters();
     setHistoryProductFilter(String(product.id));
-    setHistorySearchTerm("");
-    setHistoryReasonFilter("all");
-    setHistoryBuyAgainFilter("all");
 
     document
       .getElementById("product-history-section")
@@ -525,43 +565,35 @@ function App() {
     }
   }
 
-  const filteredInventoryItems = getFilteredInventoryItems(
+  const {
+    filteredInventoryItems,
+    inventoryStorageFilterOptions,
+    hasActiveInventoryFilters,
+  } = getInventoryViewState({
     inventoryItems,
     inventorySearchTerm,
     inventoryStatusFilter,
     inventoryStorageFilter,
-  );
+    getFilteredInventoryItems,
+    getInventoryStorageFilterOptions,
+  });
 
-  const inventoryStorageFilterOptions =
-    getInventoryStorageFilterOptions(inventoryItems);
-
-  const hasActiveInventoryFilters =
-    Boolean(inventorySearchTerm.trim()) ||
-    inventoryStatusFilter !== "all" ||
-    inventoryStorageFilter !== "all";
-
-  const filteredHistoryItems = getFilteredHistoryItems(
+  const {
+    filteredHistoryItems,
+    hasActiveHistoryFilters,
+    selectedHistoryProduct,
+    selectedInventoryProductHistorySummary,
+  } = getHistoryViewState({
     historyItems,
     historySearchTerm,
     historyReasonFilter,
     historyBuyAgainFilter,
     historyProductFilter,
-  );
-
-  const hasActiveHistoryFilters =
-    Boolean(historySearchTerm.trim()) ||
-    historyReasonFilter !== "all" ||
-    historyBuyAgainFilter !== "all" ||
-    historyProductFilter !== "all";
-
-  const selectedHistoryProduct =
-    historyProductFilter === "all"
-      ? null
-      : products.find((product) => String(product.id) === historyProductFilter);
-
-  const selectedInventoryProductHistorySummary = inventoryForm.productId
-    ? getProductHistorySummary(historyItems, inventoryForm.productId)
-    : null;
+    products,
+    inventoryForm,
+    getFilteredHistoryItems,
+    getProductHistorySummary,
+  });
 
   return (
     <main className="app-shell">
@@ -1168,11 +1200,7 @@ function App() {
             <button
               type="button"
               className="secondary-button"
-              onClick={() => {
-                setInventorySearchTerm("");
-                setInventoryStatusFilter("all");
-                setInventoryStorageFilter("all");
-              }}
+              onClick={resetInventoryFilters}
               disabled={!hasActiveInventoryFilters}
             >
               Filter zurücksetzen
@@ -1332,12 +1360,7 @@ function App() {
             <button
               type="button"
               className="secondary-button"
-              onClick={() => {
-                setHistorySearchTerm("");
-                setHistoryReasonFilter("all");
-                setHistoryBuyAgainFilter("all");
-                setHistoryProductFilter("all");
-              }}
+              onClick={resetHistoryFilters}
               disabled={!hasActiveHistoryFilters}
             >
               Filter zurücksetzen
