@@ -8,6 +8,8 @@ import {
   getPackageStateLabel,
 } from "../../utils/formattersUtils";
 
+import { InventoryLabelActions } from "./InventoryLabelActions";
+
 export function InventoryCard({ item, onOpenRemovalDialog }) {
   return (
     <article className="inventory-card">
@@ -63,6 +65,8 @@ export function InventoryCard({ item, onOpenRemovalDialog }) {
           </span>
         )}
       </div>
+
+      <InventoryLabelActions item={item} />
 
       {item.notes && <p className="product-notes">{item.notes}</p>}
 

@@ -841,6 +841,14 @@ h4 {
   color: #8a5a00;
 }
 
+.inventory-label-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
 @media (max-width: 560px) {
   .dialog-actions {
     flex-direction: column-reverse;
