@@ -78,9 +78,7 @@ import {
 
 import { ProductsSection } from "./components/products/ProductsSection";
 
-import { InventoryForm } from "./components/inventory/InventoryForm";
-
-import { InventoryOverview } from "./components/inventory/InventoryOverview";
+import { InventorySection } from "./components/inventory/InventorySection";
 
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
@@ -610,43 +608,31 @@ function App() {
         onDeactivateProduct={deactivateProduct}
       />
 
-      <section className="card">
-        <div className="section-header">
-          <div>
-            <h2>Bestand</h2>
-            <p>Konkrete Packungen mit Lagerort, MHD und Restmenge.</p>
-          </div>
-        </div>
-
-        <InventoryForm
-          inventoryForm={inventoryForm}
-          products={products}
-          storageTree={storageTree}
-          selectedInventoryProductHistorySummary={
-            selectedInventoryProductHistorySummary
-          }
-          savingInventoryItem={savingInventoryItem}
-          onCreateInventoryItem={handleCreateInventoryItem}
-          onInventoryProductChange={handleInventoryProductChange}
-          onUpdateInventoryForm={updateInventoryForm}
-        />
-
-        <InventoryOverview
-          inventoryItems={inventoryItems}
-          filteredInventoryItems={filteredInventoryItems}
-          inventorySearchTerm={inventorySearchTerm}
-          inventoryStatusFilter={inventoryStatusFilter}
-          inventoryStorageFilter={inventoryStorageFilter}
-          inventoryStorageFilterOptions={inventoryStorageFilterOptions}
-          hasActiveInventoryFilters={hasActiveInventoryFilters}
-          loadingInventory={loadingInventory}
-          onInventorySearchTermChange={setInventorySearchTerm}
-          onInventoryStatusFilterChange={setInventoryStatusFilter}
-          onInventoryStorageFilterChange={setInventoryStorageFilter}
-          onResetInventoryFilters={resetInventoryFilters}
-          onOpenRemovalDialog={openRemovalDialog}
-        />
-      </section>
+      <InventorySection
+        inventoryForm={inventoryForm}
+        products={products}
+        storageTree={storageTree}
+        selectedInventoryProductHistorySummary={
+          selectedInventoryProductHistorySummary
+        }
+        savingInventoryItem={savingInventoryItem}
+        inventoryItems={inventoryItems}
+        filteredInventoryItems={filteredInventoryItems}
+        inventorySearchTerm={inventorySearchTerm}
+        inventoryStatusFilter={inventoryStatusFilter}
+        inventoryStorageFilter={inventoryStorageFilter}
+        inventoryStorageFilterOptions={inventoryStorageFilterOptions}
+        hasActiveInventoryFilters={hasActiveInventoryFilters}
+        loadingInventory={loadingInventory}
+        onCreateInventoryItem={handleCreateInventoryItem}
+        onInventoryProductChange={handleInventoryProductChange}
+        onUpdateInventoryForm={updateInventoryForm}
+        onInventorySearchTermChange={setInventorySearchTerm}
+        onInventoryStatusFilterChange={setInventoryStatusFilter}
+        onInventoryStorageFilterChange={setInventoryStorageFilter}
+        onResetInventoryFilters={resetInventoryFilters}
+        onOpenRemovalDialog={openRemovalDialog}
+      />
 
       <section className="card" id="product-history-section">
         <div className="section-header">
