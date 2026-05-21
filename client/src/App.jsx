@@ -5,14 +5,6 @@ import "./App.css";
 import { emptyInventoryForm, emptyProductForm } from "./constants/formDefaults";
 
 import {
-  buyAgainStatusOptions,
-  experienceReasonOptions,
-  historyEditRemovalReasonOptions,
-  removalProductStatusOptions,
-  removalReasonOptions,
-} from "./constants/selectOptions";
-
-import {
   createInventoryItem,
   deactivateProductById,
   deleteHistoryItemById,
@@ -30,8 +22,6 @@ import {
   updateInventoryListAfterCreate,
   updateInventoryListAfterRemove,
 } from "./utils/inventoryDataUtils";
-
-import { renderSelectOptions } from "./components/form/FormSelectOptions";
 
 import {
   createProductFormFromProduct,
@@ -74,6 +64,10 @@ import { InventorySection } from "./components/inventory/InventorySection";
 import { HistorySection } from "./components/history/HistorySection";
 
 import { StorageSection } from "./components/storage/StorageSection";
+
+import { RemovalDialog } from "./components/dialogs/RemovalDialog";
+import { HistoryDeleteDialog } from "./components/dialogs/HistoryDeleteDialog";
+import { HistoryEditDialog } from "./components/dialogs/HistoryEditDialog";
 
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
@@ -505,6 +499,33 @@ function App() {
     resetRemovalState();
   }
 
+  function handleRemovalReasonChange(nextReason) {
+    setRemovalReason(nextReason);
+
+    if (nextReason === "falsch_erfasst") {
+      setRemovalProductStatus("unverändert");
+      setSaveRemovalToHistory(false);
+      setExperienceReason("keine");
+      setExperienceNote("");
+      return;
+    }
+
+    setSaveRemovalToHistory(
+      shouldSuggestHistory(nextReason, removalProductStatus),
+    );
+  }
+
+  function handleRemovalProductStatusChange(nextStatus) {
+    setRemovalProductStatus(nextStatus);
+
+    if (removalReason === "falsch_erfasst") {
+      setSaveRemovalToHistory(false);
+      return;
+    }
+
+    setSaveRemovalToHistory(shouldSuggestHistory(removalReason, nextStatus));
+  }
+
   async function confirmRemoveInventoryItem() {
     if (!removalDialogItem) {
       return;
@@ -652,305 +673,46 @@ function App() {
         loadingStorage={loadingStorage}
       />
 
-      {removalDialogItem && (
-        <div className="dialog-backdrop" role="presentation">
-          <div
-            className="dialog-card"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="removal-dialog-title"
-          >
-            <h3 id="removal-dialog-title">Bestand entfernen</h3>
+      <RemovalDialog
+        removalDialogItem={removalDialogItem}
+        removalReason={removalReason}
+        removalProductStatus={removalProductStatus}
+        saveRemovalToHistory={saveRemovalToHistory}
+        experienceReason={experienceReason}
+        experienceNote={experienceNote}
+        removingInventoryItem={removingInventoryItem}
+        onCloseRemovalDialog={closeRemovalDialog}
+        onConfirmRemoveInventoryItem={confirmRemoveInventoryItem}
+        onRemovalReasonChange={handleRemovalReasonChange}
+        onRemovalProductStatusChange={handleRemovalProductStatusChange}
+        onSaveRemovalToHistoryChange={setSaveRemovalToHistory}
+        onExperienceReasonChange={setExperienceReason}
+        onExperienceNoteChange={setExperienceNote}
+      />
 
-            <p className="muted">
-              {removalDialogItem.product_name}
-              {removalDialogItem.label_code
-                ? ` · Etikett ${removalDialogItem.label_code}`
-                : ""}
-            </p>
+      <HistoryDeleteDialog
+        historyDeleteDialogItem={historyDeleteDialogItem}
+        deletingHistoryItem={deletingHistoryItem}
+        onCloseHistoryDeleteDialog={closeHistoryDeleteDialog}
+        onConfirmDeleteHistoryItem={confirmDeleteHistoryItem}
+      />
 
-            {removalDialogItem.product_favorite === 1 && (
-              <p className="muted">★ Standardartikel</p>
-            )}
-
-            <p className="dialog-warning">
-              Der Bestandseintrag wird entfernt. Eine vorhandene Etiketten-ID
-              wird wieder freigegeben und kann später erneut verwendet werden.
-            </p>
-
-            <div className="dialog-form">
-              <label>
-                Grund
-                <select
-                  value={removalReason}
-                  onChange={(event) => {
-                    const nextReason = event.target.value;
-                    setRemovalReason(nextReason);
-
-                    if (nextReason === "falsch_erfasst") {
-                      setRemovalProductStatus("unverändert");
-                      setSaveRemovalToHistory(false);
-                      setExperienceReason("keine");
-                      setExperienceNote("");
-                      return;
-                    }
-
-                    setSaveRemovalToHistory(
-                      shouldSuggestHistory(nextReason, removalProductStatus),
-                    );
-                  }}
-                  disabled={removingInventoryItem}
-                >
-                  {renderSelectOptions(removalReasonOptions)}
-                </select>
-              </label>
-
-              <label>
-                Produktbewertung
-                <select
-                  value={removalProductStatus}
-                  onChange={(event) => {
-                    const nextStatus = event.target.value;
-                    setRemovalProductStatus(nextStatus);
-
-                    if (removalReason === "falsch_erfasst") {
-                      setSaveRemovalToHistory(false);
-                      return;
-                    }
-
-                    setSaveRemovalToHistory(
-                      shouldSuggestHistory(removalReason, nextStatus),
-                    );
-                  }}
-                  disabled={
-                    removingInventoryItem || removalReason === "falsch_erfasst"
-                  }
-                >
-                  {renderSelectOptions(removalProductStatusOptions)}
-                </select>
-              </label>
-
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={saveRemovalToHistory}
-                  onChange={(event) =>
-                    setSaveRemovalToHistory(event.target.checked)
-                  }
-                  disabled={
-                    removingInventoryItem || removalReason === "falsch_erfasst"
-                  }
-                />
-                In Produkthistorie speichern
-              </label>
-
-              {saveRemovalToHistory && (
-                <>
-                  <label>
-                    Erkenntnis
-                    <select
-                      value={experienceReason}
-                      onChange={(event) =>
-                        setExperienceReason(event.target.value)
-                      }
-                      disabled={removingInventoryItem}
-                    >
-                      {renderSelectOptions(experienceReasonOptions)}
-                    </select>
-                  </label>
-
-                  <label>
-                    Notiz zur Produkterfahrung
-                    <textarea
-                      value={experienceNote}
-                      onChange={(event) =>
-                        setExperienceNote(event.target.value)
-                      }
-                      disabled={removingInventoryItem}
-                      placeholder="z. B. lag lange herum, wurde vergessen, schmeckt anders als früher"
-                      rows="3"
-                    />
-                  </label>
-                </>
-              )}
-            </div>
-
-            <div className="dialog-actions">
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={closeRemovalDialog}
-                disabled={removingInventoryItem}
-              >
-                Abbrechen
-              </button>
-
-              <button
-                type="button"
-                className="danger-confirm-button"
-                onClick={confirmRemoveInventoryItem}
-                disabled={removingInventoryItem}
-              >
-                {removingInventoryItem ? "Entfernen..." : "Bestand entfernen"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {historyDeleteDialogItem && (
-        <div className="dialog-backdrop" role="presentation">
-          <div
-            className="dialog-card"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="history-delete-dialog-title"
-          >
-            <h3 id="history-delete-dialog-title">Historieneintrag löschen</h3>
-
-            <p className="muted">
-              {historyDeleteDialogItem.product_name}
-              {historyDeleteDialogItem.label_code
-                ? ` · Etikett ${historyDeleteDialogItem.label_code}`
-                : ""}
-            </p>
-
-            <p className="dialog-warning">
-              Dieser Historieneintrag wird dauerhaft aus der Produkthistorie
-              entfernt. Produkt, Bestand und Etikettenfreigabe bleiben
-              unverändert.
-            </p>
-
-            <div className="dialog-actions">
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={closeHistoryDeleteDialog}
-                disabled={deletingHistoryItem}
-              >
-                Abbrechen
-              </button>
-
-              <button
-                type="button"
-                className="danger-confirm-button"
-                onClick={confirmDeleteHistoryItem}
-                disabled={deletingHistoryItem}
-              >
-                {deletingHistoryItem ? "Löschen..." : "Historie löschen"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {historyDialogItem && (
-        <div className="dialog-backdrop" role="presentation">
-          <div
-            className="dialog-card"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="history-dialog-title"
-          >
-            <h3 id="history-dialog-title">Historieneintrag bearbeiten</h3>
-
-            <p className="muted">
-              {historyDialogItem.product_name}
-              {historyDialogItem.label_code
-                ? ` · Etikett ${historyDialogItem.label_code}`
-                : ""}
-            </p>
-
-            <p className="dialog-warning">
-              Hier wird nur die Produkthistorie nachbearbeitet. Bestand,
-              Produkt-ID und Etikettenfreigabe bleiben unverändert.
-            </p>
-
-            <div className="dialog-form">
-              <label>
-                Grund
-                <select
-                  value={historyEditReason}
-                  onChange={(event) => setHistoryEditReason(event.target.value)}
-                  disabled={savingHistoryItem}
-                >
-                  {renderSelectOptions(historyEditRemovalReasonOptions)}
-                </select>
-              </label>
-
-              <label>
-                Bewertung danach
-                <select
-                  value={historyEditBuyAgainStatus}
-                  onChange={(event) =>
-                    setHistoryEditBuyAgainStatus(event.target.value)
-                  }
-                  disabled={savingHistoryItem}
-                >
-                  {renderSelectOptions(buyAgainStatusOptions)}
-                </select>
-              </label>
-
-              <label>
-                Erkenntnis
-                <select
-                  value={historyEditExperienceReason}
-                  onChange={(event) =>
-                    setHistoryEditExperienceReason(event.target.value)
-                  }
-                  disabled={savingHistoryItem}
-                >
-                  {renderSelectOptions(experienceReasonOptions)}
-                </select>
-              </label>
-
-              <label>
-                Notiz zur Produkterfahrung
-                <textarea
-                  value={historyEditExperienceNote}
-                  onChange={(event) =>
-                    setHistoryEditExperienceNote(event.target.value)
-                  }
-                  disabled={savingHistoryItem}
-                  placeholder="z. B. lag lange herum, wurde vergessen, schmeckt anders als früher"
-                  rows="3"
-                />
-              </label>
-
-              <label>
-                Interne Notiz
-                <textarea
-                  value={historyEditNotes}
-                  onChange={(event) => setHistoryEditNotes(event.target.value)}
-                  disabled={savingHistoryItem}
-                  placeholder="z. B. ursprüngliche technische Notiz oder Ergänzung"
-                  rows="3"
-                />
-              </label>
-            </div>
-
-            <div className="dialog-actions">
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={closeHistoryDialog}
-                disabled={savingHistoryItem}
-              >
-                Abbrechen
-              </button>
-
-              <button
-                type="button"
-                className="primary-confirm-button"
-                onClick={confirmSaveHistoryItem}
-                disabled={savingHistoryItem}
-              >
-                {savingHistoryItem ? "Speichern..." : "Historie speichern"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <HistoryEditDialog
+        historyDialogItem={historyDialogItem}
+        historyEditReason={historyEditReason}
+        historyEditBuyAgainStatus={historyEditBuyAgainStatus}
+        historyEditExperienceReason={historyEditExperienceReason}
+        historyEditExperienceNote={historyEditExperienceNote}
+        historyEditNotes={historyEditNotes}
+        savingHistoryItem={savingHistoryItem}
+        onCloseHistoryDialog={closeHistoryDialog}
+        onConfirmSaveHistoryItem={confirmSaveHistoryItem}
+        onHistoryEditReasonChange={setHistoryEditReason}
+        onHistoryEditBuyAgainStatusChange={setHistoryEditBuyAgainStatus}
+        onHistoryEditExperienceReasonChange={setHistoryEditExperienceReason}
+        onHistoryEditExperienceNoteChange={setHistoryEditExperienceNote}
+        onHistoryEditNotesChange={setHistoryEditNotes}
+      />
     </main>
   );
 }
