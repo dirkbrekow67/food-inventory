@@ -24,9 +24,7 @@ import {
   internalExtensionMonthOptions,
   inventoryStatusFilterOptions,
   packageStateOptions,
-  productCategoryOptions,
   quantityUnitOptions,
-  ratingOptions,
   remainingFractionOptions,
   removalProductStatusOptions,
   removalReasonOptions,
@@ -90,6 +88,8 @@ import {
 } from "./utils/viewStateUtils";
 
 import { ProductGrid } from "./components/products/ProductGrid";
+
+import { ProductForm } from "./components/products/ProductForm";
 
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
@@ -612,144 +612,14 @@ function App() {
           </div>
         </div>
 
-        <form className="product-form" onSubmit={handleSaveProduct}>
-          <div className="form-title-row">
-            <h3>
-              {editingProductId
-                ? "Produkt bearbeiten"
-                : "Neues Produkt anlegen"}
-            </h3>
-
-            {editingProductId && (
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={resetProductForm}
-              >
-                Bearbeitung abbrechen
-              </button>
-            )}
-          </div>
-
-          <div className="form-grid">
-            <label>
-              Produktname *
-              <input
-                type="text"
-                value={productForm.name}
-                onChange={(event) =>
-                  updateProductForm("name", event.target.value)
-                }
-                placeholder="z. B. Pommes Frites"
-              />
-            </label>
-
-            <label>
-              Marke
-              <input
-                type="text"
-                value={productForm.brand}
-                onChange={(event) =>
-                  updateProductForm("brand", event.target.value)
-                }
-                placeholder="z. B. Coop Italia"
-              />
-            </label>
-
-            <label>
-              Kategorie
-              <select
-                value={productForm.category}
-                onChange={(event) =>
-                  updateProductForm("category", event.target.value)
-                }
-              >
-                {renderSelectOptions(productCategoryOptions)}
-              </select>
-            </label>
-
-            <label>
-              Land
-              <input
-                type="text"
-                value={productForm.country}
-                onChange={(event) =>
-                  updateProductForm("country", event.target.value)
-                }
-                placeholder="z. B. Italien"
-              />
-            </label>
-
-            <label>
-              Geschäft
-              <input
-                type="text"
-                value={productForm.store}
-                onChange={(event) =>
-                  updateProductForm("store", event.target.value)
-                }
-                placeholder="z. B. Coop"
-              />
-            </label>
-
-            <label>
-              Bewertung
-              <select
-                value={productForm.buyAgainStatus}
-                onChange={(event) =>
-                  updateProductForm("buyAgainStatus", event.target.value)
-                }
-              >
-                {renderSelectOptions(buyAgainStatusOptions)}
-              </select>
-            </label>
-
-            <label>
-              Sterne
-              <select
-                value={productForm.rating}
-                onChange={(event) =>
-                  updateProductForm("rating", event.target.value)
-                }
-              >
-                {renderSelectOptions(ratingOptions)}
-              </select>
-            </label>
-
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={productForm.favorite}
-                onChange={(event) =>
-                  updateProductForm("favorite", event.target.checked)
-                }
-              />
-              Favorit
-            </label>
-          </div>
-
-          <label>
-            Notiz
-            <textarea
-              value={productForm.notes}
-              onChange={(event) =>
-                updateProductForm("notes", event.target.value)
-              }
-              placeholder="z. B. beim nächsten Italien-Einkauf wieder mitnehmen"
-              rows="3"
-            />
-          </label>
-
-          <div className="form-actions">
-            <button type="submit" disabled={savingProduct}>
-              {savingProduct
-                ? "Speichern..."
-                : editingProductId
-                  ? "Änderungen speichern"
-                  : "Produkt anlegen"}
-            </button>
-          </div>
-        </form>
+        <ProductForm
+          productForm={productForm}
+          editingProductId={editingProductId}
+          savingProduct={savingProduct}
+          onSaveProduct={handleSaveProduct}
+          onUpdateProductForm={updateProductForm}
+          onResetProductForm={resetProductForm}
+        />
 
         {loadingProducts && <p className="muted">Produkte werden geladen...</p>}
 
