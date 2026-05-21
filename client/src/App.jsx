@@ -87,9 +87,7 @@ import {
   getInventoryViewState,
 } from "./utils/viewStateUtils";
 
-import { ProductGrid } from "./components/products/ProductGrid";
-
-import { ProductForm } from "./components/products/ProductForm";
+import { ProductsSection } from "./components/products/ProductsSection";
 
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
@@ -604,37 +602,20 @@ function App() {
 
       {errorMessage && <p className="error">{errorMessage}</p>}
 
-      <section className="card">
-        <div className="section-header">
-          <div>
-            <h2>Produkte</h2>
-            <p>Produkt-Stammdaten mit Bewertung für spätere Einkäufe.</p>
-          </div>
-        </div>
-
-        <ProductForm
-          productForm={productForm}
-          editingProductId={editingProductId}
-          savingProduct={savingProduct}
-          onSaveProduct={handleSaveProduct}
-          onUpdateProductForm={updateProductForm}
-          onResetProductForm={resetProductForm}
-        />
-
-        {loadingProducts && <p className="muted">Produkte werden geladen...</p>}
-
-        {!loadingProducts && products.length === 0 && (
-          <p className="muted">Noch keine Produkte vorhanden.</p>
-        )}
-
-        <ProductGrid
-          products={products}
-          historyItems={historyItems}
-          onEditProduct={startEditProduct}
-          onShowProductHistory={showProductHistory}
-          onDeactivateProduct={deactivateProduct}
-        />
-      </section>
+      <ProductsSection
+        productForm={productForm}
+        editingProductId={editingProductId}
+        savingProduct={savingProduct}
+        loadingProducts={loadingProducts}
+        products={products}
+        historyItems={historyItems}
+        onSaveProduct={handleSaveProduct}
+        onUpdateProductForm={updateProductForm}
+        onResetProductForm={resetProductForm}
+        onEditProduct={startEditProduct}
+        onShowProductHistory={showProductHistory}
+        onDeactivateProduct={deactivateProduct}
+      />
 
       <section className="card">
         <div className="section-header">
