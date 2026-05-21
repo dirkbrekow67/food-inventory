@@ -1,8 +1,8 @@
 // client/src/components/inventory/InventoryOverview.jsx
 
-import { InventoryCard } from "./InventoryCard";
-
 import { InventoryToolbar } from "./InventoryToolbar";
+
+import { InventoryList } from "./InventoryList";
 
 export function InventoryOverview({
   inventoryItems,
@@ -58,15 +58,10 @@ export function InventoryOverview({
           <p className="muted">Keine passenden Bestandseinträge gefunden.</p>
         )}
 
-      <div className="inventory-list">
-        {filteredInventoryItems.map((item) => (
-          <InventoryCard
-            item={item}
-            key={item.id}
-            onOpenRemovalDialog={onOpenRemovalDialog}
-          />
-        ))}
-      </div>
+      <InventoryList
+        filteredInventoryItems={filteredInventoryItems}
+        onOpenRemovalDialog={onOpenRemovalDialog}
+      />
     </>
   );
 }
