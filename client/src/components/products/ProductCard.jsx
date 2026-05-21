@@ -1,14 +1,12 @@
 // client/src/components/products/ProductCard.jsx
 
-import {
-  getBuyAgainLabel,
-  getExperienceReasonLabel,
-  getRemovalReasonLabel,
-} from "../../utils/formattersUtils";
+import { getBuyAgainLabel } from "../../utils/formattersUtils";
 
 import { ProductCardHeader } from "./ProductCardHeader";
 
 import { ProductMeta } from "./ProductMeta";
+
+import { ProductHistoryHint } from "./ProductHistoryHint";
 
 export function ProductCard({
   product,
@@ -27,35 +25,7 @@ export function ProductCard({
         {getBuyAgainLabel(product.buy_again_status)}
       </div>
 
-      {productHistorySummary.count > 0 && (
-        <div className="product-history-hint">
-          <strong>
-            Historie: {productHistorySummary.count}{" "}
-            {productHistorySummary.count === 1 ? "Eintrag" : "Einträge"}
-          </strong>
-
-          {productHistorySummary.latestItem && (
-            <span>
-              Letzte Erfahrung:{" "}
-              {getRemovalReasonLabel(
-                productHistorySummary.latestItem.removal_reason,
-              )}
-              {productHistorySummary.latestItem
-                .product_buy_again_status_after_removal
-                ? ` · ${getBuyAgainLabel(
-                    productHistorySummary.latestItem
-                      .product_buy_again_status_after_removal,
-                  )}`
-                : ""}
-              {productHistorySummary.latestItem.experience_reason
-                ? ` · ${getExperienceReasonLabel(
-                    productHistorySummary.latestItem.experience_reason,
-                  )}`
-                : ""}
-            </span>
-          )}
-        </div>
-      )}
+      <ProductHistoryHint productHistorySummary={productHistorySummary} />
 
       {product.notes && <p className="product-notes">{product.notes}</p>}
 
