@@ -7,12 +7,7 @@ import {
   getRemovalReasonLabel,
 } from "../../utils/formattersUtils";
 
-import {
-  historyBuyAgainFilterOptions,
-  historyRemovalReasonFilterOptions,
-} from "../../constants/selectOptions";
-
-import { renderSelectOptions } from "../form/FormSelectOptions";
+import { HistoryToolbar } from "./HistoryToolbar";
 
 export function HistorySection({
   historyItems,
@@ -66,52 +61,16 @@ export function HistorySection({
         </span>
       </div>
 
-      <div className="history-toolbar">
-        <label className="history-search">
-          Historie suchen
-          <input
-            type="search"
-            value={historySearchTerm}
-            onChange={(event) => onHistorySearchTermChange(event.target.value)}
-            placeholder="z. B. Ravioli, Coop, Italien, F001, vergessen"
-          />
-        </label>
-
-        <div className="history-filter-row">
-          <label>
-            Grund
-            <select
-              value={historyReasonFilter}
-              onChange={(event) =>
-                onHistoryReasonFilterChange(event.target.value)
-              }
-            >
-              {renderSelectOptions(historyRemovalReasonFilterOptions)}
-            </select>
-          </label>
-
-          <label>
-            Bewertung danach
-            <select
-              value={historyBuyAgainFilter}
-              onChange={(event) =>
-                onHistoryBuyAgainFilterChange(event.target.value)
-              }
-            >
-              {renderSelectOptions(historyBuyAgainFilterOptions)}
-            </select>
-          </label>
-
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={onResetHistoryFilters}
-            disabled={!hasActiveHistoryFilters}
-          >
-            Filter zurücksetzen
-          </button>
-        </div>
-      </div>
+      <HistoryToolbar
+        historySearchTerm={historySearchTerm}
+        historyReasonFilter={historyReasonFilter}
+        historyBuyAgainFilter={historyBuyAgainFilter}
+        hasActiveHistoryFilters={hasActiveHistoryFilters}
+        onHistorySearchTermChange={onHistorySearchTermChange}
+        onHistoryReasonFilterChange={onHistoryReasonFilterChange}
+        onHistoryBuyAgainFilterChange={onHistoryBuyAgainFilterChange}
+        onResetHistoryFilters={onResetHistoryFilters}
+      />
 
       {loadingHistory && (
         <p className="muted">Produkthistorie wird geladen...</p>
