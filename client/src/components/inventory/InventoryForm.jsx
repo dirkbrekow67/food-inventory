@@ -9,6 +9,17 @@ import {
 
 import { renderSelectOptions } from "../form/FormSelectOptions";
 
+import {
+  getBuyAgainLabel,
+  getExperienceReasonLabel,
+  getRemovalReasonLabel,
+} from "../../utils/formattersUtils";
+
+import {
+  getAllStorageUnits,
+  getCompartmentsForSelectedUnit,
+} from "../../utils/inventoryDataUtils";
+
 export function InventoryForm({
   inventoryForm,
   products,
@@ -18,11 +29,6 @@ export function InventoryForm({
   onCreateInventoryItem,
   onInventoryProductChange,
   onUpdateInventoryForm,
-  getAllStorageUnits,
-  getCompartmentsForSelectedUnit,
-  getBuyAgainLabel,
-  getExperienceReasonLabel,
-  getRemovalReasonLabel,
 }) {
   return (
     <form className="inventory-form" onSubmit={onCreateInventoryItem}>

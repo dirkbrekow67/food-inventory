@@ -40,8 +40,6 @@ import {
 } from "./api/inventoryApi";
 
 import {
-  getAllStorageUnits,
-  getCompartmentsForSelectedUnit,
   getLatestInventoryItemForProduct,
   updateInventoryListAfterCreate,
   updateInventoryListAfterRemove,
@@ -634,11 +632,6 @@ function App() {
           onCreateInventoryItem={handleCreateInventoryItem}
           onInventoryProductChange={handleInventoryProductChange}
           onUpdateInventoryForm={updateInventoryForm}
-          getAllStorageUnits={getAllStorageUnits}
-          getCompartmentsForSelectedUnit={getCompartmentsForSelectedUnit}
-          getBuyAgainLabel={getBuyAgainLabel}
-          getExperienceReasonLabel={getExperienceReasonLabel}
-          getRemovalReasonLabel={getRemovalReasonLabel}
         />
 
         <div className="inventory-overview-header">
