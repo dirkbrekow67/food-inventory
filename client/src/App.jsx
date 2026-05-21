@@ -21,11 +21,7 @@ import {
   historyBuyAgainFilterOptions,
   historyEditRemovalReasonOptions,
   historyRemovalReasonFilterOptions,
-  internalExtensionMonthOptions,
   inventoryStatusFilterOptions,
-  packageStateOptions,
-  quantityUnitOptions,
-  remainingFractionOptions,
   removalProductStatusOptions,
   removalReasonOptions,
 } from "./constants/selectOptions";
@@ -88,6 +84,8 @@ import {
 } from "./utils/viewStateUtils";
 
 import { ProductsSection } from "./components/products/ProductsSection";
+
+import { InventoryForm } from "./components/inventory/InventoryForm";
 
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
@@ -625,273 +623,23 @@ function App() {
           </div>
         </div>
 
-        <form className="inventory-form" onSubmit={handleCreateInventoryItem}>
-          <h3>Bestand erfassen</h3>
-
-          <div className="form-grid">
-            <label>
-              Produkt *
-              <select
-                value={inventoryForm.productId}
-                onChange={(event) =>
-                  handleInventoryProductChange(event.target.value)
-                }
-              >
-                <option value="">Produkt auswählen</option>
-                {products.map((product) => (
-                  <option value={product.id} key={product.id}>
-                    {product.name}
-                    {product.brand ? ` · ${product.brand}` : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {selectedInventoryProductHistorySummary?.count > 0 && (
-              <div className="inventory-history-hint">
-                <strong>
-                  {selectedInventoryProductHistorySummary.count} gespeicherte{" "}
-                  {selectedInventoryProductHistorySummary.count === 1
-                    ? "Erfahrung"
-                    : "Erfahrungen"}
-                </strong>
-
-                {selectedInventoryProductHistorySummary.latestItem && (
-                  <span>
-                    Letzte Erfahrung:{" "}
-                    {getRemovalReasonLabel(
-                      selectedInventoryProductHistorySummary.latestItem
-                        .removal_reason,
-                    )}
-                    {selectedInventoryProductHistorySummary.latestItem
-                      .product_buy_again_status_after_removal
-                      ? ` · ${getBuyAgainLabel(
-                          selectedInventoryProductHistorySummary.latestItem
-                            .product_buy_again_status_after_removal,
-                        )}`
-                      : ""}
-                    {selectedInventoryProductHistorySummary.latestItem
-                      .experience_reason
-                      ? ` · ${getExperienceReasonLabel(
-                          selectedInventoryProductHistorySummary.latestItem
-                            .experience_reason,
-                        )}`
-                      : ""}
-                  </span>
-                )}
-              </div>
-            )}
-
-            <label>
-              Lagergerät *
-              <select
-                value={inventoryForm.storageUnitId}
-                onChange={(event) => {
-                  updateInventoryForm("storageUnitId", event.target.value);
-                  updateInventoryForm("storageCompartmentId", "");
-                }}
-              >
-                <option value="">Lagergerät auswählen</option>
-                {getAllStorageUnits(storageTree).map((unit) => (
-                  <option value={unit.id} key={unit.id}>
-                    {unit.locationName} · {unit.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              Fach / Schublade
-              <select
-                value={inventoryForm.storageCompartmentId}
-                onChange={(event) =>
-                  updateInventoryForm(
-                    "storageCompartmentId",
-                    event.target.value,
-                  )
-                }
-              >
-                <option value="">Kein Fach ausgewählt</option>
-                {getCompartmentsForSelectedUnit(
-                  storageTree,
-                  inventoryForm.storageUnitId,
-                ).map((compartment) => (
-                  <option value={compartment.id} key={compartment.id}>
-                    {compartment.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              MHD
-              <input
-                type="date"
-                value={inventoryForm.bestBeforeDate}
-                onChange={(event) =>
-                  updateInventoryForm("bestBeforeDate", event.target.value)
-                }
-              />
-            </label>
-
-            <label>
-              Originalmenge
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={inventoryForm.originalQuantity}
-                onChange={(event) =>
-                  updateInventoryForm("originalQuantity", event.target.value)
-                }
-                placeholder="z. B. 1000"
-              />
-            </label>
-
-            <label>
-              Original-Einheit
-              <select
-                value={inventoryForm.originalUnit}
-                onChange={(event) =>
-                  updateInventoryForm("originalUnit", event.target.value)
-                }
-              >
-                {renderSelectOptions(quantityUnitOptions)}
-              </select>
-            </label>
-
-            <label>
-              Restmenge
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={inventoryForm.remainingQuantity}
-                onChange={(event) =>
-                  updateInventoryForm("remainingQuantity", event.target.value)
-                }
-                placeholder="z. B. 350"
-              />
-            </label>
-
-            <label>
-              Rest-Einheit
-              <select
-                value={inventoryForm.remainingUnit}
-                onChange={(event) =>
-                  updateInventoryForm("remainingUnit", event.target.value)
-                }
-              >
-                {renderSelectOptions(quantityUnitOptions)}
-              </select>
-            </label>
-
-            <label>
-              Restanteil
-              <select
-                value={inventoryForm.remainingFraction}
-                onChange={(event) =>
-                  updateInventoryForm("remainingFraction", event.target.value)
-                }
-              >
-                {renderSelectOptions(remainingFractionOptions)}
-              </select>
-            </label>
-
-            <label>
-              Packungszustand
-              <select
-                value={inventoryForm.packageState}
-                onChange={(event) =>
-                  updateInventoryForm("packageState", event.target.value)
-                }
-              >
-                {renderSelectOptions(packageStateOptions)}
-              </select>
-            </label>
-
-            <label>
-              Eingefroren am
-              <input
-                type="date"
-                value={inventoryForm.frozenDate}
-                onChange={(event) =>
-                  updateInventoryForm("frozenDate", event.target.value)
-                }
-              />
-            </label>
-
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={inventoryForm.isFrozenChilledFood}
-                onChange={(event) =>
-                  updateInventoryForm(
-                    "isFrozenChilledFood",
-                    event.target.checked,
-                  )
-                }
-              />
-              Kühlware eingefroren
-            </label>
-
-            <label>
-              Interne Frist
-              <select
-                value={inventoryForm.internalExtensionMonths}
-                onChange={(event) =>
-                  updateInventoryForm(
-                    "internalExtensionMonths",
-                    event.target.value,
-                  )
-                }
-                disabled={!inventoryForm.isFrozenChilledFood}
-              >
-                {renderSelectOptions(internalExtensionMonthOptions)}
-              </select>
-            </label>
-
-            <label>
-              Geöffnet am
-              <input
-                type="date"
-                value={inventoryForm.openedDate}
-                onChange={(event) =>
-                  updateInventoryForm("openedDate", event.target.value)
-                }
-              />
-            </label>
-
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={inventoryForm.quantityEstimated}
-                onChange={(event) =>
-                  updateInventoryForm("quantityEstimated", event.target.checked)
-                }
-              />
-              Restmenge geschätzt
-            </label>
-          </div>
-
-          <label>
-            Notiz
-            <textarea
-              value={inventoryForm.notes}
-              onChange={(event) =>
-                updateInventoryForm("notes", event.target.value)
-              }
-              placeholder="z. B. angebrochene Tüte, zuerst verbrauchen"
-              rows="3"
-            />
-          </label>
-
-          <div className="form-actions">
-            <button type="submit" disabled={savingInventoryItem}>
-              {savingInventoryItem ? "Speichern..." : "Bestand erfassen"}
-            </button>
-          </div>
-        </form>
+        <InventoryForm
+          inventoryForm={inventoryForm}
+          products={products}
+          storageTree={storageTree}
+          selectedInventoryProductHistorySummary={
+            selectedInventoryProductHistorySummary
+          }
+          savingInventoryItem={savingInventoryItem}
+          onCreateInventoryItem={handleCreateInventoryItem}
+          onInventoryProductChange={handleInventoryProductChange}
+          onUpdateInventoryForm={updateInventoryForm}
+          getAllStorageUnits={getAllStorageUnits}
+          getCompartmentsForSelectedUnit={getCompartmentsForSelectedUnit}
+          getBuyAgainLabel={getBuyAgainLabel}
+          getExperienceReasonLabel={getExperienceReasonLabel}
+          getRemovalReasonLabel={getRemovalReasonLabel}
+        />
 
         <div className="inventory-overview-header">
           <div>
