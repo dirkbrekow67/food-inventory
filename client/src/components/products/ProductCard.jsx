@@ -8,6 +8,8 @@ import {
 
 import { ProductCardHeader } from "./ProductCardHeader";
 
+import { ProductMeta } from "./ProductMeta";
+
 export function ProductCard({
   product,
   productHistorySummary,
@@ -19,11 +21,7 @@ export function ProductCard({
     <article className="product-card">
       <ProductCardHeader product={product} />
 
-      <div className="product-meta">
-        {product.country && <span>{product.country}</span>}
-        {product.store && <span>{product.store}</span>}
-        {product.rating && <span>{product.rating}/5</span>}
-      </div>
+      <ProductMeta product={product} />
 
       <div className={`buy-again buy-again-${product.buy_again_status}`}>
         {getBuyAgainLabel(product.buy_again_status)}
