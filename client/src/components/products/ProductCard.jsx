@@ -6,6 +6,8 @@ import {
   getRemovalReasonLabel,
 } from "../../utils/formattersUtils";
 
+import { ProductCardHeader } from "./ProductCardHeader";
+
 export function ProductCard({
   product,
   productHistorySummary,
@@ -15,15 +17,7 @@ export function ProductCard({
 }) {
   return (
     <article className="product-card">
-      <div className="product-card-header">
-        <div>
-          <h3>{product.name}</h3>
-          <p className="muted">
-            {[product.brand, product.category].filter(Boolean).join(" · ")}
-          </p>
-        </div>
-        {product.favorite === 1 && <span className="favorite">★</span>}
-      </div>
+      <ProductCardHeader product={product} />
 
       <div className="product-meta">
         {product.country && <span>{product.country}</span>}
