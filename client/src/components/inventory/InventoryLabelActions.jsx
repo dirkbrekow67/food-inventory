@@ -12,6 +12,7 @@ import { openInventoryLabelPrintWindow } from "../../utils/labelPrintUtils";
 
 export function InventoryLabelActions({ item }) {
   const [showQrCode, setShowQrCode] = useState(false);
+  const [copyMessage, setCopyMessage] = useState("");
   const qrContainerRef = useRef(null);
 
   if (!item.label_code) {
@@ -35,6 +36,20 @@ export function InventoryLabelActions({ item }) {
     });
   }
 
+  async function copyQrLink() {
+    try {
+      await navigator.clipboard.writeText(qrText);
+      setCopyMessage("QR-Link kopiert.");
+    } catch (error) {
+      console.error(error);
+      setCopyMessage("QR-Link konnte nicht kopiert werden.");
+    }
+
+    window.setTimeout(() => {
+      setCopyMessage("");
+    }, 2500);
+  }
+
   return (
     <div className="inventory-label-actions">
       <span className="label-code">Etikett {item.label_code}</span>
@@ -50,6 +65,14 @@ export function InventoryLabelActions({ item }) {
       <button type="button" className="secondary-button" onClick={printLabel}>
         Etikett drucken
       </button>
+
+      <button type="button" className="secondary-button" onClick={copyQrLink}>
+        QR-Link kopieren
+      </button>
+
+      {copyMessage && (
+        <span className="inventory-label-copy-message">{copyMessage}</span>
+      )}
 
       {showQrCode && (
         <div className="inventory-qr-preview">

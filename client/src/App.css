@@ -850,6 +850,11 @@ h4 {
   margin-top: 0.75rem;
 }
 
+.inventory-label-copy-message {
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
 .inventory-qr-preview {
   display: flex;
   flex-wrap: wrap;
@@ -944,6 +949,149 @@ h4 {
   font-weight: 700;
 }
 
+.label-sheet-toolbar {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) auto auto;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.label-sheet-toolbar label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.label-sheet-toolbar input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.label-sheet-toolbar input:focus {
+  outline: 3px solid #bfdbfe;
+  border-color: #2563eb;
+}
+
+.label-sheet-toolbar-info {
+  display: grid;
+  gap: 2px;
+  color: #334155;
+}
+
+.label-sheet-toolbar-info strong {
+  color: #1e3a8a;
+}
+
+.label-sheet-print-area {
+  overflow-x: auto;
+  padding: 16px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.label-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  display: grid;
+  grid-template-columns: repeat(4, 45mm);
+  grid-template-rows: repeat(9, 30mm);
+  justify-content: center;
+  align-content: center;
+  margin: 0 auto;
+  background: #ffffff;
+}
+
+.label-sheet-item {
+  width: 45mm;
+  height: 30mm;
+  display: grid;
+  grid-template-columns: 17mm 1fr;
+  gap: 1.5mm;
+  align-items: center;
+  padding: 2mm;
+  overflow: hidden;
+  border: 1px dashed #e5e7eb;
+  color: #111827;
+}
+
+.label-sheet-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label-sheet-qr svg {
+  width: 15mm;
+  height: 15mm;
+}
+
+.label-sheet-text {
+  display: grid;
+  gap: 1mm;
+  min-width: 0;
+}
+
+.label-sheet-text strong {
+  font-size: 11pt;
+  line-height: 1;
+}
+
+.label-sheet-text span {
+  font-size: 6.5pt;
+  line-height: 1.1;
+  color: #374151;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .label-sheet-print-area,
+  .label-sheet-print-area * {
+    visibility: visible;
+  }
+
+  .label-sheet-print-area {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  .label-sheet {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+  }
+
+  .label-sheet-item {
+    border: none;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
+
 
 @media (max-width: 560px) {
   .dialog-actions {
@@ -975,6 +1123,10 @@ h4 {
   .inventory-label-scanner-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+    .label-sheet-toolbar {
+    grid-template-columns: 1fr;
   }
 }
 

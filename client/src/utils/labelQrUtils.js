@@ -23,10 +23,18 @@ export function createInventoryLabelQrText(item) {
     return "";
   }
 
+  return createInventoryLabelQrTextFromCode(item.label_code);
+}
+
+export function createInventoryLabelQrTextFromCode(labelCode) {
+  if (!labelCode) {
+    return "";
+  }
+
   const baseUrl = getInventoryLabelBaseUrl();
   const url = new URL(baseUrl);
 
-  url.searchParams.set("label", item.label_code);
+  url.searchParams.set("label", labelCode);
 
   return url.toString();
 }

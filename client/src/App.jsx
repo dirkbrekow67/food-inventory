@@ -65,6 +65,8 @@ import { HistorySection } from "./components/history/HistorySection";
 
 import { StorageSection } from "./components/storage/StorageSection";
 
+import { LabelSheetSection } from "./components/labels/LabelSheetSection";
+
 import { RemovalDialog } from "./components/dialogs/RemovalDialog";
 import { HistoryDeleteDialog } from "./components/dialogs/HistoryDeleteDialog";
 import { HistoryEditDialog } from "./components/dialogs/HistoryEditDialog";
@@ -693,6 +695,8 @@ function App() {
       </header>
 
       {errorMessage && <p className="error">{errorMessage}</p>}
+
+      <LabelSheetSection />
 
       <ProductsSection
         productForm={productForm}
