@@ -10,9 +10,12 @@ import {
 
 import { InventoryLabelActions } from "./InventoryLabelActions";
 
-export function InventoryCard({ item, onOpenRemovalDialog }) {
+export function InventoryCard({ item, isHighlighted, onOpenRemovalDialog }) {
   return (
-    <article className="inventory-card">
+    <article
+      className={`inventory-card${isHighlighted ? " inventory-card-highlighted" : ""}`}
+      id={`inventory-item-${item.id}`}
+    >
       <div className="inventory-card-header">
         <div>
           <h3>{item.product_name}</h3>

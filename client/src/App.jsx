@@ -69,6 +69,11 @@ import { RemovalDialog } from "./components/dialogs/RemovalDialog";
 import { HistoryDeleteDialog } from "./components/dialogs/HistoryDeleteDialog";
 import { HistoryEditDialog } from "./components/dialogs/HistoryEditDialog";
 
+import {
+  extractLabelCodeFromScanText,
+  findInventoryItemByLabelCode,
+} from "./utils/labelScanUtils";
+
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
 
@@ -150,6 +155,10 @@ function App() {
   const [savingProduct, setSavingProduct] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
 
+  const [labelScanInput, setLabelScanInput] = useState("");
+  const [highlightedInventoryItemId, setHighlightedInventoryItemId] =
+    useState(null);
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -212,6 +221,40 @@ function App() {
     setInventoryStorageFilter(
       initialInventoryFilterState.inventoryStorageFilter,
     );
+  }
+
+  function handleLabelScanSubmit(event) {
+    event.preventDefault();
+
+    const labelCode = extractLabelCodeFromScanText(labelScanInput);
+    const matchingItem = findInventoryItemByLabelCode(
+      inventoryItems,
+      labelCode,
+    );
+
+    if (!matchingItem) {
+      setHighlightedInventoryItemId(null);
+      setErrorMessage(
+        labelCode
+          ? `Kein Bestandseintrag für Etikett ${labelCode} gefunden.`
+          : "Bitte einen QR-Code-Text oder eine Etiketten-ID eingeben.",
+      );
+      return;
+    }
+
+    setErrorMessage("");
+    setInventorySearchTerm(matchingItem.label_code || labelCode);
+    setInventoryStatusFilter(initialInventoryFilterState.inventoryStatusFilter);
+    setInventoryStorageFilter(
+      initialInventoryFilterState.inventoryStorageFilter,
+    );
+    setHighlightedInventoryItemId(matchingItem.id);
+
+    window.setTimeout(() => {
+      document
+        .getElementById(`inventory-item-${matchingItem.id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
   }
 
   function resetHistoryFilters() {
@@ -640,6 +683,8 @@ function App() {
         inventoryStorageFilterOptions={inventoryStorageFilterOptions}
         hasActiveInventoryFilters={hasActiveInventoryFilters}
         loadingInventory={loadingInventory}
+        labelScanInput={labelScanInput}
+        highlightedInventoryItemId={highlightedInventoryItemId}
         onCreateInventoryItem={handleCreateInventoryItem}
         onInventoryProductChange={handleInventoryProductChange}
         onUpdateInventoryForm={updateInventoryForm}
@@ -648,6 +693,8 @@ function App() {
         onInventoryStorageFilterChange={setInventoryStorageFilter}
         onResetInventoryFilters={resetInventoryFilters}
         onOpenRemovalDialog={openRemovalDialog}
+        onLabelScanInputChange={setLabelScanInput}
+        onLabelScanSubmit={handleLabelScanSubmit}
       />
 
       <HistorySection

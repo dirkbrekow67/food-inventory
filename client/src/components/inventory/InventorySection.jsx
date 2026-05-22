@@ -25,6 +25,10 @@ export function InventorySection({
   onInventoryStorageFilterChange,
   onResetInventoryFilters,
   onOpenRemovalDialog,
+  labelScanInput,
+  highlightedInventoryItemId,
+  onLabelScanInputChange,
+  onLabelScanSubmit,
 }) {
   return (
     <section className="card">
@@ -62,6 +66,10 @@ export function InventorySection({
         onInventoryStorageFilterChange={onInventoryStorageFilterChange}
         onResetInventoryFilters={onResetInventoryFilters}
         onOpenRemovalDialog={onOpenRemovalDialog}
+        labelScanInput={labelScanInput}
+        highlightedInventoryItemId={highlightedInventoryItemId}
+        onLabelScanInputChange={onLabelScanInputChange}
+        onLabelScanSubmit={onLabelScanSubmit}
       />
     </section>
   );

@@ -4,6 +4,8 @@ import { InventoryToolbar } from "./InventoryToolbar";
 
 import { InventoryList } from "./InventoryList";
 
+import { InventoryLabelScanner } from "./InventoryLabelScanner";
+
 export function InventoryOverview({
   inventoryItems,
   filteredInventoryItems,
@@ -18,6 +20,10 @@ export function InventoryOverview({
   onInventoryStorageFilterChange,
   onResetInventoryFilters,
   onOpenRemovalDialog,
+  labelScanInput,
+  highlightedInventoryItemId,
+  onLabelScanInputChange,
+  onLabelScanSubmit,
 }) {
   return (
     <>
@@ -46,6 +52,12 @@ export function InventoryOverview({
         onResetInventoryFilters={onResetInventoryFilters}
       />
 
+      <InventoryLabelScanner
+        labelScanInput={labelScanInput}
+        onLabelScanInputChange={onLabelScanInputChange}
+        onLabelScanSubmit={onLabelScanSubmit}
+      />
+
       {loadingInventory && <p className="muted">Bestand wird geladen...</p>}
 
       {!loadingInventory && inventoryItems.length === 0 && (
@@ -61,6 +73,7 @@ export function InventoryOverview({
       <InventoryList
         filteredInventoryItems={filteredInventoryItems}
         onOpenRemovalDialog={onOpenRemovalDialog}
+        highlightedInventoryItemId={highlightedInventoryItemId}
       />
     </>
   );

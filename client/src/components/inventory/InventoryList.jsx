@@ -2,7 +2,11 @@
 
 import { InventoryCard } from "./InventoryCard";
 
-export function InventoryList({ filteredInventoryItems, onOpenRemovalDialog }) {
+export function InventoryList({
+  filteredInventoryItems,
+  highlightedInventoryItemId,
+  onOpenRemovalDialog,
+}) {
   return (
     <div className="inventory-list">
       {filteredInventoryItems.map((item) => (
@@ -10,6 +14,7 @@ export function InventoryList({ filteredInventoryItems, onOpenRemovalDialog }) {
           item={item}
           key={item.id}
           onOpenRemovalDialog={onOpenRemovalDialog}
+          isHighlighted={item.id === highlightedInventoryItemId}
         />
       ))}
     </div>

@@ -887,6 +887,45 @@ h4 {
   font-size: 0.78rem;
 }
 
+.inventory-label-scanner {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  background: #eff6ff;
+}
+
+.inventory-label-scanner label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.inventory-label-scanner input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.inventory-label-scanner input:focus {
+  outline: 3px solid #bfdbfe;
+  border-color: #2563eb;
+}
+
+.inventory-card-highlighted {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px #bfdbfe;
+}
+
+
 @media (max-width: 560px) {
   .dialog-actions {
     flex-direction: column-reverse;
@@ -908,6 +947,9 @@ h4 {
   
   .history-overview-header {
     flex-direction: column;
+  }
+  .inventory-label-scanner {
+    grid-template-columns: 1fr;
   }
 }
 
