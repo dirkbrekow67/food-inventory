@@ -13,3 +13,8 @@ qr/generated/*.svg
 
 client/dist/
 server/uploads/
+# Lokale Vite-Umgebung
+client/.env.local
+client/.env.*.local
+.env.local
+.env.*.local

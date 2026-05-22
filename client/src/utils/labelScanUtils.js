@@ -15,6 +15,23 @@ export function extractLabelCodeFromScanText(scanText) {
     return decodeURIComponent(appSchemeMatch[1]).trim();
   }
 
+  try {
+    const url = new URL(normalizedText);
+    const labelFromQuery = url.searchParams.get("label");
+
+    if (labelFromQuery) {
+      return labelFromQuery.trim();
+    }
+
+    const labelFromPath = url.pathname.match(/\/label\/([^/?#]+)/i);
+
+    if (labelFromPath?.[1]) {
+      return decodeURIComponent(labelFromPath[1]).trim();
+    }
+  } catch {
+    // Kein vollständiger URL-Text, dann unten als direkte Etiketten-ID behandeln.
+  }
+
   const urlMatch = normalizedText.match(/[?&]label=([^&#]+)/i);
 
   if (urlMatch?.[1]) {

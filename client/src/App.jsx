@@ -1,5 +1,5 @@
 // client/src/App.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 import { emptyInventoryForm, emptyProductForm } from "./constants/formDefaults";
@@ -159,6 +159,7 @@ function App() {
   const [highlightedInventoryItemId, setHighlightedInventoryItemId] =
     useState(null);
   const [labelScanMessage, setLabelScanMessage] = useState("");
+  const hasHandledInitialLabelUrl = useRef(false);
 
   useEffect(() => {
     async function loadData() {
@@ -192,6 +193,48 @@ function App() {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (hasHandledInitialLabelUrl.current || inventoryItems.length === 0) {
+      return undefined;
+    }
+
+    const labelFromUrl = extractLabelCodeFromScanText(window.location.href);
+
+    if (!labelFromUrl) {
+      return undefined;
+    }
+
+    hasHandledInitialLabelUrl.current = true;
+
+    const timeoutId = window.setTimeout(() => {
+      const matchingItem = findInventoryItemByLabelCode(
+        inventoryItems,
+        labelFromUrl,
+      );
+
+      setLabelScanInput(labelFromUrl);
+
+      if (!matchingItem) {
+        setHighlightedInventoryItemId(null);
+        setLabelScanMessage(
+          `Kein Bestandseintrag für Etikett ${labelFromUrl} gefunden.`,
+        );
+        return;
+      }
+
+      setHighlightedInventoryItemId(matchingItem.id);
+      setLabelScanMessage(
+        `Etikett ${matchingItem.label_code} gefunden: ${matchingItem.product_name}`,
+      );
+
+      document
+        .getElementById(`inventory-item-${matchingItem.id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [inventoryItems]);
 
   function updateProductForm(field, value) {
     setProductForm((currentForm) => ({

@@ -1,5 +1,9 @@
 // client/src/utils/labelQrUtils.js
 
+export function getInventoryLabelBaseUrl() {
+  return import.meta.env.VITE_APP_BASE_URL || window.location.origin;
+}
+
 export function createInventoryLabelQrPayload(item) {
   if (!item?.label_code) {
     return "";
@@ -10,6 +14,7 @@ export function createInventoryLabelQrPayload(item) {
     version: 1,
     labelCode: item.label_code,
     inventoryItemId: item.id,
+    url: createInventoryLabelQrText(item),
   });
 }
 
@@ -18,5 +23,10 @@ export function createInventoryLabelQrText(item) {
     return "";
   }
 
-  return `food-inventory://label/${encodeURIComponent(item.label_code)}`;
+  const baseUrl = getInventoryLabelBaseUrl();
+  const url = new URL(baseUrl);
+
+  url.searchParams.set("label", item.label_code);
+
+  return url.toString();
 }
