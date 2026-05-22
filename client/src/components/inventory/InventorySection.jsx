@@ -29,6 +29,8 @@ export function InventorySection({
   highlightedInventoryItemId,
   onLabelScanInputChange,
   onLabelScanSubmit,
+  labelScanMessage,
+  onResetLabelScan,
 }) {
   return (
     <section className="card">
@@ -70,6 +72,8 @@ export function InventorySection({
         highlightedInventoryItemId={highlightedInventoryItemId}
         onLabelScanInputChange={onLabelScanInputChange}
         onLabelScanSubmit={onLabelScanSubmit}
+        labelScanMessage={labelScanMessage}
+        onResetLabelScan={onResetLabelScan}
       />
     </section>
   );

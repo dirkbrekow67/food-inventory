@@ -925,6 +925,25 @@ h4 {
   box-shadow: 0 0 0 3px #bfdbfe;
 }
 
+.inventory-label-scanner-actions {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+}
+
+.inventory-label-scanner-actions .secondary-button:disabled {
+  cursor: not-allowed;
+  color: #94a3b8;
+  background: #f8fafc;
+}
+
+.inventory-label-scan-message {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
 
 @media (max-width: 560px) {
   .dialog-actions {
@@ -948,8 +967,14 @@ h4 {
   .history-overview-header {
     flex-direction: column;
   }
+
   .inventory-label-scanner {
     grid-template-columns: 1fr;
+  }
+
+  .inventory-label-scanner-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

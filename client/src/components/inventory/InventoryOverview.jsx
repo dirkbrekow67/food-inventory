@@ -24,6 +24,8 @@ export function InventoryOverview({
   highlightedInventoryItemId,
   onLabelScanInputChange,
   onLabelScanSubmit,
+  labelScanMessage,
+  onResetLabelScan,
 }) {
   return (
     <>
@@ -54,8 +56,10 @@ export function InventoryOverview({
 
       <InventoryLabelScanner
         labelScanInput={labelScanInput}
+        labelScanMessage={labelScanMessage}
         onLabelScanInputChange={onLabelScanInputChange}
         onLabelScanSubmit={onLabelScanSubmit}
+        onResetLabelScan={onResetLabelScan}
       />
 
       {loadingInventory && <p className="muted">Bestand wird geladen...</p>}

@@ -158,6 +158,7 @@ function App() {
   const [labelScanInput, setLabelScanInput] = useState("");
   const [highlightedInventoryItemId, setHighlightedInventoryItemId] =
     useState(null);
+  const [labelScanMessage, setLabelScanMessage] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -227,6 +228,15 @@ function App() {
     event.preventDefault();
 
     const labelCode = extractLabelCodeFromScanText(labelScanInput);
+
+    if (!labelCode) {
+      setHighlightedInventoryItemId(null);
+      setLabelScanMessage(
+        "Bitte eine Etiketten-ID oder einen QR-Code-Inhalt eingeben.",
+      );
+      return;
+    }
+
     const matchingItem = findInventoryItemByLabelCode(
       inventoryItems,
       labelCode,
@@ -234,27 +244,28 @@ function App() {
 
     if (!matchingItem) {
       setHighlightedInventoryItemId(null);
-      setErrorMessage(
-        labelCode
-          ? `Kein Bestandseintrag für Etikett ${labelCode} gefunden.`
-          : "Bitte einen QR-Code-Text oder eine Etiketten-ID eingeben.",
+      setLabelScanMessage(
+        `Kein Bestandseintrag für Etikett ${labelCode} gefunden.`,
       );
       return;
     }
 
-    setErrorMessage("");
-    setInventorySearchTerm(matchingItem.label_code || labelCode);
-    setInventoryStatusFilter(initialInventoryFilterState.inventoryStatusFilter);
-    setInventoryStorageFilter(
-      initialInventoryFilterState.inventoryStorageFilter,
-    );
     setHighlightedInventoryItemId(matchingItem.id);
+    setLabelScanMessage(
+      `Etikett ${matchingItem.label_code} gefunden: ${matchingItem.product_name}`,
+    );
 
     window.setTimeout(() => {
       document
         .getElementById(`inventory-item-${matchingItem.id}`)
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 0);
+    }, 50);
+  }
+
+  function resetLabelScan() {
+    setLabelScanInput("");
+    setHighlightedInventoryItemId(null);
+    setLabelScanMessage("");
   }
 
   function resetHistoryFilters() {
@@ -695,6 +706,8 @@ function App() {
         onOpenRemovalDialog={openRemovalDialog}
         onLabelScanInputChange={setLabelScanInput}
         onLabelScanSubmit={handleLabelScanSubmit}
+        labelScanMessage={labelScanMessage}
+        onResetLabelScan={resetLabelScan}
       />
 
       <HistorySection
