@@ -1,3 +1,4 @@
+/* client/src/App.css */
 :root {
   font-family: Arial, system-ui, sans-serif;
   color: #1f2933;
@@ -847,6 +848,43 @@ h4 {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.75rem;
+}
+
+.inventory-qr-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+}
+
+.inventory-qr-preview svg {
+  flex: 0 0 auto;
+  padding: 0.35rem;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.inventory-qr-details {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+  color: #1e3a8a;
+}
+
+.inventory-qr-details span,
+.inventory-qr-details small {
+  overflow-wrap: anywhere;
+  color: #334155;
+}
+
+.inventory-qr-details small {
+  font-size: 0.78rem;
 }
 
 @media (max-width: 560px) {

@@ -1,11 +1,16 @@
 // client/src/components/inventory/InventoryLabelActions.jsx
 
+import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+
 import {
   createInventoryLabelQrPayload,
   createInventoryLabelQrText,
 } from "../../utils/labelQrUtils";
 
 export function InventoryLabelActions({ item }) {
+  const [showQrCode, setShowQrCode] = useState(false);
+
   if (!item.label_code) {
     return (
       <div className="inventory-label-actions">
@@ -24,12 +29,22 @@ export function InventoryLabelActions({ item }) {
       <button
         type="button"
         className="secondary-button"
-        onClick={() => {
-          window.alert(`QR-Inhalt:\n${qrText}\n\nDaten:\n${qrPayload}`);
-        }}
+        onClick={() => setShowQrCode((currentValue) => !currentValue)}
       >
-        QR-Code anzeigen
+        {showQrCode ? "QR-Code ausblenden" : "QR-Code anzeigen"}
       </button>
+
+      {showQrCode && (
+        <div className="inventory-qr-preview">
+          <QRCodeSVG value={qrText} size={128} level="M" includeMargin />
+
+          <div className="inventory-qr-details">
+            <strong>QR-Code für Etikett {item.label_code}</strong>
+            <span>{qrText}</span>
+            <small>{qrPayload}</small>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
