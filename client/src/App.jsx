@@ -1,5 +1,5 @@
 // client/src/App.jsx
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 
 import { emptyInventoryForm, emptyProductForm } from "./constants/formDefaults";
@@ -194,48 +194,6 @@ function App() {
     loadData();
   }, []);
 
-  useEffect(() => {
-    if (hasHandledInitialLabelUrl.current || inventoryItems.length === 0) {
-      return undefined;
-    }
-
-    const labelFromUrl = extractLabelCodeFromScanText(window.location.href);
-
-    if (!labelFromUrl) {
-      return undefined;
-    }
-
-    hasHandledInitialLabelUrl.current = true;
-
-    const timeoutId = window.setTimeout(() => {
-      const matchingItem = findInventoryItemByLabelCode(
-        inventoryItems,
-        labelFromUrl,
-      );
-
-      setLabelScanInput(labelFromUrl);
-
-      if (!matchingItem) {
-        setHighlightedInventoryItemId(null);
-        setLabelScanMessage(
-          `Kein Bestandseintrag für Etikett ${labelFromUrl} gefunden.`,
-        );
-        return;
-      }
-
-      setHighlightedInventoryItemId(matchingItem.id);
-      setLabelScanMessage(
-        `Etikett ${matchingItem.label_code} gefunden: ${matchingItem.product_name}`,
-      );
-
-      document
-        .getElementById(`inventory-item-${matchingItem.id}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 0);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [inventoryItems]);
-
   function updateProductForm(field, value) {
     setProductForm((currentForm) => ({
       ...currentForm,
@@ -267,42 +225,72 @@ function App() {
     );
   }
 
+  const openInventoryItemFromLabelCode = useCallback(
+    (labelCode) => {
+      const normalizedLabelCode = extractLabelCodeFromScanText(labelCode);
+
+      if (!normalizedLabelCode) {
+        setHighlightedInventoryItemId(null);
+        setLabelScanMessage(
+          "Bitte eine Etiketten-ID oder einen QR-Code-Inhalt eingeben.",
+        );
+        return;
+      }
+
+      const matchingItem = findInventoryItemByLabelCode(
+        inventoryItems,
+        normalizedLabelCode,
+      );
+
+      setLabelScanInput(normalizedLabelCode);
+
+      if (!matchingItem) {
+        setHighlightedInventoryItemId(null);
+        setLabelScanMessage(
+          `Kein Bestandseintrag für Etikett ${normalizedLabelCode} gefunden.`,
+        );
+        return;
+      }
+
+      resetInventoryFilters();
+      setHighlightedInventoryItemId(matchingItem.id);
+      setLabelScanMessage(
+        `Etikett ${matchingItem.label_code} gefunden: ${matchingItem.product_name}`,
+      );
+
+      window.setTimeout(() => {
+        document
+          .getElementById(`inventory-item-${matchingItem.id}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+    },
+    [inventoryItems],
+  );
+
+  useEffect(() => {
+    if (hasHandledInitialLabelUrl.current || inventoryItems.length === 0) {
+      return undefined;
+    }
+
+    const labelFromUrl = extractLabelCodeFromScanText(window.location.href);
+
+    if (!labelFromUrl) {
+      return undefined;
+    }
+
+    hasHandledInitialLabelUrl.current = true;
+
+    const timeoutId = window.setTimeout(() => {
+      openInventoryItemFromLabelCode(labelFromUrl);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [inventoryItems, openInventoryItemFromLabelCode]);
+
   function handleLabelScanSubmit(event) {
     event.preventDefault();
 
-    const labelCode = extractLabelCodeFromScanText(labelScanInput);
-
-    if (!labelCode) {
-      setHighlightedInventoryItemId(null);
-      setLabelScanMessage(
-        "Bitte eine Etiketten-ID oder einen QR-Code-Inhalt eingeben.",
-      );
-      return;
-    }
-
-    const matchingItem = findInventoryItemByLabelCode(
-      inventoryItems,
-      labelCode,
-    );
-
-    if (!matchingItem) {
-      setHighlightedInventoryItemId(null);
-      setLabelScanMessage(
-        `Kein Bestandseintrag für Etikett ${labelCode} gefunden.`,
-      );
-      return;
-    }
-
-    setHighlightedInventoryItemId(matchingItem.id);
-    setLabelScanMessage(
-      `Etikett ${matchingItem.label_code} gefunden: ${matchingItem.product_name}`,
-    );
-
-    window.setTimeout(() => {
-      document
-        .getElementById(`inventory-item-${matchingItem.id}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 50);
+    openInventoryItemFromLabelCode(labelScanInput);
   }
 
   function resetLabelScan() {
