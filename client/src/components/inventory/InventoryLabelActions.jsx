@@ -1,6 +1,6 @@
 // client/src/components/inventory/InventoryLabelActions.jsx
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
 import {
@@ -8,8 +8,11 @@ import {
   createInventoryLabelQrText,
 } from "../../utils/labelQrUtils";
 
+import { openInventoryLabelPrintWindow } from "../../utils/labelPrintUtils";
+
 export function InventoryLabelActions({ item }) {
   const [showQrCode, setShowQrCode] = useState(false);
+  const qrContainerRef = useRef(null);
 
   if (!item.label_code) {
     return (
@@ -21,6 +24,16 @@ export function InventoryLabelActions({ item }) {
 
   const qrPayload = createInventoryLabelQrPayload(item);
   const qrText = createInventoryLabelQrText(item);
+
+  function printLabel() {
+    const qrSvgMarkup = qrContainerRef.current?.innerHTML || "";
+
+    openInventoryLabelPrintWindow({
+      item,
+      qrSvgMarkup,
+      qrText,
+    });
+  }
 
   return (
     <div className="inventory-label-actions">
@@ -34,9 +47,15 @@ export function InventoryLabelActions({ item }) {
         {showQrCode ? "QR-Code ausblenden" : "QR-Code anzeigen"}
       </button>
 
+      <button type="button" className="secondary-button" onClick={printLabel}>
+        Etikett drucken
+      </button>
+
       {showQrCode && (
         <div className="inventory-qr-preview">
-          <QRCodeSVG value={qrText} size={128} level="M" includeMargin />
+          <div ref={qrContainerRef}>
+            <QRCodeSVG value={qrText} size={128} level="M" includeMargin />
+          </div>
 
           <div className="inventory-qr-details">
             <strong>QR-Code für Etikett {item.label_code}</strong>
@@ -44,6 +63,12 @@ export function InventoryLabelActions({ item }) {
             <small>{qrPayload}</small>
           </div>
         </div>
+      )}
+
+      {!showQrCode && (
+        <span ref={qrContainerRef} hidden>
+          <QRCodeSVG value={qrText} size={128} level="M" includeMargin />
+        </span>
       )}
     </div>
   );
