@@ -1,5 +1,10 @@
 // client/src/components/inventory/InventoryLabelActions.jsx
 
+import {
+  createInventoryLabelQrPayload,
+  createInventoryLabelQrText,
+} from "../../utils/labelQrUtils";
+
 export function InventoryLabelActions({ item }) {
   if (!item.label_code) {
     return (
@@ -9,6 +14,9 @@ export function InventoryLabelActions({ item }) {
     );
   }
 
+  const qrPayload = createInventoryLabelQrPayload(item);
+  const qrText = createInventoryLabelQrText(item);
+
   return (
     <div className="inventory-label-actions">
       <span className="label-code">Etikett {item.label_code}</span>
@@ -17,9 +25,7 @@ export function InventoryLabelActions({ item }) {
         type="button"
         className="secondary-button"
         onClick={() => {
-          window.alert(
-            `QR-Code-Erstellung für Etikett ${item.label_code} folgt in Block 70/71.`,
-          );
+          window.alert(`QR-Inhalt:\n${qrText}\n\nDaten:\n${qrPayload}`);
         }}
       >
         QR-Code anzeigen
