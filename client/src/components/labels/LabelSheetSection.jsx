@@ -15,17 +15,17 @@ import {
 import {
   addPrintedLabelCodes,
   clearPrintedLabelCodes,
-  loadPrintedLabelCodes,
   parseLabelCodeSelection,
   removePrintedLabelCodes,
 } from "../../utils/printedLabelStorageUtils";
 
-export function LabelSheetSection({ inventoryItems }) {
+export function LabelSheetSection({
+  inventoryItems,
+  printedLabelCodes = [],
+  onPrintedLabelCodesChange,
+}) {
   const [startNumber, setStartNumber] = useState(1);
   const [labelSheetMode, setLabelSheetMode] = useState("pool");
-  const [printedLabelCodes, setPrintedLabelCodes] = useState(() =>
-    loadPrintedLabelCodes(),
-  );
   const [printStatusMessage, setPrintStatusMessage] = useState("");
   const [printedLabelCorrectionInput, setPrintedLabelCorrectionInput] =
     useState("");
@@ -58,6 +58,10 @@ export function LabelSheetSection({ inventoryItems }) {
       ? "Nächster Pool-Bogen"
       : "Manueller Etikettenbogen";
 
+  function updatePrintedLabelCodes(nextPrintedLabelCodes) {
+    onPrintedLabelCodesChange(nextPrintedLabelCodes);
+  }
+
   function printLabelSheet() {
     setPrintStatusMessage(
       "Druckdialog geöffnet. Erst nach erfolgreichem Ausdruck als gedruckt markieren.",
@@ -79,7 +83,7 @@ export function LabelSheetSection({ inventoryItems }) {
       activeLabelCodes,
     );
 
-    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    updatePrintedLabelCodes(updatedPrintedLabelCodes);
     setPrintStatusMessage(
       "Etikettenbogen wurde als gedruckt / im Umlauf markiert.",
     );
@@ -99,7 +103,7 @@ export function LabelSheetSection({ inventoryItems }) {
       activeLabelCodes,
     );
 
-    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    updatePrintedLabelCodes(updatedPrintedLabelCodes);
     setPrintStatusMessage(
       "Aktueller Etikettenbogen wurde aus gedruckt / im Umlauf entfernt.",
     );
@@ -132,7 +136,7 @@ export function LabelSheetSection({ inventoryItems }) {
       labelCodesToRemove,
     );
 
-    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    updatePrintedLabelCodes(updatedPrintedLabelCodes);
     setPrintedLabelCorrectionInput("");
     setPrintStatusMessage(
       `Etiketten wurden aus gedruckt / im Umlauf entfernt: ${labelCodesToRemove.join(
@@ -152,7 +156,7 @@ export function LabelSheetSection({ inventoryItems }) {
 
     const updatedPrintedLabelCodes = clearPrintedLabelCodes();
 
-    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    updatePrintedLabelCodes(updatedPrintedLabelCodes);
     setPrintStatusMessage(
       "Der lokale Druckstatus wurde vollständig zurückgesetzt.",
     );

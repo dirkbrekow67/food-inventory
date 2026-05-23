@@ -76,6 +76,11 @@ import {
   findInventoryItemByLabelCode,
 } from "./utils/labelScanUtils";
 
+import {
+  loadPrintedLabelCodes,
+  removePrintedLabelCodes,
+} from "./utils/printedLabelStorageUtils";
+
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
 
@@ -158,6 +163,9 @@ function App() {
   const [editingProductId, setEditingProductId] = useState(null);
 
   const [labelScanInput, setLabelScanInput] = useState("");
+  const [printedLabelCodes, setPrintedLabelCodes] = useState(() =>
+    loadPrintedLabelCodes(),
+  );
   const [highlightedInventoryItemId, setHighlightedInventoryItemId] =
     useState(null);
   const [labelScanMessage, setLabelScanMessage] = useState("");
@@ -613,6 +621,16 @@ function App() {
     setSaveRemovalToHistory(shouldSuggestHistory(removalReason, nextStatus));
   }
 
+  function releasePrintedLabelCode(labelCode) {
+    if (!labelCode) {
+      return;
+    }
+
+    setPrintedLabelCodes((currentPrintedLabelCodes) =>
+      removePrintedLabelCodes(currentPrintedLabelCodes, [labelCode]),
+    );
+  }
+
   async function confirmRemoveInventoryItem() {
     if (!removalDialogItem) {
       return;
@@ -641,6 +659,8 @@ function App() {
       setInventoryItems((currentItems) =>
         updateInventoryListAfterRemove(currentItems, removalDialogItem.id),
       );
+
+      releasePrintedLabelCode(removalDialogItem.label_code);
 
       setProducts((currentProducts) =>
         updateProductListAfterInventoryRemoval(currentProducts, result.product),
@@ -696,7 +716,11 @@ function App() {
 
       {errorMessage && <p className="error">{errorMessage}</p>}
 
-      <LabelSheetSection inventoryItems={inventoryItems} />
+      <LabelSheetSection
+        inventoryItems={inventoryItems}
+        printedLabelCodes={printedLabelCodes}
+        onPrintedLabelCodesChange={setPrintedLabelCodes}
+      />
 
       <ProductsSection
         productForm={productForm}
