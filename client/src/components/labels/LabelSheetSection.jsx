@@ -5,28 +5,77 @@ import { QRCodeSVG } from "qrcode.react";
 
 import { createInventoryLabelQrTextFromCode } from "../../utils/labelQrUtils";
 
-const LABELS_PER_SHEET = 36;
+import {
+  createManualLabelSheetCodes,
+  createNextLabelSheetCodes,
+  getReusableFreeLabelCodes,
+  getUsedLabelCodes,
+} from "../../utils/labelPoolUtils";
 
-function createLabelCode(number) {
-  return `F${String(number).padStart(3, "0")}`;
-}
+import {
+  addPrintedLabelCodes,
+  loadPrintedLabelCodes,
+} from "../../utils/printedLabelStorageUtils";
 
-function createLabelSheetCodes(startNumber) {
-  return Array.from({ length: LABELS_PER_SHEET }, (_, index) =>
-    createLabelCode(startNumber + index),
-  );
-}
-
-export function LabelSheetSection() {
+export function LabelSheetSection({ inventoryItems }) {
   const [startNumber, setStartNumber] = useState(1);
+  const [labelSheetMode, setLabelSheetMode] = useState("pool");
+  const [printedLabelCodes, setPrintedLabelCodes] = useState(() =>
+    loadPrintedLabelCodes(),
+  );
+  const [printStatusMessage, setPrintStatusMessage] = useState("");
 
-  const labelCodes = useMemo(
-    () => createLabelSheetCodes(Number(startNumber) || 1),
+  const manualLabelCodes = useMemo(
+    () => createManualLabelSheetCodes(startNumber),
     [startNumber],
   );
 
+  const nextPoolLabelCodes = useMemo(
+    () => createNextLabelSheetCodes(inventoryItems, printedLabelCodes),
+    [inventoryItems, printedLabelCodes],
+  );
+
+  const usedLabelCodes = useMemo(
+    () => getUsedLabelCodes(inventoryItems),
+    [inventoryItems],
+  );
+
+  const reusableFreeLabelCodes = useMemo(
+    () => getReusableFreeLabelCodes(inventoryItems, printedLabelCodes),
+    [inventoryItems, printedLabelCodes],
+  );
+
+  const activeLabelCodes =
+    labelSheetMode === "pool" ? nextPoolLabelCodes : manualLabelCodes;
+
+  const sheetTitle =
+    labelSheetMode === "pool"
+      ? "Nächster Pool-Bogen"
+      : "Manueller Etikettenbogen";
+
   function printLabelSheet() {
+    setPrintStatusMessage(
+      "Druckdialog geöffnet. Erst nach erfolgreichem Ausdruck als gedruckt markieren.",
+    );
     window.print();
+  }
+
+  function markCurrentSheetAsPrinted() {
+    const confirmed = window.confirm(
+      "Diesen Etikettenbogen wirklich als gedruckt / im Umlauf markieren? Nur bestätigen, wenn der Ausdruck erfolgreich war.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const updatedPrintedLabelCodes = addPrintedLabelCodes(
+      printedLabelCodes,
+      activeLabelCodes,
+    );
+
+    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    setPrintStatusMessage("Etikettenbogen wurde als gedruckt / im Umlauf markiert.");
   }
 
   return (
@@ -35,13 +84,24 @@ export function LabelSheetSection() {
         <div>
           <h2>Etikettenbogen</h2>
           <p>
-            Druckbogen für Printation Papieretiketten 45 mm × 30 mm,
-            Art. 1548812-GP, 4 Spalten × 9 Zeilen.
+            Druckbogen für Printation Papieretiketten 45 mm × 30 mm, Art.
+            1548812-GP, 4 Spalten × 9 Zeilen.
           </p>
         </div>
       </div>
 
       <div className="label-sheet-toolbar">
+        <label>
+          Druckmodus
+          <select
+            value={labelSheetMode}
+            onChange={(event) => setLabelSheetMode(event.target.value)}
+          >
+            <option value="pool">Pool-Bogen automatisch</option>
+            <option value="manual">Manueller Bogen</option>
+          </select>
+        </label>
+
         <label>
           Startnummer
           <input
@@ -49,35 +109,72 @@ export function LabelSheetSection() {
             min="1"
             value={startNumber}
             onChange={(event) => setStartNumber(event.target.value)}
+            disabled={labelSheetMode === "pool"}
           />
         </label>
 
         <div className="label-sheet-toolbar-info">
           <strong>
-            {labelCodes[0]}–{labelCodes[labelCodes.length - 1]}
+            {activeLabelCodes[0]}–
+            {activeLabelCodes[activeLabelCodes.length - 1]}
           </strong>
-          <span>36 Etiketten</span>
+          <span>{sheetTitle}, 36 Etiketten</span>
         </div>
 
-        <button type="button" className="secondary-button" onClick={printLabelSheet}>
-          Etikettenbogen drucken
-        </button>
+        <div className="label-sheet-toolbar-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={printLabelSheet}
+          >
+            Etikettenbogen drucken
+          </button>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={markCurrentSheetAsPrinted}
+          >
+            Als gedruckt markieren
+          </button>
+        </div>
+      </div>
+
+      {printStatusMessage && (
+        <p className="label-sheet-status-message">{printStatusMessage}</p>
+      )}
+
+      <div className="label-sheet-pool-info">
+        <span>Aktiv belegte Etiketten: {usedLabelCodes.length}</span>
+        <span>Gedruckt / im Umlauf: {printedLabelCodes.length}</span>
+        <span>
+          Wiederverwendbare freie Etiketten: {reusableFreeLabelCodes.length}
+        </span>
       </div>
 
       <div className="label-sheet-print-area">
         <div className="label-sheet">
-          {labelCodes.map((labelCode) => {
+          {activeLabelCodes.map((labelCode) => {
             const qrText = createInventoryLabelQrTextFromCode(labelCode);
+            const isReusableFreeLabel =
+              reusableFreeLabelCodes.includes(labelCode);
 
             return (
-              <div className="label-sheet-item" key={labelCode}>
+              <div
+                className={`label-sheet-item${
+                  isReusableFreeLabel ? " label-sheet-item-reused" : ""
+                }`}
+                key={labelCode}
+              >
                 <div className="label-sheet-qr">
-                  <QRCodeSVG value={qrText} size={62} level="M" includeMargin />
+                  <QRCodeSVG value={qrText} size={54} level="M" includeMargin />
                 </div>
 
                 <div className="label-sheet-text">
                   <strong>{labelCode}</strong>
-                  <span>Food Inventory</span>
+                  <span>
+                    {isReusableFreeLabel ? "wieder frei" : "Food Inventory"}
+                  </span>
                 </div>
               </div>
             );

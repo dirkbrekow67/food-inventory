@@ -951,10 +951,10 @@ h4 {
 
 .label-sheet-toolbar {
   display: grid;
-  grid-template-columns: minmax(180px, 240px) auto auto;
+  grid-template-columns: minmax(160px, 210px) minmax(130px, 170px) auto auto;
   gap: 14px;
   align-items: end;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   padding: 16px;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
@@ -968,7 +968,8 @@ h4 {
   font-weight: 700;
 }
 
-.label-sheet-toolbar input {
+.label-sheet-toolbar input,
+.label-sheet-toolbar select {
   width: 100%;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
@@ -977,9 +978,16 @@ h4 {
   color: #0f172a;
 }
 
-.label-sheet-toolbar input:focus {
+.label-sheet-toolbar input:focus,
+.label-sheet-toolbar select:focus {
   outline: 3px solid #bfdbfe;
   border-color: #2563eb;
+}
+
+.label-sheet-toolbar input:disabled {
+  cursor: not-allowed;
+  color: #94a3b8;
+  background: #f8fafc;
 }
 
 .label-sheet-toolbar-info {
@@ -992,6 +1000,42 @@ h4 {
   color: #1e3a8a;
 }
 
+.label-sheet-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.label-sheet-status-message {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.label-sheet-pool-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.label-sheet-pool-info span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
 .label-sheet-print-area {
   overflow-x: auto;
   padding: 16px;
@@ -1001,25 +1045,30 @@ h4 {
 }
 
 .label-sheet {
-  width: 210mm;
-  min-height: 297mm;
+  box-sizing: border-box;
+  width: 213mm;
+  min-height: 298mm;
   display: grid;
   grid-template-columns: repeat(4, 45mm);
   grid-template-rows: repeat(9, 30mm);
-  justify-content: center;
-  align-content: center;
+  column-gap: 7mm;
+  row-gap: 0;
+  justify-content: start;
+  align-content: start;
   margin: 0 auto;
+  padding: 14mm 8mm 14mm 4mm;
   background: #ffffff;
 }
 
 .label-sheet-item {
+  box-sizing: border-box;
   width: 45mm;
   height: 30mm;
   display: grid;
-  grid-template-columns: 17mm 1fr;
-  gap: 1.5mm;
+  grid-template-columns: 22mm 1fr;
+  gap: 1.4mm;
   align-items: center;
-  padding: 2mm;
+  padding: 0.8mm 1.2mm;
   overflow: hidden;
   border: 1px dashed #e5e7eb;
   color: #111827;
@@ -1031,67 +1080,124 @@ h4 {
   justify-content: center;
 }
 
-.label-sheet-qr svg {
-  width: 15mm;
-  height: 15mm;
-}
-
 .label-sheet-text {
   display: grid;
-  gap: 1mm;
+  gap: 0.8mm;
   min-width: 0;
 }
 
+.label-sheet-qr svg {
+  width: 21mm;
+  height: 21mm;
+}
+
 .label-sheet-text strong {
-  font-size: 11pt;
+  font-size: 14pt;
   line-height: 1;
+  letter-spacing: 0.02em;
 }
 
 .label-sheet-text span {
-  font-size: 6.5pt;
+  font-size: 7.2pt;
   line-height: 1.1;
   color: #374151;
+  white-space: nowrap;
+}
+
+.label-sheet-item-reused {
+  background: #eff6ff;
 }
 
 @media print {
-  body {
-    background: #ffffff;
-  }
-
-  body * {
-    visibility: hidden;
-  }
-
-  .label-sheet-print-area,
-  .label-sheet-print-area * {
-    visibility: visible;
-  }
-
-  .label-sheet-print-area {
-    position: absolute;
-    inset: 0;
-    overflow: visible;
-    padding: 0;
-    border: none;
-    border-radius: 0;
-  }
-
-  .label-sheet {
-    width: 210mm;
-    height: 297mm;
-    margin: 0;
-  }
-
-  .label-sheet-item {
-    border: none;
-  }
-
   @page {
     size: A4;
     margin: 0;
   }
-}
 
+  html,
+  body,
+  #root {
+    width: 213mm;
+    height: 298mm;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .app-shell {
+    width: 213mm;
+    height: 298mm;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .app-shell > * {
+    display: none !important;
+  }
+
+  .label-sheet-section {
+    display: block !important;
+    width: 213mm;
+    height: 298mm;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff;
+  }
+
+  .label-sheet-section > *:not(.label-sheet-print-area) {
+    display: none !important;
+  }
+
+  .label-sheet-print-area {
+    display: block !important;
+    width: 213mm;
+    height: 298mm;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    border-radius: 0;
+    background: #ffffff;
+  }
+
+  .label-sheet {
+    box-sizing: border-box;
+    width: 213mm;
+    height: 298mm;
+    min-height: 298mm;
+    display: grid;
+    grid-template-columns: repeat(4, 45mm);
+    grid-template-rows: repeat(9, 30mm);
+    column-gap: 7mm;
+    row-gap: 0;
+    justify-content: start;
+    align-content: start;
+    margin: 0;
+    padding: 14mm 8mm 14mm 4mm;
+    background: #ffffff;
+    page-break-before: avoid;
+    page-break-after: avoid;
+  }
+
+  .label-sheet-item {
+    box-sizing: border-box;
+    width: 45mm;
+    height: 30mm;
+    border: none;
+    padding: 0.8mm 1.2mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .label-sheet-item-reused {
+    background: #ffffff;
+  }
+}
 
 @media (max-width: 560px) {
   .dialog-actions {
@@ -1125,7 +1231,7 @@ h4 {
     align-items: stretch;
   }
 
-    .label-sheet-toolbar {
+  .label-sheet-toolbar {
     grid-template-columns: 1fr;
   }
 }

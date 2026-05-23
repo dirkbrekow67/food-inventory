@@ -696,7 +696,7 @@ function App() {
 
       {errorMessage && <p className="error">{errorMessage}</p>}
 
-      <LabelSheetSection />
+      <LabelSheetSection inventoryItems={inventoryItems} />
 
       <ProductsSection
         productForm={productForm}
