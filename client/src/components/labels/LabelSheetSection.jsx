@@ -14,7 +14,9 @@ import {
 
 import {
   addPrintedLabelCodes,
+  clearPrintedLabelCodes,
   loadPrintedLabelCodes,
+  removePrintedLabelCodes,
 } from "../../utils/printedLabelStorageUtils";
 
 export function LabelSheetSection({ inventoryItems }) {
@@ -24,6 +26,8 @@ export function LabelSheetSection({ inventoryItems }) {
     loadPrintedLabelCodes(),
   );
   const [printStatusMessage, setPrintStatusMessage] = useState("");
+  const [printedLabelCorrectionInput, setPrintedLabelCorrectionInput] =
+    useState("");
 
   const manualLabelCodes = useMemo(
     () => createManualLabelSheetCodes(startNumber),
@@ -75,7 +79,83 @@ export function LabelSheetSection({ inventoryItems }) {
     );
 
     setPrintedLabelCodes(updatedPrintedLabelCodes);
-    setPrintStatusMessage("Etikettenbogen wurde als gedruckt / im Umlauf markiert.");
+    setPrintStatusMessage(
+      "Etikettenbogen wurde als gedruckt / im Umlauf markiert.",
+    );
+  }
+
+  function removeCurrentSheetFromPrintedLabels() {
+    const confirmed = window.confirm(
+      "Aktuellen Etikettenbogen wirklich aus gedruckt / im Umlauf entfernen? Das ist sinnvoll bei Fehldruck oder versehentlicher Markierung.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const updatedPrintedLabelCodes = removePrintedLabelCodes(
+      printedLabelCodes,
+      activeLabelCodes,
+    );
+
+    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    setPrintStatusMessage(
+      "Aktueller Etikettenbogen wurde aus gedruckt / im Umlauf entfernt.",
+    );
+  }
+
+  function removeSelectedPrintedLabels() {
+    const labelCodesToRemove = printedLabelCorrectionInput
+      .split(/[\s,;]+/)
+      .map((labelCode) => labelCode.trim().toUpperCase())
+      .filter(Boolean);
+
+    if (labelCodesToRemove.length === 0) {
+      setPrintStatusMessage(
+        "Bitte mindestens eine Etikettennummer eingeben, z. B. F038 oder F038, F039.",
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Diese Etiketten wirklich aus gedruckt / im Umlauf entfernen: ${labelCodesToRemove.join(
+        ", ",
+      )}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const updatedPrintedLabelCodes = removePrintedLabelCodes(
+      printedLabelCodes,
+      labelCodesToRemove,
+    );
+
+    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    setPrintedLabelCorrectionInput("");
+    setPrintStatusMessage(
+      `Etiketten wurden aus gedruckt / im Umlauf entfernt: ${labelCodesToRemove.join(
+        ", ",
+      )}.`,
+    );
+  }
+
+  function resetPrintedLabels() {
+    const confirmed = window.confirm(
+      "Alle gedruckten / im Umlauf befindlichen Etiketten zurücksetzen? Nur verwenden, wenn der lokale Druckstatus vollständig neu aufgebaut werden soll.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const updatedPrintedLabelCodes = clearPrintedLabelCodes();
+
+    setPrintedLabelCodes(updatedPrintedLabelCodes);
+    setPrintStatusMessage(
+      "Der lokale Druckstatus wurde vollständig zurückgesetzt.",
+    );
   }
 
   return (
@@ -137,6 +217,14 @@ export function LabelSheetSection({ inventoryItems }) {
           >
             Als gedruckt markieren
           </button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={removeCurrentSheetFromPrintedLabels}
+            disabled={printedLabelCodes.length === 0}
+          >
+            Aktuellen Bogen freigeben
+          </button>
         </div>
       </div>
 
@@ -150,6 +238,38 @@ export function LabelSheetSection({ inventoryItems }) {
         <span>
           Wiederverwendbare freie Etiketten: {reusableFreeLabelCodes.length}
         </span>
+      </div>
+
+      <div className="label-sheet-correction">
+        <label>
+          Einzelne Etiketten freigeben
+          <input
+            type="text"
+            value={printedLabelCorrectionInput}
+            onChange={(event) =>
+              setPrintedLabelCorrectionInput(event.target.value)
+            }
+            placeholder="z. B. F038, F039"
+          />
+        </label>
+
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={removeSelectedPrintedLabels}
+          disabled={printedLabelCodes.length === 0}
+        >
+          Auswahl freigeben
+        </button>
+
+        <button
+          type="button"
+          className="secondary-button danger-outline-button"
+          onClick={resetPrintedLabels}
+          disabled={printedLabelCodes.length === 0}
+        >
+          Druckstatus zurücksetzen
+        </button>
       </div>
 
       <div className="label-sheet-print-area">

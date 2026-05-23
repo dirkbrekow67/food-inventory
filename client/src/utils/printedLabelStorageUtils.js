@@ -37,3 +37,19 @@ export function savePrintedLabelCodes(labelCodes) {
 export function addPrintedLabelCodes(existingLabelCodes, nextLabelCodes) {
   return savePrintedLabelCodes([...existingLabelCodes, ...nextLabelCodes]);
 }
+
+export function removePrintedLabelCodes(existingLabelCodes, labelCodesToRemove) {
+  const labelCodesToRemoveSet = new Set(labelCodesToRemove.filter(Boolean));
+
+  return savePrintedLabelCodes(
+    existingLabelCodes.filter(
+      (labelCode) => !labelCodesToRemoveSet.has(labelCode),
+    ),
+  );
+}
+
+export function clearPrintedLabelCodes() {
+  window.localStorage.removeItem(PRINTED_LABEL_CODES_STORAGE_KEY);
+
+  return [];
+}
