@@ -1,3 +1,10 @@
+import {
+  compareLabelCodes,
+  createLabelCode,
+  normalizeLabelCode,
+  parseLabelNumber,
+} from "./labelPoolUtils";
+
 const PRINTED_LABEL_CODES_STORAGE_KEY = "food-inventory.printedLabelCodes";
 
 export function loadPrintedLabelCodes() {
@@ -16,7 +23,7 @@ export function loadPrintedLabelCodes() {
       return [];
     }
 
-    return parsedValue.filter(Boolean);
+    return normalizePrintedLabelCodes(parsedValue);
   } catch (error) {
     console.error(error);
     return [];
@@ -24,7 +31,7 @@ export function loadPrintedLabelCodes() {
 }
 
 export function savePrintedLabelCodes(labelCodes) {
-  const uniqueLabelCodes = Array.from(new Set(labelCodes.filter(Boolean)));
+  const uniqueLabelCodes = normalizePrintedLabelCodes(labelCodes);
 
   window.localStorage.setItem(
     PRINTED_LABEL_CODES_STORAGE_KEY,
@@ -39,11 +46,13 @@ export function addPrintedLabelCodes(existingLabelCodes, nextLabelCodes) {
 }
 
 export function removePrintedLabelCodes(existingLabelCodes, labelCodesToRemove) {
-  const labelCodesToRemoveSet = new Set(labelCodesToRemove.filter(Boolean));
+  const normalizedLabelCodesToRemove = new Set(
+    normalizePrintedLabelCodes(labelCodesToRemove),
+  );
 
   return savePrintedLabelCodes(
     existingLabelCodes.filter(
-      (labelCode) => !labelCodesToRemoveSet.has(labelCode),
+      (labelCode) => !normalizedLabelCodesToRemove.has(normalizeLabelCode(labelCode)),
     ),
   );
 }
@@ -52,4 +61,55 @@ export function clearPrintedLabelCodes() {
   window.localStorage.removeItem(PRINTED_LABEL_CODES_STORAGE_KEY);
 
   return [];
+}
+
+export function parseLabelCodeSelection(inputValue) {
+  return String(inputValue || "")
+    .split(/[\s,;]+/)
+    .flatMap(parseLabelCodeSelectionPart)
+    .filter(Boolean)
+    .sort(compareLabelCodes);
+}
+
+function parseLabelCodeSelectionPart(inputPart) {
+  const normalizedInputPart = String(inputPart || "").trim().toUpperCase();
+
+  if (!normalizedInputPart) {
+    return [];
+  }
+
+  if (normalizedInputPart.includes("-")) {
+    return parseLabelCodeRange(normalizedInputPart);
+  }
+
+  const normalizedLabelCode = normalizeLabelCode(normalizedInputPart);
+
+  return normalizedLabelCode ? [normalizedLabelCode] : [];
+}
+
+function parseLabelCodeRange(inputPart) {
+  const [rawStartCode, rawEndCode] = inputPart
+    .split("-")
+    .map((part) => part.trim());
+
+  const startNumber = parseLabelNumber(rawStartCode);
+  const endNumber = parseLabelNumber(rawEndCode);
+
+  if (!startNumber || !endNumber) {
+    return [];
+  }
+
+  const firstNumber = Math.min(startNumber, endNumber);
+  const lastNumber = Math.max(startNumber, endNumber);
+
+  return Array.from(
+    { length: lastNumber - firstNumber + 1 },
+    (_, index) => createLabelCode(firstNumber + index),
+  );
+}
+
+function normalizePrintedLabelCodes(labelCodes) {
+  return Array.from(
+    new Set(labelCodes.map(normalizeLabelCode).filter(Boolean)),
+  ).sort(compareLabelCodes);
 }

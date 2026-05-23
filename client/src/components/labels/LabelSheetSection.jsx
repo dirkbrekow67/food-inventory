@@ -16,6 +16,7 @@ import {
   addPrintedLabelCodes,
   clearPrintedLabelCodes,
   loadPrintedLabelCodes,
+  parseLabelCodeSelection,
   removePrintedLabelCodes,
 } from "../../utils/printedLabelStorageUtils";
 
@@ -105,14 +106,13 @@ export function LabelSheetSection({ inventoryItems }) {
   }
 
   function removeSelectedPrintedLabels() {
-    const labelCodesToRemove = printedLabelCorrectionInput
-      .split(/[\s,;]+/)
-      .map((labelCode) => labelCode.trim().toUpperCase())
-      .filter(Boolean);
+    const labelCodesToRemove = parseLabelCodeSelection(
+      printedLabelCorrectionInput,
+    );
 
     if (labelCodesToRemove.length === 0) {
       setPrintStatusMessage(
-        "Bitte mindestens eine Etikettennummer eingeben, z. B. F038 oder F038, F039.",
+        "Keine gültigen Etiketten gefunden. Beispiel: F038, F039 oder F038-F041.",
       );
       return;
     }
@@ -249,7 +249,7 @@ export function LabelSheetSection({ inventoryItems }) {
             onChange={(event) =>
               setPrintedLabelCorrectionInput(event.target.value)
             }
-            placeholder="z. B. F038, F039"
+            placeholder="z. B. F038, F039 oder F038-F041"
           />
         </label>
 
