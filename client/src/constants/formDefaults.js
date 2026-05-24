@@ -1,3 +1,5 @@
+// client/src/constants/formDefaults.js
+
 export const emptyProductForm = {
   name: "",
   brand: "",
@@ -8,6 +10,10 @@ export const emptyProductForm = {
   rating: "",
   notes: "",
   favorite: false,
+
+  // Produktfotos gehören zum Produktstamm, nicht zum einzelnen Bestandseintrag.
+  // Aktuell werden Fotos als Data-URL in der SQLite-Datenbank gespeichert.
+  // imageFront ist das Hauptfoto, imageBack ist für ein späteres Rückseitenfoto vorbereitet.
   imageFront: "",
   imageBack: "",
 };

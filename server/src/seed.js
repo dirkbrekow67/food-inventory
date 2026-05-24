@@ -1,3 +1,5 @@
+// server/src/seed.js
+
 const db = require('./db');
 const { runMigrations } = require('./migrations');
 

@@ -1,3 +1,5 @@
+// server/src/migrations.js
+
 const db = require('./db');
 
 function columnExists(tableName, columnName) {

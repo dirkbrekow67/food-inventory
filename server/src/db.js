@@ -1,3 +1,5 @@
+// server/src/db.js
+
 const path = require('path');
 const Database = require('better-sqlite3');
 
