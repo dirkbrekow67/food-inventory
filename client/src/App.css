@@ -1036,6 +1036,34 @@ h4 {
   font-weight: 700;
 }
 
+.label-sheet-composition {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+}
+
+.label-sheet-composition div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.label-sheet-composition strong {
+  color: #1e3a8a;
+  font-size: 0.9rem;
+}
+
+.label-sheet-composition span {
+  color: #334155;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
 .label-sheet-correction {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) auto auto;

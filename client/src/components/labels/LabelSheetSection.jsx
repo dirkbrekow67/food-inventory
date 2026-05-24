@@ -58,6 +58,29 @@ export function LabelSheetSection({
       ? "Nächster Pool-Bogen"
       : "Manueller Etikettenbogen";
 
+  const reusableFreeLabelCodeSet = new Set(reusableFreeLabelCodes);
+
+  const reusedActiveLabelCodes = activeLabelCodes.filter((labelCode) =>
+    reusableFreeLabelCodeSet.has(labelCode),
+  );
+
+  const newActiveLabelCodes = activeLabelCodes.filter(
+    (labelCode) => !reusableFreeLabelCodeSet.has(labelCode),
+  );
+
+  const hasReusedLabels = reusedActiveLabelCodes.length > 0;
+
+  const newLabelRangeText =
+    newActiveLabelCodes.length > 0
+      ? `${newActiveLabelCodes[0]}–${
+          newActiveLabelCodes[newActiveLabelCodes.length - 1]
+        }`
+      : "keine";
+
+  const reusedLabelText = hasReusedLabels
+    ? reusedActiveLabelCodes.join(", ")
+    : "keine";
+
   function updatePrintedLabelCodes(nextPrintedLabelCodes) {
     onPrintedLabelCodesChange(nextPrintedLabelCodes);
   }
@@ -263,6 +286,26 @@ export function LabelSheetSection({
         <span>
           Wiederverwendbare freie Etiketten: {reusableFreeLabelCodes.length}
         </span>
+      </div>
+
+      <div className="label-sheet-composition">
+        <div>
+          <strong>Aktueller Bogen</strong>
+          <span>
+            Neue Etiketten: {newActiveLabelCodes.length} · Wiederverwendete
+            Etiketten: {reusedActiveLabelCodes.length}
+          </span>
+        </div>
+
+        <div>
+          <strong>Fortlaufender Bereich</strong>
+          <span>{newLabelRangeText}</span>
+        </div>
+
+        <div>
+          <strong>Wiederverwendet</strong>
+          <span>{reusedLabelText}</span>
+        </div>
       </div>
 
       <div className="label-sheet-correction">
