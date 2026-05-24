@@ -8,6 +8,8 @@ export const emptyProductForm = {
   rating: "",
   notes: "",
   favorite: false,
+  imageFront: "",
+  imageBack: "",
 };
 
 export const emptyInventoryForm = {

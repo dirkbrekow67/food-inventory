@@ -1,3 +1,5 @@
+// server/src/Routes/productRoutes.js
+
 const express = require('express');
 const db = require('../db');
 
@@ -32,6 +34,8 @@ router.post('/', (req, res) => {
       rating = null,
       notes = null,
       favorite = 0,
+      imageFront = null,
+      imageBack = null,
     } = req.body;
 
     if (!name || !name.trim()) {
@@ -61,9 +65,11 @@ router.post('/', (req, res) => {
         buy_again_status,
         rating,
         notes,
-        favorite
+        favorite,
+        image_front,
+        image_back
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       name.trim(),
       brand,
@@ -74,7 +80,9 @@ router.post('/', (req, res) => {
       safeBuyAgainStatus,
       rating,
       notes,
-      favorite ? 1 : 0
+      favorite ? 1 : 0,
+      imageFront,
+      imageBack
     );
 
     const product = db.prepare(`
@@ -116,6 +124,8 @@ router.put('/:id', (req, res) => {
       rating = null,
       notes = null,
       favorite = 0,
+      imageFront = null,
+      imageBack = null,
     } = req.body;
 
     if (!name || !name.trim()) {
@@ -146,6 +156,8 @@ router.put('/:id', (req, res) => {
         rating = ?,
         notes = ?,
         favorite = ?,
+        image_front = ?,
+        image_back = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
@@ -159,6 +171,8 @@ router.put('/:id', (req, res) => {
       rating,
       notes,
       favorite ? 1 : 0,
+      imageFront,
+      imageBack,
       id
     );
 

@@ -8,6 +8,24 @@ import {
 
 import { renderSelectOptions } from "../form/FormSelectOptions";
 
+function readImageFileAsDataUrl(file, onImageLoaded) {
+  if (!file) {
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    onImageLoaded(reader.result);
+  };
+
+  reader.readAsDataURL(file);
+}
+
 export function ProductForm({
   productForm,
   editingProductId,
@@ -16,6 +34,20 @@ export function ProductForm({
   onUpdateProductForm,
   onResetProductForm,
 }) {
+  function handleFrontImageChange(event) {
+    const file = event.target.files?.[0];
+
+    readImageFileAsDataUrl(file, (imageDataUrl) => {
+      onUpdateProductForm("imageFront", imageDataUrl);
+    });
+
+    event.target.value = "";
+  }
+
+  function removeFrontImage() {
+    onUpdateProductForm("imageFront", "");
+  }
+
   return (
     <form className="product-form" onSubmit={onSaveProduct}>
       <div className="form-title-row">
@@ -129,6 +161,32 @@ export function ProductForm({
           />
           Favorit
         </label>
+      </div>
+
+      <div className="product-image-field">
+        <label>
+          Produktfoto Vorderseite
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFrontImageChange}
+          />
+        </label>
+
+        {productForm.imageFront && (
+          <div className="product-image-preview">
+            <img src={productForm.imageFront} alt="Produkt Vorderseite" />
+
+            <button
+              type="button"
+              className="secondary-button danger-outline-button"
+              onClick={removeFrontImage}
+            >
+              Foto entfernen
+            </button>
+          </div>
+        )}
       </div>
 
       <label>

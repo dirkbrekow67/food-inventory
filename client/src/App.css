@@ -172,6 +172,40 @@ h4 {
   background: #f8fafc;
 }
 
+.product-card-image {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  margin: 12px 0;
+  border-radius: 14px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
+.product-image-field {
+  display: grid;
+  gap: 10px;
+}
+
+.product-image-field input[type="file"] {
+  padding: 8px;
+}
+
+.product-image-preview {
+  display: grid;
+  gap: 10px;
+  max-width: 260px;
+}
+
+.product-image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: #e5e7eb;
+}
+
 .product-card-header {
   display: flex;
   justify-content: space-between;

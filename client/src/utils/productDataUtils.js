@@ -10,6 +10,8 @@ export function createProductPayload(productForm) {
     rating: productForm.rating ? Number(productForm.rating) : null,
     notes: productForm.notes.trim() || null,
     favorite: productForm.favorite ? 1 : 0,
+    imageFront: productForm.imageFront || null,
+    imageBack: productForm.imageBack || null,
   };
 }
 
@@ -24,6 +26,8 @@ export function createProductFormFromProduct(product) {
     rating: product.rating ? String(product.rating) : "",
     notes: product.notes || "",
     favorite: product.favorite === 1,
+    imageFront: product.image_front || "",
+    imageBack: product.image_back || "",
   };
 }
 

@@ -19,6 +19,14 @@ export function ProductCard({
     <article className="product-card">
       <ProductCardHeader product={product} />
 
+      {product.image_front && (
+        <img
+          className="product-card-image"
+          src={product.image_front}
+          alt={`Produktfoto ${product.name}`}
+        />
+      )}
+
       <ProductMeta product={product} />
 
       <div className={`buy-again buy-again-${product.buy_again_status}`}>
