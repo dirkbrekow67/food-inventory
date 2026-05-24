@@ -30,6 +30,8 @@ export function LabelSheetSection({
   const [printedLabelCorrectionInput, setPrintedLabelCorrectionInput] =
     useState("");
 
+  const [showLabelSheetPreview, setShowLabelSheetPreview] = useState(true);
+
   const manualLabelCodes = useMemo(
     () => createManualLabelSheetCodes(startNumber),
     [startNumber],
@@ -86,10 +88,14 @@ export function LabelSheetSection({
   }
 
   function printLabelSheet() {
+    setShowLabelSheetPreview(true);
     setPrintStatusMessage(
       "Druckdialog geöffnet. Erst nach erfolgreichem Ausdruck als gedruckt markieren.",
     );
-    window.print();
+
+    window.setTimeout(() => {
+      window.print();
+    }, 0);
   }
 
   function markCurrentSheetAsPrinted() {
@@ -273,6 +279,19 @@ export function LabelSheetSection({
           >
             Aktuellen Bogen freigeben
           </button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() =>
+              setShowLabelSheetPreview(
+                (currentShowLabelSheetPreview) => !currentShowLabelSheetPreview,
+              )
+            }
+          >
+            {showLabelSheetPreview
+              ? "Vorschau ausblenden"
+              : "Vorschau anzeigen"}
+          </button>
         </div>
       </div>
 
@@ -340,35 +359,50 @@ export function LabelSheetSection({
         </button>
       </div>
 
-      <div className="label-sheet-print-area">
-        <div className="label-sheet">
-          {activeLabelCodes.map((labelCode) => {
-            const qrText = createInventoryLabelQrTextFromCode(labelCode);
-            const isReusableFreeLabel =
-              reusableFreeLabelCodes.includes(labelCode);
+      {showLabelSheetPreview ? (
+        <div className="label-sheet-print-area">
+          <div className="label-sheet">
+            {activeLabelCodes.map((labelCode) => {
+              const qrText = createInventoryLabelQrTextFromCode(labelCode);
+              const isReusableFreeLabel =
+                reusableFreeLabelCodes.includes(labelCode);
 
-            return (
-              <div
-                className={`label-sheet-item${
-                  isReusableFreeLabel ? " label-sheet-item-reused" : ""
-                }`}
-                key={labelCode}
-              >
-                <div className="label-sheet-qr">
-                  <QRCodeSVG value={qrText} size={54} level="M" includeMargin />
-                </div>
+              return (
+                <div
+                  className={`label-sheet-item${
+                    isReusableFreeLabel ? " label-sheet-item-reused" : ""
+                  }`}
+                  key={labelCode}
+                >
+                  <div className="label-sheet-qr">
+                    <QRCodeSVG
+                      value={qrText}
+                      size={54}
+                      level="M"
+                      includeMargin
+                    />
+                  </div>
 
-                <div className="label-sheet-text">
-                  <strong>{labelCode}</strong>
-                  <span>
-                    {isReusableFreeLabel ? "wieder frei" : "Food Inventory"}
-                  </span>
+                  <div className="label-sheet-text">
+                    <strong>{labelCode}</strong>
+                    <span>
+                      {isReusableFreeLabel ? "wieder frei" : "Food Inventory"}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="label-sheet-preview-hidden">
+          <strong>Etikettenvorschau ausgeblendet</strong>
+          <span>
+            Der aktuelle Bogen ist weiterhin druckbereit. Zum Prüfen der
+            Positionen die Vorschau wieder anzeigen.
+          </span>
+        </div>
+      )}
     </section>
   );
 }
