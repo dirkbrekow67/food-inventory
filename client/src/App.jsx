@@ -626,9 +626,20 @@ function App() {
       return;
     }
 
-    setPrintedLabelCodes((currentPrintedLabelCodes) =>
-      removePrintedLabelCodes(currentPrintedLabelCodes, [labelCode]),
-    );
+    setPrintedLabelCodes((currentPrintedLabelCodes) => {
+      const updatedPrintedLabelCodes = removePrintedLabelCodes(
+        currentPrintedLabelCodes,
+        [labelCode],
+      );
+
+      if (updatedPrintedLabelCodes.length < currentPrintedLabelCodes.length) {
+        setLabelScanMessage(
+          `Etikett ${labelCode} wurde freigegeben und kann wiederverwendet werden.`,
+        );
+      }
+
+      return updatedPrintedLabelCodes;
+    });
   }
 
   async function confirmRemoveInventoryItem() {
