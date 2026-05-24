@@ -90,3 +90,15 @@ export function deleteHistoryItemById(historyItemId) {
     },
   );
 }
+
+export function uploadProductPhoto({ productId = "new", side = "front", imageDataUrl }) {
+  return fetchJson(
+    "/products/photos",
+    "Produktfoto konnte nicht gespeichert werden.",
+    createJsonRequest("POST", {
+      productId,
+      side,
+      imageDataUrl,
+    }),
+  );
+}

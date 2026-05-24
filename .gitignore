@@ -18,3 +18,6 @@ client/.env.local
 client/.env.*.local
 .env.local
 .env.*.local
+
+server/uploads/products/*
+!server/uploads/products/.gitkeep

@@ -8,6 +8,8 @@ import { ProductMeta } from "./ProductMeta";
 
 import { ProductHistoryHint } from "./ProductHistoryHint";
 
+import { createImageSrc } from "../../utils/imageUrlUtils";
+
 export function ProductCard({
   product,
   productHistorySummary,
@@ -25,7 +27,7 @@ export function ProductCard({
             <figure>
               <img
                 className="product-card-image"
-                src={product.image_front}
+                src={createImageSrc(product.image_front)}
                 alt={`Produktfoto Vorderseite ${product.name}`}
               />
               <figcaption>Vorderseite</figcaption>
@@ -36,7 +38,7 @@ export function ProductCard({
             <figure>
               <img
                 className="product-card-image"
-                src={product.image_back}
+                src={createImageSrc(product.image_back)}
                 alt={`Produktfoto Rückseite ${product.name}`}
               />
               <figcaption>Rückseite</figcaption>

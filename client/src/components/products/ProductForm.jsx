@@ -12,6 +12,10 @@ import { renderSelectOptions } from "../form/FormSelectOptions";
 
 import { compressImageFileToDataUrl } from "../../utils/imageFileUtils";
 
+import { uploadProductPhoto } from "../../api/inventoryApi";
+
+import { createImageSrc } from "../../utils/imageUrlUtils";
+
 export function ProductForm({
   productForm,
   editingProductId,
@@ -25,18 +29,28 @@ export function ProductForm({
   const backUploadInputRef = useRef(null);
   const backCameraInputRef = useRef(null);
 
-  async function handleProductImageChange(event, fieldName) {
+  async function handleProductImageChange(event, fieldName, side) {
     const file = event.target.files?.[0];
 
     try {
       const compressedImageDataUrl = await compressImageFileToDataUrl(file);
 
-      if (compressedImageDataUrl) {
-        onUpdateProductForm(fieldName, compressedImageDataUrl);
+      if (!compressedImageDataUrl) {
+        return;
       }
+
+      const uploadedPhoto = await uploadProductPhoto({
+        productId: editingProductId || "new",
+        side,
+        imageDataUrl: compressedImageDataUrl,
+      });
+
+      onUpdateProductForm(fieldName, uploadedPhoto.imagePath);
     } catch (error) {
       console.error(error);
-      window.alert("Das Produktfoto konnte nicht verarbeitet werden.");
+      window.alert(
+        "Das Produktfoto konnte nicht verarbeitet oder gespeichert werden.",
+      );
     } finally {
       event.target.value = "";
     }
@@ -192,7 +206,9 @@ export function ProductForm({
             className="visually-hidden-file-input"
             type="file"
             accept="image/*"
-            onChange={(event) => handleProductImageChange(event, "imageFront")}
+            onChange={(event) =>
+              handleProductImageChange(event, "imageFront", "front")
+            }
           />
 
           <input
@@ -201,12 +217,17 @@ export function ProductForm({
             type="file"
             accept="image/*"
             capture="environment"
-            onChange={(event) => handleProductImageChange(event, "imageFront")}
+            onChange={(event) =>
+              handleProductImageChange(event, "imageFront", "front")
+            }
           />
 
           {productForm.imageFront && (
             <div className="product-image-preview">
-              <img src={productForm.imageFront} alt="Produkt Vorderseite" />
+              <img
+                src={createImageSrc(productForm.imageFront)}
+                alt="Produkt Vorderseite"
+              />
 
               <button
                 type="button"
@@ -245,7 +266,9 @@ export function ProductForm({
             className="visually-hidden-file-input"
             type="file"
             accept="image/*"
-            onChange={(event) => handleProductImageChange(event, "imageBack")}
+            onChange={(event) =>
+              handleProductImageChange(event, "imageBack", "back")
+            }
           />
 
           <input
@@ -254,12 +277,17 @@ export function ProductForm({
             type="file"
             accept="image/*"
             capture="environment"
-            onChange={(event) => handleProductImageChange(event, "imageBack")}
+            onChange={(event) =>
+              handleProductImageChange(event, "imageBack", "back")
+            }
           />
 
           {productForm.imageBack && (
             <div className="product-image-preview">
-              <img src={productForm.imageBack} alt="Produkt Rückseite" />
+              <img
+                src={createImageSrc(productForm.imageBack)}
+                alt="Produkt Rückseite"
+              />
 
               <button
                 type="button"
