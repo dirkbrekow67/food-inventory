@@ -121,6 +121,27 @@ export function LabelSheetSection({
       return;
     }
 
+    const activeUsedLabelCodes = usedLabelCodes.filter((labelCode) =>
+      labelCodesToRemove.includes(labelCode),
+    );
+
+    if (activeUsedLabelCodes.length > 0) {
+      const confirmedActiveRelease = window.confirm(
+        `Achtung: Diese Etiketten sind aktuell noch einem Bestand zugeordnet: ${activeUsedLabelCodes.join(
+          ", ",
+        )}. Trotzdem aus gedruckt / im Umlauf entfernen?`,
+      );
+
+      if (!confirmedActiveRelease) {
+        setPrintStatusMessage(
+          `Freigabe abgebrochen. Aktive Etiketten wurden nicht verändert: ${activeUsedLabelCodes.join(
+            ", ",
+          )}.`,
+        );
+        return;
+      }
+    }
+
     const confirmed = window.confirm(
       `Diese Etiketten wirklich aus gedruckt / im Umlauf entfernen: ${labelCodesToRemove.join(
         ", ",
