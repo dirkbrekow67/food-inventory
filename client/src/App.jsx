@@ -92,6 +92,8 @@ function App() {
   const [products, setProducts] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
   const [activeSection, setActiveSection] = useState("inventory");
+  const [showProductsInInventoryView, setShowProductsInInventoryView] =
+    useState(true);
   const [loadingStorage, setLoadingStorage] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingInventory, setLoadingInventory] = useState(true);
@@ -776,20 +778,45 @@ function App() {
 
     return (
       <>
-        <ProductsSection
-          productForm={productForm}
-          editingProductId={editingProductId}
-          savingProduct={savingProduct}
-          loadingProducts={loadingProducts}
-          products={products}
-          historyItems={historyItems}
-          onSaveProduct={handleSaveProduct}
-          onUpdateProductForm={updateProductForm}
-          onResetProductForm={resetProductForm}
-          onEditProduct={startEditProduct}
-          onShowProductHistory={showProductHistory}
-          onDeactivateProduct={deactivateProduct}
-        />
+        <div className="inventory-subnav">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() =>
+              setShowProductsInInventoryView(
+                (currentShowProductsInInventoryView) =>
+                  !currentShowProductsInInventoryView,
+              )
+            }
+          >
+            {showProductsInInventoryView
+              ? "Produkte ausblenden"
+              : "Produkte anzeigen"}
+          </button>
+
+          <span>
+            {showProductsInInventoryView
+              ? "Produktstammdaten und Bestandserfassung werden gemeinsam angezeigt."
+              : "Produktstammdaten sind ausgeblendet. Bestandserfassung bleibt aktiv."}
+          </span>
+        </div>
+
+        {showProductsInInventoryView && (
+          <ProductsSection
+            productForm={productForm}
+            editingProductId={editingProductId}
+            savingProduct={savingProduct}
+            loadingProducts={loadingProducts}
+            products={products}
+            historyItems={historyItems}
+            onSaveProduct={handleSaveProduct}
+            onUpdateProductForm={updateProductForm}
+            onResetProductForm={resetProductForm}
+            onEditProduct={startEditProduct}
+            onShowProductHistory={showProductHistory}
+            onDeactivateProduct={deactivateProduct}
+          />
+        )}
 
         <InventorySection
           inventoryForm={inventoryForm}
