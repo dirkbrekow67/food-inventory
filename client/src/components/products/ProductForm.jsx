@@ -8,23 +8,7 @@ import {
 
 import { renderSelectOptions } from "../form/FormSelectOptions";
 
-function readImageFileAsDataUrl(file, onImageLoaded) {
-  if (!file) {
-    return;
-  }
-
-  if (!file.type.startsWith("image/")) {
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    onImageLoaded(reader.result);
-  };
-
-  reader.readAsDataURL(file);
-}
+import { compressImageFileToDataUrl } from "../../utils/imageFileUtils";
 
 export function ProductForm({
   productForm,
@@ -34,14 +18,21 @@ export function ProductForm({
   onUpdateProductForm,
   onResetProductForm,
 }) {
-  function handleFrontImageChange(event) {
+  async function handleFrontImageChange(event) {
     const file = event.target.files?.[0];
 
-    readImageFileAsDataUrl(file, (imageDataUrl) => {
-      onUpdateProductForm("imageFront", imageDataUrl);
-    });
+    try {
+      const compressedImageDataUrl = await compressImageFileToDataUrl(file);
 
-    event.target.value = "";
+      if (compressedImageDataUrl) {
+        onUpdateProductForm("imageFront", compressedImageDataUrl);
+      }
+    } catch (error) {
+      console.error(error);
+      window.alert("Das Produktfoto konnte nicht verarbeitet werden.");
+    } finally {
+      event.target.value = "";
+    }
   }
 
   function removeFrontImage() {
