@@ -172,19 +172,60 @@ h4 {
   background: #f8fafc;
 }
 
+.product-card-images {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.product-card-images figure {
+  margin: 0;
+}
+
 .product-card-image {
   display: block;
   width: 100%;
   max-height: 180px;
-  margin: 12px 0;
   border-radius: 14px;
   object-fit: cover;
   background: #e5e7eb;
 }
 
+.product-card-images figcaption {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.product-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
 .product-image-field {
   display: grid;
   gap: 10px;
+}
+
+.product-image-label {
+  color: #334155;
+  font-weight: 700;
+}
+
+.product-image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.visually-hidden-file-input {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .product-image-field input[type="file"] {

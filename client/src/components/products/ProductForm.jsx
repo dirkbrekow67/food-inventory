@@ -1,5 +1,7 @@
 // client/src/components/products/ProductForm.jsx
 
+import { useRef } from "react";
+
 import {
   buyAgainStatusOptions,
   productCategoryOptions,
@@ -18,14 +20,19 @@ export function ProductForm({
   onUpdateProductForm,
   onResetProductForm,
 }) {
-  async function handleFrontImageChange(event) {
+  const frontUploadInputRef = useRef(null);
+  const frontCameraInputRef = useRef(null);
+  const backUploadInputRef = useRef(null);
+  const backCameraInputRef = useRef(null);
+
+  async function handleProductImageChange(event, fieldName) {
     const file = event.target.files?.[0];
 
     try {
       const compressedImageDataUrl = await compressImageFileToDataUrl(file);
 
       if (compressedImageDataUrl) {
-        onUpdateProductForm("imageFront", compressedImageDataUrl);
+        onUpdateProductForm(fieldName, compressedImageDataUrl);
       }
     } catch (error) {
       console.error(error);
@@ -35,8 +42,12 @@ export function ProductForm({
     }
   }
 
-  function removeFrontImage() {
-    onUpdateProductForm("imageFront", "");
+  function removeProductImage(fieldName) {
+    onUpdateProductForm(fieldName, "");
+  }
+
+  function openFileInput(inputRef) {
+    inputRef.current?.click();
   }
 
   return (
@@ -154,30 +165,112 @@ export function ProductForm({
         </label>
       </div>
 
-      <div className="product-image-field">
-        <label>
-          Produktfoto Vorderseite
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleFrontImageChange}
-          />
-        </label>
+      <div className="product-image-grid">
+        <div className="product-image-field">
+          <span className="product-image-label">Produktfoto Vorderseite</span>
 
-        {productForm.imageFront && (
-          <div className="product-image-preview">
-            <img src={productForm.imageFront} alt="Produkt Vorderseite" />
+          <div className="product-image-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => openFileInput(frontUploadInputRef)}
+            >
+              Hochladen
+            </button>
 
             <button
               type="button"
-              className="secondary-button danger-outline-button"
-              onClick={removeFrontImage}
+              className="secondary-button"
+              onClick={() => openFileInput(frontCameraInputRef)}
             >
-              Foto entfernen
+              Kamera
             </button>
           </div>
-        )}
+
+          <input
+            ref={frontUploadInputRef}
+            className="visually-hidden-file-input"
+            type="file"
+            accept="image/*"
+            onChange={(event) => handleProductImageChange(event, "imageFront")}
+          />
+
+          <input
+            ref={frontCameraInputRef}
+            className="visually-hidden-file-input"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={(event) => handleProductImageChange(event, "imageFront")}
+          />
+
+          {productForm.imageFront && (
+            <div className="product-image-preview">
+              <img src={productForm.imageFront} alt="Produkt Vorderseite" />
+
+              <button
+                type="button"
+                className="secondary-button danger-outline-button"
+                onClick={() => removeProductImage("imageFront")}
+              >
+                Vorderseite entfernen
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="product-image-field">
+          <span className="product-image-label">Produktfoto Rückseite</span>
+
+          <div className="product-image-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => openFileInput(backUploadInputRef)}
+            >
+              Hochladen
+            </button>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => openFileInput(backCameraInputRef)}
+            >
+              Kamera
+            </button>
+          </div>
+
+          <input
+            ref={backUploadInputRef}
+            className="visually-hidden-file-input"
+            type="file"
+            accept="image/*"
+            onChange={(event) => handleProductImageChange(event, "imageBack")}
+          />
+
+          <input
+            ref={backCameraInputRef}
+            className="visually-hidden-file-input"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={(event) => handleProductImageChange(event, "imageBack")}
+          />
+
+          {productForm.imageBack && (
+            <div className="product-image-preview">
+              <img src={productForm.imageBack} alt="Produkt Rückseite" />
+
+              <button
+                type="button"
+                className="secondary-button danger-outline-button"
+                onClick={() => removeProductImage("imageBack")}
+              >
+                Rückseite entfernen
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <label>

@@ -19,12 +19,30 @@ export function ProductCard({
     <article className="product-card">
       <ProductCardHeader product={product} />
 
-      {product.image_front && (
-        <img
-          className="product-card-image"
-          src={product.image_front}
-          alt={`Produktfoto ${product.name}`}
-        />
+      {(product.image_front || product.image_back) && (
+        <div className="product-card-images">
+          {product.image_front && (
+            <figure>
+              <img
+                className="product-card-image"
+                src={product.image_front}
+                alt={`Produktfoto Vorderseite ${product.name}`}
+              />
+              <figcaption>Vorderseite</figcaption>
+            </figure>
+          )}
+
+          {product.image_back && (
+            <figure>
+              <img
+                className="product-card-image"
+                src={product.image_back}
+                alt={`Produktfoto Rückseite ${product.name}`}
+              />
+              <figcaption>Rückseite</figcaption>
+            </figure>
+          )}
+        </div>
       )}
 
       <ProductMeta product={product} />
