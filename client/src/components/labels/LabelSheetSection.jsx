@@ -31,6 +31,7 @@ export function LabelSheetSection({
     useState("");
 
   const [showLabelSheetPreview, setShowLabelSheetPreview] = useState(true);
+  const [showCalibrationSheet, setShowCalibrationSheet] = useState(false);
 
   const manualLabelCodes = useMemo(
     () => createManualLabelSheetCodes(startNumber),
@@ -89,8 +90,21 @@ export function LabelSheetSection({
 
   function printLabelSheet() {
     setShowLabelSheetPreview(true);
+    setShowCalibrationSheet(false);
     setPrintStatusMessage(
       "Druckdialog geöffnet. Erst nach erfolgreichem Ausdruck als gedruckt markieren.",
+    );
+
+    window.setTimeout(() => {
+      window.print();
+    }, 0);
+  }
+
+  function printCalibrationSheet() {
+    setShowLabelSheetPreview(true);
+    setShowCalibrationSheet(true);
+    setPrintStatusMessage(
+      "Kalibrierungsbogen geöffnet. Dieser Testdruck wird nicht als gedruckt / im Umlauf markiert.",
     );
 
     window.setTimeout(() => {
@@ -267,6 +281,14 @@ export function LabelSheetSection({
           <button
             type="button"
             className="secondary-button"
+            onClick={printCalibrationSheet}
+          >
+            Kalibrierungsbogen drucken
+          </button>
+
+          <button
+            type="button"
+            className="secondary-button"
             onClick={markCurrentSheetAsPrinted}
           >
             Als gedruckt markieren
@@ -362,10 +384,30 @@ export function LabelSheetSection({
       {showLabelSheetPreview ? (
         <div className="label-sheet-print-area">
           <div className="label-sheet">
-            {activeLabelCodes.map((labelCode) => {
+            {activeLabelCodes.map((labelCode, index) => {
               const qrText = createInventoryLabelQrTextFromCode(labelCode);
               const isReusableFreeLabel =
                 reusableFreeLabelCodes.includes(labelCode);
+              const calibrationNumber = index + 1;
+
+              if (showCalibrationSheet) {
+                return (
+                  <div
+                    className="label-sheet-item label-sheet-calibration-item"
+                    key={labelCode}
+                  >
+                    <span className="label-sheet-calibration-corner label-sheet-calibration-corner-top-left" />
+                    <span className="label-sheet-calibration-corner label-sheet-calibration-corner-top-right" />
+                    <span className="label-sheet-calibration-corner label-sheet-calibration-corner-bottom-left" />
+                    <span className="label-sheet-calibration-corner label-sheet-calibration-corner-bottom-right" />
+
+                    <div className="label-sheet-calibration-content">
+                      <strong>{calibrationNumber}</strong>
+                      <span>{labelCode}</span>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <div

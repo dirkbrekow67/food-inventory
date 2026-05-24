@@ -1197,6 +1197,68 @@ h4 {
   background: #eff6ff;
 }
 
+.label-sheet-calibration-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #111827;
+  background: #ffffff;
+}
+
+.label-sheet-calibration-corner {
+  position: absolute;
+  width: 6mm;
+  height: 6mm;
+  border-color: #111827;
+}
+
+.label-sheet-calibration-corner-top-left {
+  top: 1mm;
+  left: 1mm;
+  border-top: 0.4mm solid;
+  border-left: 0.4mm solid;
+}
+
+.label-sheet-calibration-corner-top-right {
+  top: 1mm;
+  right: 1mm;
+  border-top: 0.4mm solid;
+  border-right: 0.4mm solid;
+}
+
+.label-sheet-calibration-corner-bottom-left {
+  bottom: 1mm;
+  left: 1mm;
+  border-bottom: 0.4mm solid;
+  border-left: 0.4mm solid;
+}
+
+.label-sheet-calibration-corner-bottom-right {
+  right: 1mm;
+  bottom: 1mm;
+  border-right: 0.4mm solid;
+  border-bottom: 0.4mm solid;
+}
+
+.label-sheet-calibration-content {
+  display: grid;
+  gap: 1mm;
+  justify-items: center;
+  color: #111827;
+  text-align: center;
+}
+
+.label-sheet-calibration-content strong {
+  font-size: 18pt;
+  line-height: 1;
+}
+
+.label-sheet-calibration-content span {
+  font-size: 8pt;
+  line-height: 1;
+}
+
 @media print {
   @page {
     size: A4;
@@ -1288,6 +1350,11 @@ h4 {
   }
 
   .label-sheet-item-reused {
+    background: #ffffff;
+  }
+  
+  .label-sheet-calibration-item {
+    border: 1px solid #111827;
     background: #ffffff;
   }
 }
