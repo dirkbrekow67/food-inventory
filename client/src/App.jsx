@@ -91,6 +91,7 @@ function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
+  const [activeSection, setActiveSection] = useState("inventory");
   const [loadingStorage, setLoadingStorage] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingInventory, setLoadingInventory] = useState(true);
@@ -712,6 +713,119 @@ function App() {
     inventoryForm,
   });
 
+  function renderActiveSection() {
+    if (activeSection === "labels") {
+      return (
+        <LabelSheetSection
+          inventoryItems={inventoryItems}
+          printedLabelCodes={printedLabelCodes}
+          onPrintedLabelCodesChange={setPrintedLabelCodes}
+        />
+      );
+    }
+
+    if (activeSection === "products") {
+      return (
+        <ProductsSection
+          productForm={productForm}
+          editingProductId={editingProductId}
+          savingProduct={savingProduct}
+          loadingProducts={loadingProducts}
+          products={products}
+          historyItems={historyItems}
+          onSaveProduct={handleSaveProduct}
+          onUpdateProductForm={updateProductForm}
+          onResetProductForm={resetProductForm}
+          onEditProduct={startEditProduct}
+          onShowProductHistory={showProductHistory}
+          onDeactivateProduct={deactivateProduct}
+        />
+      );
+    }
+
+    if (activeSection === "history") {
+      return (
+        <HistorySection
+          historyItems={historyItems}
+          filteredHistoryItems={filteredHistoryItems}
+          historySearchTerm={historySearchTerm}
+          historyReasonFilter={historyReasonFilter}
+          historyBuyAgainFilter={historyBuyAgainFilter}
+          historyProductFilter={historyProductFilter}
+          selectedHistoryProduct={selectedHistoryProduct}
+          hasActiveHistoryFilters={hasActiveHistoryFilters}
+          loadingHistory={loadingHistory}
+          onHistorySearchTermChange={setHistorySearchTerm}
+          onHistoryReasonFilterChange={setHistoryReasonFilter}
+          onHistoryBuyAgainFilterChange={setHistoryBuyAgainFilter}
+          onResetHistoryFilters={resetHistoryFilters}
+          onOpenHistoryDialog={openHistoryDialog}
+          onOpenHistoryDeleteDialog={openHistoryDeleteDialog}
+        />
+      );
+    }
+
+    if (activeSection === "storage") {
+      return (
+        <StorageSection
+          storageTree={storageTree}
+          loadingStorage={loadingStorage}
+        />
+      );
+    }
+
+    return (
+      <>
+        <ProductsSection
+          productForm={productForm}
+          editingProductId={editingProductId}
+          savingProduct={savingProduct}
+          loadingProducts={loadingProducts}
+          products={products}
+          historyItems={historyItems}
+          onSaveProduct={handleSaveProduct}
+          onUpdateProductForm={updateProductForm}
+          onResetProductForm={resetProductForm}
+          onEditProduct={startEditProduct}
+          onShowProductHistory={showProductHistory}
+          onDeactivateProduct={deactivateProduct}
+        />
+
+        <InventorySection
+          inventoryForm={inventoryForm}
+          products={products}
+          storageTree={storageTree}
+          selectedInventoryProductHistorySummary={
+            selectedInventoryProductHistorySummary
+          }
+          savingInventoryItem={savingInventoryItem}
+          inventoryItems={inventoryItems}
+          filteredInventoryItems={filteredInventoryItems}
+          inventorySearchTerm={inventorySearchTerm}
+          inventoryStatusFilter={inventoryStatusFilter}
+          inventoryStorageFilter={inventoryStorageFilter}
+          inventoryStorageFilterOptions={inventoryStorageFilterOptions}
+          hasActiveInventoryFilters={hasActiveInventoryFilters}
+          loadingInventory={loadingInventory}
+          labelScanInput={labelScanInput}
+          highlightedInventoryItemId={highlightedInventoryItemId}
+          onCreateInventoryItem={handleCreateInventoryItem}
+          onInventoryProductChange={handleInventoryProductChange}
+          onUpdateInventoryForm={updateInventoryForm}
+          onInventorySearchTermChange={setInventorySearchTerm}
+          onInventoryStatusFilterChange={setInventoryStatusFilter}
+          onInventoryStorageFilterChange={setInventoryStorageFilter}
+          onResetInventoryFilters={resetInventoryFilters}
+          onOpenRemovalDialog={openRemovalDialog}
+          onLabelScanInputChange={setLabelScanInput}
+          onLabelScanSubmit={handleLabelScanSubmit}
+          labelScanMessage={labelScanMessage}
+          onResetLabelScan={resetLabelScan}
+        />
+      </>
+    );
+  }
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -727,81 +841,49 @@ function App() {
 
       {errorMessage && <p className="error">{errorMessage}</p>}
 
-      <LabelSheetSection
-        inventoryItems={inventoryItems}
-        printedLabelCodes={printedLabelCodes}
-        onPrintedLabelCodesChange={setPrintedLabelCodes}
-      />
+      <nav className="app-section-nav" aria-label="Hauptbereiche">
+        <button
+          type="button"
+          className={activeSection === "inventory" ? "active" : ""}
+          onClick={() => setActiveSection("inventory")}
+        >
+          Bestand
+        </button>
 
-      <ProductsSection
-        productForm={productForm}
-        editingProductId={editingProductId}
-        savingProduct={savingProduct}
-        loadingProducts={loadingProducts}
-        products={products}
-        historyItems={historyItems}
-        onSaveProduct={handleSaveProduct}
-        onUpdateProductForm={updateProductForm}
-        onResetProductForm={resetProductForm}
-        onEditProduct={startEditProduct}
-        onShowProductHistory={showProductHistory}
-        onDeactivateProduct={deactivateProduct}
-      />
+        <button
+          type="button"
+          className={activeSection === "products" ? "active" : ""}
+          onClick={() => setActiveSection("products")}
+        >
+          Produkte
+        </button>
 
-      <InventorySection
-        inventoryForm={inventoryForm}
-        products={products}
-        storageTree={storageTree}
-        selectedInventoryProductHistorySummary={
-          selectedInventoryProductHistorySummary
-        }
-        savingInventoryItem={savingInventoryItem}
-        inventoryItems={inventoryItems}
-        filteredInventoryItems={filteredInventoryItems}
-        inventorySearchTerm={inventorySearchTerm}
-        inventoryStatusFilter={inventoryStatusFilter}
-        inventoryStorageFilter={inventoryStorageFilter}
-        inventoryStorageFilterOptions={inventoryStorageFilterOptions}
-        hasActiveInventoryFilters={hasActiveInventoryFilters}
-        loadingInventory={loadingInventory}
-        labelScanInput={labelScanInput}
-        highlightedInventoryItemId={highlightedInventoryItemId}
-        onCreateInventoryItem={handleCreateInventoryItem}
-        onInventoryProductChange={handleInventoryProductChange}
-        onUpdateInventoryForm={updateInventoryForm}
-        onInventorySearchTermChange={setInventorySearchTerm}
-        onInventoryStatusFilterChange={setInventoryStatusFilter}
-        onInventoryStorageFilterChange={setInventoryStorageFilter}
-        onResetInventoryFilters={resetInventoryFilters}
-        onOpenRemovalDialog={openRemovalDialog}
-        onLabelScanInputChange={setLabelScanInput}
-        onLabelScanSubmit={handleLabelScanSubmit}
-        labelScanMessage={labelScanMessage}
-        onResetLabelScan={resetLabelScan}
-      />
+        <button
+          type="button"
+          className={activeSection === "labels" ? "active" : ""}
+          onClick={() => setActiveSection("labels")}
+        >
+          Etiketten
+        </button>
 
-      <HistorySection
-        historyItems={historyItems}
-        filteredHistoryItems={filteredHistoryItems}
-        historySearchTerm={historySearchTerm}
-        historyReasonFilter={historyReasonFilter}
-        historyBuyAgainFilter={historyBuyAgainFilter}
-        historyProductFilter={historyProductFilter}
-        selectedHistoryProduct={selectedHistoryProduct}
-        hasActiveHistoryFilters={hasActiveHistoryFilters}
-        loadingHistory={loadingHistory}
-        onHistorySearchTermChange={setHistorySearchTerm}
-        onHistoryReasonFilterChange={setHistoryReasonFilter}
-        onHistoryBuyAgainFilterChange={setHistoryBuyAgainFilter}
-        onResetHistoryFilters={resetHistoryFilters}
-        onOpenHistoryDialog={openHistoryDialog}
-        onOpenHistoryDeleteDialog={openHistoryDeleteDialog}
-      />
+        <button
+          type="button"
+          className={activeSection === "history" ? "active" : ""}
+          onClick={() => setActiveSection("history")}
+        >
+          Historie
+        </button>
 
-      <StorageSection
-        storageTree={storageTree}
-        loadingStorage={loadingStorage}
-      />
+        <button
+          type="button"
+          className={activeSection === "storage" ? "active" : ""}
+          onClick={() => setActiveSection("storage")}
+        >
+          Lagerorte
+        </button>
+      </nav>
+
+      {renderActiveSection()}
 
       <RemovalDialog
         removalDialogItem={removalDialogItem}
