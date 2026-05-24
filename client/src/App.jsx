@@ -87,13 +87,46 @@ const initialRemovalState = createInitialRemovalState();
 const initialInventoryFilterState = createInitialInventoryFilterState();
 const initialHistoryFilterState = createInitialHistoryFilterState();
 
+const INVENTORY_PRODUCTS_VISIBILITY_STORAGE_KEY =
+  "food-inventory.showProductsInInventoryView";
+
+function loadShowProductsInInventoryView() {
+  try {
+    const storedValue = window.localStorage.getItem(
+      INVENTORY_PRODUCTS_VISIBILITY_STORAGE_KEY,
+    );
+
+    if (storedValue === null) {
+      return true;
+    }
+
+    return storedValue === "true";
+  } catch (error) {
+    console.error(error);
+    return true;
+  }
+}
+
+function saveShowProductsInInventoryView(nextValue) {
+  try {
+    window.localStorage.setItem(
+      INVENTORY_PRODUCTS_VISIBILITY_STORAGE_KEY,
+      String(nextValue),
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
+  return nextValue;
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
   const [activeSection, setActiveSection] = useState("inventory");
   const [showProductsInInventoryView, setShowProductsInInventoryView] =
-    useState(true);
+    useState(() => loadShowProductsInInventoryView());
   const [loadingStorage, setLoadingStorage] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingInventory, setLoadingInventory] = useState(true);
@@ -715,6 +748,12 @@ function App() {
     inventoryForm,
   });
 
+  function toggleProductsInInventoryView() {
+    setShowProductsInInventoryView((currentShowProductsInInventoryView) =>
+      saveShowProductsInInventoryView(!currentShowProductsInInventoryView),
+    );
+  }
+
   function renderActiveSection() {
     if (activeSection === "labels") {
       return (
@@ -782,12 +821,7 @@ function App() {
           <button
             type="button"
             className="secondary-button"
-            onClick={() =>
-              setShowProductsInInventoryView(
-                (currentShowProductsInInventoryView) =>
-                  !currentShowProductsInInventoryView,
-              )
-            }
+            onClick={toggleProductsInInventoryView}
           >
             {showProductsInInventoryView
               ? "Produkte ausblenden"
