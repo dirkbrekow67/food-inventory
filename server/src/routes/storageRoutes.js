@@ -196,8 +196,43 @@ router.post('/units/:unitId/compartments/generate', (req, res) => {
       startAt = 1,
     } = req.body;
 
-    if (!count || Number(count) < 1) {
-      return res.status(400).json({ error: 'count muss mindestens 1 sein.' });
+    const numericUnitId = Number(unitId);
+    const numericCount = Number(count);
+    const numericStartAt = Number(startAt);
+    const trimmedType = String(type || '').trim();
+    const trimmedPrefix = String(prefix || '').trim();
+
+    if (!numericUnitId || !trimmedType || !trimmedPrefix) {
+      return res.status(400).json({
+        error: 'Lagergerät, Fachtyp und Bezeichnung sind erforderlich.',
+      });
+    }
+
+    if (!numericCount || numericCount < 1 || numericCount > 50) {
+      return res.status(400).json({
+        error: 'Die Anzahl muss zwischen 1 und 50 liegen.',
+      });
+    }
+
+    if (!numericStartAt || numericStartAt < 1) {
+      return res.status(400).json({
+        error: 'Startnummer muss mindestens 1 sein.',
+      });
+    }
+
+    const existingUnit = db
+      .prepare(`
+        SELECT id
+        FROM storage_units
+        WHERE id = ?
+          AND status = 'active'
+      `)
+      .get(numericUnitId);
+
+    if (!existingUnit) {
+      return res.status(404).json({
+        error: 'Das ausgewählte Lagergerät wurde nicht gefunden.',
+      });
     }
 
     const insert = db.prepare(`
@@ -206,25 +241,43 @@ router.post('/units/:unitId/compartments/generate', (req, res) => {
       VALUES (?, ?, ?, ?, ?)
     `);
 
+    const createdCompartments = [];
+
     const transaction = db.transaction(() => {
-      for (let i = 0; i < Number(count); i += 1) {
-        const level = Number(startAt) + i;
-        insert.run(
-          Number(unitId),
-          `${prefix} ${level}`,
-          type,
+      for (let i = 0; i < numericCount; i += 1) {
+        const level = numericStartAt + i;
+        const compartmentName = `${trimmedPrefix} ${level}`;
+
+        const result = insert.run(
+          numericUnitId,
+          compartmentName,
+          trimmedType,
           level,
-          level
+          level,
         );
+
+        if (result.changes > 0) {
+          createdCompartments.push({
+            name: compartmentName,
+            type: trimmedType,
+            levelNumber: level,
+          });
+        }
       }
     });
 
     transaction();
 
-    res.status(201).json({ message: 'Fächer wurden erzeugt.' });
+    res.status(201).json({
+      message: 'Fächer wurden erzeugt.',
+      createdCount: createdCompartments.length,
+      compartments: createdCompartments,
+    });
   } catch (error) {
     console.error('Error generating compartments:', error);
-    res.status(500).json({ error: 'Fächer konnten nicht erzeugt werden.' });
+    res.status(500).json({
+      error: 'Fächer konnten nicht erzeugt werden.',
+    });
   }
 });
 

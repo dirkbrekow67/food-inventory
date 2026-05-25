@@ -1397,7 +1397,8 @@ h4 {
 }
 
 .storage-location-form,
-.storage-unit-form {
+.storage-unit-form,
+.storage-compartment-form {
   display: grid;
   gap: 12px;
   padding: 16px;
@@ -1407,20 +1408,24 @@ h4 {
 }
 
 .storage-location-form .form-field,
-.storage-unit-form .form-field {
+.storage-unit-form .form-field,
+.storage-compartment-form .form-field {
   display: grid;
   gap: 6px;
 }
 
 .storage-location-form label,
-.storage-unit-form label {
+.storage-unit-form label,
+.storage-compartment-form label {
   color: #334155;
   font-weight: 700;
 }
 
 .storage-location-form input,
 .storage-unit-form input,
-.storage-unit-form select {
+.storage-unit-form select,
+.storage-compartment-form input,
+.storage-compartment-form select {
   width: 100%;
 }
 
