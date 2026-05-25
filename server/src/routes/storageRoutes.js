@@ -45,6 +45,56 @@ router.get('/tree', (req, res) => {
   }
 });
 
+router.get('/inactive', (req, res) => {
+  try {
+    const locations = db.prepare(`
+      SELECT *
+      FROM storage_locations
+      WHERE status = 'inactive'
+      ORDER BY updated_at DESC, name
+    `).all();
+
+    const units = db.prepare(`
+      SELECT
+        storage_units.*,
+        storage_locations.name AS location_name,
+        storage_locations.status AS location_status
+      FROM storage_units
+      JOIN storage_locations
+        ON storage_locations.id = storage_units.location_id
+      WHERE storage_units.status = 'inactive'
+      ORDER BY storage_units.updated_at DESC, storage_units.name
+    `).all();
+
+    const compartments = db.prepare(`
+      SELECT
+        storage_compartments.*,
+        storage_units.name AS unit_name,
+        storage_units.status AS unit_status,
+        storage_locations.name AS location_name,
+        storage_locations.status AS location_status
+      FROM storage_compartments
+      JOIN storage_units
+        ON storage_units.id = storage_compartments.unit_id
+      JOIN storage_locations
+        ON storage_locations.id = storage_units.location_id
+      WHERE storage_compartments.status = 'inactive'
+      ORDER BY storage_compartments.updated_at DESC, storage_compartments.name
+    `).all();
+
+    res.json({
+      locations,
+      units,
+      compartments,
+    });
+  } catch (error) {
+    console.error('Error loading inactive storage items:', error);
+    res.status(500).json({
+      error: 'Inaktive Lagerstruktur konnte nicht geladen werden.',
+    });
+  }
+});
+
 router.post('/locations', (req, res) => {
   try {
     const { name, description = '', sortOrder = 0 } = req.body;
@@ -153,6 +203,51 @@ router.delete('/locations/:locationId', (req, res) => {
     console.error('Error deactivating storage location:', error);
     res.status(500).json({
       error: 'Standort konnte nicht deaktiviert werden.',
+    });
+  }
+});
+
+router.patch('/locations/:locationId/reactivate', (req, res) => {
+  try {
+    const { locationId } = req.params;
+    const numericLocationId = Number(locationId);
+
+    if (!numericLocationId) {
+      return res.status(400).json({
+        error: 'Standort ist erforderlich.',
+      });
+    }
+
+    const existingLocation = db
+      .prepare(`
+        SELECT id, name
+        FROM storage_locations
+        WHERE id = ?
+      `)
+      .get(numericLocationId);
+
+    if (!existingLocation) {
+      return res.status(404).json({
+        error: 'Der ausgewählte Standort wurde nicht gefunden.',
+      });
+    }
+
+    db.prepare(`
+      UPDATE storage_locations
+      SET status = 'active',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(numericLocationId);
+
+    res.json({
+      message: 'Standort wurde reaktiviert.',
+      id: numericLocationId,
+      name: existingLocation.name,
+    });
+  } catch (error) {
+    console.error('Error reactivating storage location:', error);
+    res.status(500).json({
+      error: 'Standort konnte nicht reaktiviert werden.',
     });
   }
 });
@@ -428,6 +523,73 @@ router.post('/units/:unitId/compartments', (req, res) => {
   }
 });
 
+router.patch('/compartments/:compartmentId/reactivate', (req, res) => {
+  try {
+    const { compartmentId } = req.params;
+    const numericCompartmentId = Number(compartmentId);
+
+    if (!numericCompartmentId) {
+      return res.status(400).json({
+        error: 'Fach ist erforderlich.',
+      });
+    }
+
+    const existingCompartment = db
+      .prepare(`
+        SELECT
+          storage_compartments.id,
+          storage_compartments.name,
+          storage_units.status AS unit_status,
+          storage_locations.status AS location_status
+        FROM storage_compartments
+        JOIN storage_units
+          ON storage_units.id = storage_compartments.unit_id
+        JOIN storage_locations
+          ON storage_locations.id = storage_units.location_id
+        WHERE storage_compartments.id = ?
+      `)
+      .get(numericCompartmentId);
+
+    if (!existingCompartment) {
+      return res.status(404).json({
+        error: 'Das ausgewählte Fach wurde nicht gefunden.',
+      });
+    }
+
+    if (existingCompartment.location_status !== 'active') {
+      return res.status(409).json({
+        error:
+          'Das Fach kann erst reaktiviert werden, wenn der zugehörige Standort aktiv ist.',
+      });
+    }
+
+    if (existingCompartment.unit_status !== 'active') {
+      return res.status(409).json({
+        error:
+          'Das Fach kann erst reaktiviert werden, wenn das zugehörige Lagergerät aktiv ist.',
+      });
+    }
+
+    db.prepare(`
+      UPDATE storage_compartments
+      SET status = 'active',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(numericCompartmentId);
+
+    res.json({
+      message: 'Fach wurde reaktiviert.',
+      id: numericCompartmentId,
+      name: existingCompartment.name,
+    });
+  } catch (error) {
+    console.error('Error reactivating storage compartment:', error);
+    res.status(500).json({
+      error: 'Fach konnte nicht reaktiviert werden.',
+    });
+  }
+});
+
 router.delete('/compartments/:compartmentId', (req, res) => {
   try {
     const { compartmentId } = req.params;
@@ -485,6 +647,60 @@ router.delete('/compartments/:compartmentId', (req, res) => {
     console.error('Error deactivating storage compartment:', error);
     res.status(500).json({
       error: 'Fach konnte nicht deaktiviert werden.',
+    });
+  }
+});
+
+router.patch('/units/:unitId/reactivate', (req, res) => {
+  try {
+    const { unitId } = req.params;
+    const numericUnitId = Number(unitId);
+
+    if (!numericUnitId) {
+      return res.status(400).json({
+        error: 'Lagergerät ist erforderlich.',
+      });
+    }
+
+    const existingUnit = db
+      .prepare(`
+        SELECT storage_units.id, storage_units.name, storage_locations.status AS location_status
+        FROM storage_units
+        JOIN storage_locations
+          ON storage_locations.id = storage_units.location_id
+        WHERE storage_units.id = ?
+      `)
+      .get(numericUnitId);
+
+    if (!existingUnit) {
+      return res.status(404).json({
+        error: 'Das ausgewählte Lagergerät wurde nicht gefunden.',
+      });
+    }
+
+    if (existingUnit.location_status !== 'active') {
+      return res.status(409).json({
+        error:
+          'Das Lagergerät kann erst reaktiviert werden, wenn der zugehörige Standort aktiv ist.',
+      });
+    }
+
+    db.prepare(`
+      UPDATE storage_units
+      SET status = 'active',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(numericUnitId);
+
+    res.json({
+      message: 'Lagergerät wurde reaktiviert.',
+      id: numericUnitId,
+      name: existingUnit.name,
+    });
+  } catch (error) {
+    console.error('Error reactivating storage unit:', error);
+    res.status(500).json({
+      error: 'Lagergerät konnte nicht reaktiviert werden.',
     });
   }
 });

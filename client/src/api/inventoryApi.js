@@ -33,6 +33,13 @@ export function loadStorageTree() {
   return fetchJson("/storage/tree", "Lagerstruktur konnte nicht geladen werden.");
 }
 
+export function loadInactiveStorageItems() {
+  return fetchJson(
+    "/storage/inactive",
+    "Inaktive Lagerstruktur konnte nicht geladen werden.",
+  );
+}
+
 export function createStorageLocation(name) {
   return fetchJson(
     "/storage/locations",
@@ -47,6 +54,16 @@ export function deactivateStorageLocationById(locationId) {
     "Standort konnte nicht deaktiviert werden.",
     {
       method: "DELETE",
+    },
+  );
+}
+
+export function reactivateStorageLocationById(locationId) {
+  return fetchJson(
+    `/storage/locations/${locationId}/reactivate`,
+    "Standort konnte nicht reaktiviert werden.",
+    {
+      method: "PATCH",
     },
   );
 }
@@ -126,12 +143,32 @@ export function deactivateStorageUnitById(unitId) {
   );
 }
 
+export function reactivateStorageUnitById(unitId) {
+  return fetchJson(
+    `/storage/units/${unitId}/reactivate`,
+    "Lagergerät konnte nicht reaktiviert werden.",
+    {
+      method: "PATCH",
+    },
+  );
+}
+
 export function deactivateStorageCompartmentById(compartmentId) {
   return fetchJson(
     `/storage/compartments/${compartmentId}`,
     "Fach konnte nicht deaktiviert werden.",
     {
       method: "DELETE",
+    },
+  );
+}
+
+export function reactivateStorageCompartmentById(compartmentId) {
+  return fetchJson(
+    `/storage/compartments/${compartmentId}/reactivate`,
+    "Fach konnte nicht reaktiviert werden.",
+    {
+      method: "PATCH",
     },
   );
 }

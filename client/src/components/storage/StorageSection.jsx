@@ -9,6 +9,10 @@ import {
   deactivateStorageLocationById,
   deactivateStorageUnitById,
   generateStorageCompartments,
+  loadInactiveStorageItems,
+  reactivateStorageCompartmentById,
+  reactivateStorageLocationById,
+  reactivateStorageUnitById,
 } from "../../api/inventoryApi";
 
 const storageUnitTypes = [
@@ -92,6 +96,16 @@ export function StorageSection({
   const [deactivatingCompartmentId, setDeactivatingCompartmentId] =
     useState(null);
   const [deactivatingLocationId, setDeactivatingLocationId] = useState(null);
+
+  const [showInactiveStorage, setShowInactiveStorage] = useState(false);
+  const [inactiveStorageItems, setInactiveStorageItems] = useState({
+    locations: [],
+    units: [],
+    compartments: [],
+  });
+  const [loadingInactiveStorage, setLoadingInactiveStorage] = useState(false);
+  const [inactiveStorageError, setInactiveStorageError] = useState("");
+  const [reactivatingItemKey, setReactivatingItemKey] = useState("");
 
   const [newCompartmentForm, setNewCompartmentForm] = useState({
     unitId: "",
@@ -383,6 +397,71 @@ export function StorageSection({
       );
     } finally {
       setDeactivatingCompartmentId(null);
+    }
+  }
+
+  async function reloadInactiveStorageItems() {
+    try {
+      setLoadingInactiveStorage(true);
+      setInactiveStorageError("");
+
+      const inactiveItems = await loadInactiveStorageItems();
+
+      setInactiveStorageItems({
+        locations: inactiveItems.locations || [],
+        units: inactiveItems.units || [],
+        compartments: inactiveItems.compartments || [],
+      });
+    } catch (error) {
+      console.error(error);
+      setInactiveStorageError(
+        error.message || "Inaktive Lagerstruktur konnte nicht geladen werden.",
+      );
+    } finally {
+      setLoadingInactiveStorage(false);
+    }
+  }
+
+  async function handleToggleInactiveStorage() {
+    const nextShowInactiveStorage = !showInactiveStorage;
+
+    setShowInactiveStorage(nextShowInactiveStorage);
+
+    if (nextShowInactiveStorage) {
+      await reloadInactiveStorageItems();
+    }
+  }
+
+  async function handleReactivateStorageItem(type, item) {
+    try {
+      const itemKey = `${type}-${item.id}`;
+      setReactivatingItemKey(itemKey);
+      setInactiveStorageError("");
+
+      if (type === "location") {
+        await reactivateStorageLocationById(item.id);
+      }
+
+      if (type === "unit") {
+        await reactivateStorageUnitById(item.id);
+      }
+
+      if (type === "compartment") {
+        await reactivateStorageCompartmentById(item.id);
+      }
+
+      if (typeof onReloadStorage === "function") {
+        await onReloadStorage();
+      }
+
+      await reloadInactiveStorageItems();
+    } catch (error) {
+      console.error(error);
+      setInactiveStorageError(
+        error.message || "Eintrag konnte nicht reaktiviert werden.",
+      );
+    } finally {
+      setReactivatingItemKey("");
     }
   }
 
@@ -767,6 +846,136 @@ export function StorageSection({
             <p className="form-error">{singleCompartmentError}</p>
           ) : null}
         </form>
+      </div>
+
+      <div className="inactive-storage-panel">
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={handleToggleInactiveStorage}
+        >
+          {showInactiveStorage
+            ? "Inaktive Lagerstruktur ausblenden"
+            : "Inaktive Lagerstruktur anzeigen"}
+        </button>
+
+        {showInactiveStorage ? (
+          <div className="inactive-storage-list">
+            {loadingInactiveStorage ? (
+              <p className="muted">Inaktive Lagerstruktur wird geladen...</p>
+            ) : null}
+
+            {inactiveStorageError ? (
+              <p className="form-error">{inactiveStorageError}</p>
+            ) : null}
+
+            {!loadingInactiveStorage &&
+            inactiveStorageItems.locations.length === 0 &&
+            inactiveStorageItems.units.length === 0 &&
+            inactiveStorageItems.compartments.length === 0 ? (
+              <p className="muted">Keine inaktiven Lagerorte vorhanden.</p>
+            ) : null}
+
+            {inactiveStorageItems.locations.length > 0 ? (
+              <div className="inactive-storage-group">
+                <h3>Inaktive Standorte</h3>
+
+                {inactiveStorageItems.locations.map((location) => (
+                  <div className="inactive-storage-row" key={location.id}>
+                    <div>
+                      <strong>{location.name}</strong>
+                      <p className="muted">Standort</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      onClick={() =>
+                        handleReactivateStorageItem("location", location)
+                      }
+                      disabled={
+                        reactivatingItemKey === `location-${location.id}`
+                      }
+                    >
+                      {reactivatingItemKey === `location-${location.id}`
+                        ? "Wird reaktiviert..."
+                        : "Reaktivieren"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {inactiveStorageItems.units.length > 0 ? (
+              <div className="inactive-storage-group">
+                <h3>Inaktive Lagergeräte</h3>
+
+                {inactiveStorageItems.units.map((unit) => (
+                  <div className="inactive-storage-row" key={unit.id}>
+                    <div>
+                      <strong>{unit.name}</strong>
+                      <p className="muted">
+                        {unit.location_name} · {unit.type}
+                        {unit.location_status !== "active"
+                          ? " · Standort inaktiv"
+                          : ""}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      onClick={() => handleReactivateStorageItem("unit", unit)}
+                      disabled={reactivatingItemKey === `unit-${unit.id}`}
+                    >
+                      {reactivatingItemKey === `unit-${unit.id}`
+                        ? "Wird reaktiviert..."
+                        : "Reaktivieren"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {inactiveStorageItems.compartments.length > 0 ? (
+              <div className="inactive-storage-group">
+                <h3>Inaktive Fächer</h3>
+
+                {inactiveStorageItems.compartments.map((compartment) => (
+                  <div className="inactive-storage-row" key={compartment.id}>
+                    <div>
+                      <strong>{compartment.name}</strong>
+                      <p className="muted">
+                        {compartment.location_name} · {compartment.unit_name}
+                        {compartment.location_status !== "active"
+                          ? " · Standort inaktiv"
+                          : ""}
+                        {compartment.unit_status !== "active"
+                          ? " · Lagergerät inaktiv"
+                          : ""}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      onClick={() =>
+                        handleReactivateStorageItem("compartment", compartment)
+                      }
+                      disabled={
+                        reactivatingItemKey === `compartment-${compartment.id}`
+                      }
+                    >
+                      {reactivatingItemKey === `compartment-${compartment.id}`
+                        ? "Wird reaktiviert..."
+                        : "Reaktivieren"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {loadingStorage && <p className="muted">Lagerstruktur wird geladen...</p>}
