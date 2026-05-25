@@ -5,6 +5,7 @@ import {
   createStorageCompartment,
   createStorageLocation,
   createStorageUnit,
+  deactivateStorageCompartmentById,
   deactivateStorageUnitById,
   generateStorageCompartments,
 } from "../../api/inventoryApi";
@@ -87,6 +88,8 @@ export function StorageSection({
   const [unitError, setUnitError] = useState("");
 
   const [deactivatingUnitId, setDeactivatingUnitId] = useState(null);
+  const [deactivatingCompartmentId, setDeactivatingCompartmentId] =
+    useState(null);
 
   const [newCompartmentForm, setNewCompartmentForm] = useState({
     unitId: "",
@@ -322,6 +325,34 @@ export function StorageSection({
       );
     } finally {
       setDeactivatingUnitId(null);
+    }
+  }
+
+  async function handleDeactivateCompartment(compartment) {
+    const confirmed = window.confirm(
+      `Fach "${compartment.name}" wirklich deaktivieren? Das Fach wird aus der aktiven Lagerstruktur ausgeblendet.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeactivatingCompartmentId(compartment.id);
+      setCompartmentError("");
+
+      await deactivateStorageCompartmentById(compartment.id);
+
+      if (typeof onReloadStorage === "function") {
+        await onReloadStorage();
+      }
+    } catch (error) {
+      console.error(error);
+      setCompartmentError(
+        error.message || "Fach konnte nicht deaktiviert werden.",
+      );
+    } finally {
+      setDeactivatingCompartmentId(null);
     }
   }
 
@@ -767,7 +798,21 @@ export function StorageSection({
                   <div className="compartment-list">
                     {unit.compartments.map((compartment) => (
                       <span className="compartment-pill" key={compartment.id}>
-                        {compartment.name}
+                        <span>{compartment.name}</span>
+
+                        <button
+                          type="button"
+                          className="compartment-deactivate-button"
+                          onClick={() =>
+                            handleDeactivateCompartment(compartment)
+                          }
+                          disabled={
+                            deactivatingCompartmentId === compartment.id
+                          }
+                          title={`${compartment.name} deaktivieren`}
+                        >
+                          ×
+                        </button>
                       </span>
                     ))}
                   </div>

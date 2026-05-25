@@ -367,6 +367,67 @@ router.post('/units/:unitId/compartments', (req, res) => {
   }
 });
 
+router.delete('/compartments/:compartmentId', (req, res) => {
+  try {
+    const { compartmentId } = req.params;
+    const numericCompartmentId = Number(compartmentId);
+
+    if (!numericCompartmentId) {
+      return res.status(400).json({
+        error: 'Fach ist erforderlich.',
+      });
+    }
+
+    const existingCompartment = db
+      .prepare(`
+        SELECT id, name, status
+        FROM storage_compartments
+        WHERE id = ?
+      `)
+      .get(numericCompartmentId);
+
+    if (!existingCompartment) {
+      return res.status(404).json({
+        error: 'Das ausgewählte Fach wurde nicht gefunden.',
+      });
+    }
+
+    const activeInventoryItems = db
+      .prepare(`
+        SELECT COUNT(*) AS count
+        FROM inventory_items
+        WHERE storage_compartment_id = ?
+          AND status = 'available'
+      `)
+      .get(numericCompartmentId);
+
+    if (activeInventoryItems.count > 0) {
+      return res.status(409).json({
+        error:
+          'Das Fach kann nicht deaktiviert werden, solange dort aktive Bestandseinträge vorhanden sind.',
+      });
+    }
+
+    db.prepare(`
+      UPDATE storage_compartments
+      SET status = 'inactive',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(numericCompartmentId);
+
+    res.json({
+      message: 'Fach wurde deaktiviert.',
+      id: numericCompartmentId,
+      name: existingCompartment.name,
+    });
+  } catch (error) {
+    console.error('Error deactivating storage compartment:', error);
+    res.status(500).json({
+      error: 'Fach konnte nicht deaktiviert werden.',
+    });
+  }
+});
+
 router.delete('/units/:unitId', (req, res) => {
   try {
     const { unitId } = req.params;

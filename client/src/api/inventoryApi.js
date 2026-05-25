@@ -116,6 +116,16 @@ export function deactivateStorageUnitById(unitId) {
   );
 }
 
+export function deactivateStorageCompartmentById(compartmentId) {
+  return fetchJson(
+    `/storage/compartments/${compartmentId}`,
+    "Fach konnte nicht deaktiviert werden.",
+    {
+      method: "DELETE",
+    },
+  );
+}
+
 export function removeInventoryItemById(inventoryItemId, payload) {
   return fetchJson(
     `/inventory/${inventoryItemId}`,
