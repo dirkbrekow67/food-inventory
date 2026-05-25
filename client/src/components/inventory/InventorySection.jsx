@@ -31,6 +31,7 @@ export function InventorySection({
   onLabelScanSubmit,
   labelScanMessage,
   onResetLabelScan,
+  onUpdateLabelPrintStatus,
 }) {
   return (
     <section className="card">
@@ -68,6 +69,7 @@ export function InventorySection({
         onInventoryStorageFilterChange={onInventoryStorageFilterChange}
         onResetInventoryFilters={onResetInventoryFilters}
         onOpenRemovalDialog={onOpenRemovalDialog}
+        onUpdateLabelPrintStatus={onUpdateLabelPrintStatus}
         labelScanInput={labelScanInput}
         highlightedInventoryItemId={highlightedInventoryItemId}
         onLabelScanInputChange={onLabelScanInputChange}

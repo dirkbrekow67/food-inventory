@@ -44,6 +44,7 @@ function selectInventoryItemById(id) {
 
       label_slots.label_code AS label_code,
       label_slots.status AS label_status,
+      label_slots.print_status AS label_print_status,
 
       COALESCE(
         inventory_items.internal_use_until_date,
@@ -81,6 +82,7 @@ router.get('/', (req, res) => {
 
         label_slots.label_code AS label_code,
         label_slots.status AS label_status,
+        label_slots.print_status AS label_print_status,
 
         COALESCE(
           inventory_items.internal_use_until_date,
@@ -161,6 +163,7 @@ router.post('/', (req, res) => {
         SELECT *
         FROM label_slots
         WHERE status = 'free'
+          AND print_status = 'printed'
         ORDER BY label_code
         LIMIT 1
       `).get();
@@ -368,6 +371,7 @@ router.delete('/:id', (req, res) => {
           UPDATE label_slots
           SET
             status = 'free',
+            print_status = 'printed',
             current_inventory_item_id = NULL,
             updated_at = CURRENT_TIMESTAMP
           WHERE id = ?

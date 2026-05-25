@@ -112,6 +112,7 @@ function createLabelSlotsTable() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       label_code TEXT NOT NULL UNIQUE,
       status TEXT NOT NULL DEFAULT 'free',
+      print_status TEXT NOT NULL DEFAULT 'not_printed',
       current_inventory_item_id INTEGER,
       notes TEXT,
       last_used_at TEXT,
@@ -119,7 +120,22 @@ function createLabelSlotsTable() {
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+
+    addColumnIfMissing(
+    'label_slots',
+    'print_status',
+    "TEXT NOT NULL DEFAULT 'not_printed'"
+  );
+
+  db.prepare(`
+    UPDATE label_slots
+    SET print_status = 'printed',
+        updated_at = CURRENT_TIMESTAMP
+    WHERE status = 'used'
+      AND print_status = 'not_printed'
+  `).run();
 }
+
 
 function createInventoryHistoryTable() {
   db.prepare(`

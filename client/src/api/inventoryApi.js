@@ -96,6 +96,44 @@ export function loadProducts() {
   return fetchJson("/products", "Produkte konnten nicht geladen werden.");
 }
 
+export function loadLabelSlots() {
+  return fetchJson("/labels", "Etikettenpool konnte nicht geladen werden.");
+}
+
+export function markLabelCodesAsPrinted(labelCodes) {
+  return fetchJson(
+    "/labels/mark-printed",
+    "Etikettenbogen konnte nicht als gedruckt markiert werden.",
+    createJsonRequest("POST", { labelCodes }),
+  );
+}
+
+export function updateLabelPrintStatus(labelCode, printStatus) {
+  return fetchJson(
+    `/labels/${labelCode}/print-status`,
+    "Druckstatus konnte nicht aktualisiert werden.",
+    createJsonRequest("PATCH", { printStatus }),
+  );
+}
+
+export function releaseFreeLabelCodes(labelCodes) {
+  return fetchJson(
+    "/labels/free",
+    "Freie Etiketten konnten nicht entfernt werden.",
+    createJsonRequest("DELETE", { labelCodes }),
+  );
+}
+
+export function resetFreeLabelCodes() {
+  return fetchJson(
+    "/labels/free/all",
+    "Freie Etiketten konnten nicht zurückgesetzt werden.",
+    {
+      method: "DELETE",
+    },
+  );
+}
+
 export function loadInventoryItems() {
   return fetchJson("/inventory", "Bestand konnte nicht geladen werden.");
 }

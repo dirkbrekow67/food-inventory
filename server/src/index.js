@@ -11,6 +11,7 @@ const productRoutes = require('./routes/productRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const productPhotoRoutes = require('./routes/productPhotoRoutes');
+const labelRoutes = require('./routes/labelRoutes');
 
 runMigrations();
 
@@ -36,6 +37,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/storage', storageRoutes);
 app.use('/api/products/photos', productPhotoRoutes);
+app.use('/api/labels', labelRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/history', historyRoutes);

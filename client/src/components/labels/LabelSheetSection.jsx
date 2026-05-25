@@ -6,27 +6,56 @@ import { QRCodeSVG } from "qrcode.react";
 import { createInventoryLabelQrTextFromCode } from "../../utils/labelQrUtils";
 
 import {
+  createLabelCode,
   createManualLabelSheetCodes,
-  createNextLabelSheetCodes,
-  getReusableFreeLabelCodes,
   getUsedLabelCodes,
+  LABELS_PER_SHEET,
+  normalizeLabelCode,
 } from "../../utils/labelPoolUtils";
 
+import { parseLabelCodeSelection } from "../../utils/printedLabelStorageUtils";
+
 import {
-  addPrintedLabelCodes,
-  clearPrintedLabelCodes,
-  parseLabelCodeSelection,
-  removePrintedLabelCodes,
-} from "../../utils/printedLabelStorageUtils";
+  markLabelCodesAsPrinted,
+  releaseFreeLabelCodes,
+  resetFreeLabelCodes,
+} from "../../api/inventoryApi";
+
+function createNextUnprintedLabelCodes({
+  count,
+  printedLabelCodes,
+  usedLabelCodes,
+}) {
+  const blockedLabelCodeSet = new Set([
+    ...printedLabelCodes,
+    ...usedLabelCodes,
+  ]);
+  const nextLabelCodes = [];
+
+  let nextNumber = 1;
+
+  while (nextLabelCodes.length < count) {
+    const nextLabelCode = createLabelCode(nextNumber);
+
+    if (!blockedLabelCodeSet.has(nextLabelCode)) {
+      nextLabelCodes.push(nextLabelCode);
+    }
+
+    nextNumber += 1;
+  }
+
+  return nextLabelCodes;
+}
 
 export function LabelSheetSection({
   inventoryItems,
-  printedLabelCodes = [],
-  onPrintedLabelCodesChange,
+  labelSlots = [],
+  onLabelSlotsChange,
 }) {
   const [startNumber, setStartNumber] = useState(1);
   const [labelSheetMode, setLabelSheetMode] = useState("pool");
   const [printStatusMessage, setPrintStatusMessage] = useState("");
+  const [savingLabelPool, setSavingLabelPool] = useState(false);
   const [printedLabelCorrectionInput, setPrintedLabelCorrectionInput] =
     useState("");
 
@@ -38,9 +67,42 @@ export function LabelSheetSection({
     [startNumber],
   );
 
-  const nextPoolLabelCodes = useMemo(
-    () => createNextLabelSheetCodes(inventoryItems, printedLabelCodes),
-    [inventoryItems, printedLabelCodes],
+  const printedLabelCodes = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          labelSlots
+            .filter((labelSlot) => labelSlot.print_status === "printed")
+            .map((labelSlot) => normalizeLabelCode(labelSlot.label_code))
+            .filter(Boolean),
+        ),
+      ),
+    [labelSlots],
+  );
+
+  const readyFreeLabelCodes = useMemo(
+    () =>
+      labelSlots
+        .filter(
+          (labelSlot) =>
+            labelSlot.status === "free" && labelSlot.print_status === "printed",
+        )
+        .map((labelSlot) => normalizeLabelCode(labelSlot.label_code))
+        .filter(Boolean),
+    [labelSlots],
+  );
+
+  const reusableUnprintedLabelCodes = useMemo(
+    () =>
+      labelSlots
+        .filter(
+          (labelSlot) =>
+            labelSlot.status === "free" &&
+            labelSlot.print_status === "not_printed",
+        )
+        .map((labelSlot) => normalizeLabelCode(labelSlot.label_code))
+        .filter(Boolean),
+    [labelSlots],
   );
 
   const usedLabelCodes = useMemo(
@@ -48,10 +110,22 @@ export function LabelSheetSection({
     [inventoryItems],
   );
 
-  const reusableFreeLabelCodes = useMemo(
-    () => getReusableFreeLabelCodes(inventoryItems, printedLabelCodes),
-    [inventoryItems, printedLabelCodes],
-  );
+  const nextPoolLabelCodes = useMemo(() => {
+    const reusableCodesForSheet = reusableUnprintedLabelCodes.slice(
+      0,
+      LABELS_PER_SHEET,
+    );
+    const missingCodeCount = LABELS_PER_SHEET - reusableCodesForSheet.length;
+
+    return [
+      ...reusableCodesForSheet,
+      ...createNextUnprintedLabelCodes({
+        count: missingCodeCount,
+        printedLabelCodes,
+        usedLabelCodes,
+      }),
+    ];
+  }, [printedLabelCodes, reusableUnprintedLabelCodes, usedLabelCodes]);
 
   const activeLabelCodes =
     labelSheetMode === "pool" ? nextPoolLabelCodes : manualLabelCodes;
@@ -61,7 +135,7 @@ export function LabelSheetSection({
       ? "Nächster Pool-Bogen"
       : "Manueller Etikettenbogen";
 
-  const reusableFreeLabelCodeSet = new Set(reusableFreeLabelCodes);
+  const reusableFreeLabelCodeSet = new Set(reusableUnprintedLabelCodes);
 
   const reusedActiveLabelCodes = activeLabelCodes.filter((labelCode) =>
     reusableFreeLabelCodeSet.has(labelCode),
@@ -84,8 +158,8 @@ export function LabelSheetSection({
     ? reusedActiveLabelCodes.join(", ")
     : "keine";
 
-  function updatePrintedLabelCodes(nextPrintedLabelCodes) {
-    onPrintedLabelCodesChange(nextPrintedLabelCodes);
+  function updateLabelSlots(nextLabelSlots) {
+    onLabelSlotsChange(nextLabelSlots);
   }
 
   function printLabelSheet() {
@@ -112,7 +186,7 @@ export function LabelSheetSection({
     }, 0);
   }
 
-  function markCurrentSheetAsPrinted() {
+  async function markCurrentSheetAsPrinted() {
     const confirmed = window.confirm(
       "Diesen Etikettenbogen wirklich als gedruckt / im Umlauf markieren? Nur bestätigen, wenn der Ausdruck erfolgreich war.",
     );
@@ -121,38 +195,55 @@ export function LabelSheetSection({
       return;
     }
 
-    const updatedPrintedLabelCodes = addPrintedLabelCodes(
-      printedLabelCodes,
-      activeLabelCodes,
-    );
+    try {
+      setSavingLabelPool(true);
 
-    updatePrintedLabelCodes(updatedPrintedLabelCodes);
-    setPrintStatusMessage(
-      "Etikettenbogen wurde als gedruckt / im Umlauf markiert.",
-    );
+      const result = await markLabelCodesAsPrinted(activeLabelCodes);
+
+      updateLabelSlots(result.labelSlots || []);
+      setPrintStatusMessage(
+        "Etikettenbogen wurde als gedruckt / im Umlauf markiert.",
+      );
+    } catch (error) {
+      console.error(error);
+      setPrintStatusMessage(
+        error.message ||
+          "Etikettenbogen konnte nicht als gedruckt markiert werden.",
+      );
+    } finally {
+      setSavingLabelPool(false);
+    }
   }
 
-  function removeCurrentSheetFromPrintedLabels() {
+  async function removeCurrentSheetFromPrintedLabels() {
     const confirmed = window.confirm(
-      "Aktuellen Etikettenbogen wirklich aus gedruckt / im Umlauf entfernen? Das ist sinnvoll bei Fehldruck oder versehentlicher Markierung.",
+      "Aktuellen Etikettenbogen wirklich aus gedruckt / im Umlauf entfernen? Es werden nur freie, keinem Bestand zugeordnete Etiketten entfernt.",
     );
 
     if (!confirmed) {
       return;
     }
 
-    const updatedPrintedLabelCodes = removePrintedLabelCodes(
-      printedLabelCodes,
-      activeLabelCodes,
-    );
+    try {
+      setSavingLabelPool(true);
 
-    updatePrintedLabelCodes(updatedPrintedLabelCodes);
-    setPrintStatusMessage(
-      "Aktueller Etikettenbogen wurde aus gedruckt / im Umlauf entfernt.",
-    );
+      const result = await releaseFreeLabelCodes(activeLabelCodes);
+
+      updateLabelSlots(result.labelSlots || []);
+      setPrintStatusMessage(
+        "Freie Etiketten des aktuellen Bogens wurden aus gedruckt / im Umlauf entfernt.",
+      );
+    } catch (error) {
+      console.error(error);
+      setPrintStatusMessage(
+        error.message || "Freie Etiketten konnten nicht entfernt werden.",
+      );
+    } finally {
+      setSavingLabelPool(false);
+    }
   }
 
-  function removeSelectedPrintedLabels() {
+  async function removeSelectedPrintedLabels() {
     const labelCodesToRemove = parseLabelCodeSelection(
       printedLabelCorrectionInput,
     );
@@ -169,24 +260,16 @@ export function LabelSheetSection({
     );
 
     if (activeUsedLabelCodes.length > 0) {
-      const confirmedActiveRelease = window.confirm(
-        `Achtung: Diese Etiketten sind aktuell noch einem Bestand zugeordnet: ${activeUsedLabelCodes.join(
+      setPrintStatusMessage(
+        `Aktive Etiketten können nicht entfernt werden: ${activeUsedLabelCodes.join(
           ", ",
-        )}. Trotzdem aus gedruckt / im Umlauf entfernen?`,
+        )}. Erst den zugehörigen Bestand entfernen.`,
       );
-
-      if (!confirmedActiveRelease) {
-        setPrintStatusMessage(
-          `Freigabe abgebrochen. Aktive Etiketten wurden nicht verändert: ${activeUsedLabelCodes.join(
-            ", ",
-          )}.`,
-        );
-        return;
-      }
+      return;
     }
 
     const confirmed = window.confirm(
-      `Diese Etiketten wirklich aus gedruckt / im Umlauf entfernen: ${labelCodesToRemove.join(
+      `Diese freien Etiketten wirklich aus gedruckt / im Umlauf entfernen: ${labelCodesToRemove.join(
         ", ",
       )}?`,
     );
@@ -195,35 +278,54 @@ export function LabelSheetSection({
       return;
     }
 
-    const updatedPrintedLabelCodes = removePrintedLabelCodes(
-      printedLabelCodes,
-      labelCodesToRemove,
-    );
+    try {
+      setSavingLabelPool(true);
 
-    updatePrintedLabelCodes(updatedPrintedLabelCodes);
-    setPrintedLabelCorrectionInput("");
-    setPrintStatusMessage(
-      `Etiketten wurden aus gedruckt / im Umlauf entfernt: ${labelCodesToRemove.join(
-        ", ",
-      )}.`,
-    );
+      const result = await releaseFreeLabelCodes(labelCodesToRemove);
+
+      updateLabelSlots(result.labelSlots || []);
+      setPrintedLabelCorrectionInput("");
+      setPrintStatusMessage(
+        `Freie Etiketten wurden aus gedruckt / im Umlauf entfernt: ${labelCodesToRemove.join(
+          ", ",
+        )}.`,
+      );
+    } catch (error) {
+      console.error(error);
+      setPrintStatusMessage(
+        error.message || "Freie Etiketten konnten nicht entfernt werden.",
+      );
+    } finally {
+      setSavingLabelPool(false);
+    }
   }
 
-  function resetPrintedLabels() {
+  async function resetPrintedLabels() {
     const confirmed = window.confirm(
-      "Alle gedruckten / im Umlauf befindlichen Etiketten zurücksetzen? Nur verwenden, wenn der lokale Druckstatus vollständig neu aufgebaut werden soll.",
+      "Alle freien gedruckten / im Umlauf befindlichen Etiketten zurücksetzen? Aktuell belegte Etiketten bleiben erhalten.",
     );
 
     if (!confirmed) {
       return;
     }
 
-    const updatedPrintedLabelCodes = clearPrintedLabelCodes();
+    try {
+      setSavingLabelPool(true);
 
-    updatePrintedLabelCodes(updatedPrintedLabelCodes);
-    setPrintStatusMessage(
-      "Der lokale Druckstatus wurde vollständig zurückgesetzt.",
-    );
+      const result = await resetFreeLabelCodes();
+
+      updateLabelSlots(result.labelSlots || []);
+      setPrintStatusMessage(
+        "Freie gedruckte Etiketten wurden zurückgesetzt. Aktive Etiketten bleiben erhalten.",
+      );
+    } catch (error) {
+      console.error(error);
+      setPrintStatusMessage(
+        error.message || "Freie Etiketten konnten nicht zurückgesetzt werden.",
+      );
+    } finally {
+      setSavingLabelPool(false);
+    }
   }
 
   return (
@@ -273,6 +375,7 @@ export function LabelSheetSection({
           <button
             type="button"
             className="secondary-button"
+            disabled={savingLabelPool}
             onClick={printLabelSheet}
           >
             Etikettenbogen drucken
@@ -281,6 +384,7 @@ export function LabelSheetSection({
           <button
             type="button"
             className="secondary-button"
+            disabled={savingLabelPool}
             onClick={printCalibrationSheet}
           >
             Kalibrierungsbogen drucken
@@ -289,6 +393,7 @@ export function LabelSheetSection({
           <button
             type="button"
             className="secondary-button"
+            disabled={savingLabelPool}
             onClick={markCurrentSheetAsPrinted}
           >
             Als gedruckt markieren
@@ -297,13 +402,14 @@ export function LabelSheetSection({
             type="button"
             className="secondary-button"
             onClick={removeCurrentSheetFromPrintedLabels}
-            disabled={printedLabelCodes.length === 0}
+            disabled={printedLabelCodes.length === 0 || savingLabelPool}
           >
             Aktuellen Bogen freigeben
           </button>
           <button
             type="button"
             className="secondary-button"
+            disabled={savingLabelPool}
             onClick={() =>
               setShowLabelSheetPreview(
                 (currentShowLabelSheetPreview) => !currentShowLabelSheetPreview,
@@ -324,8 +430,10 @@ export function LabelSheetSection({
       <div className="label-sheet-pool-info">
         <span>Aktiv belegte Etiketten: {usedLabelCodes.length}</span>
         <span>Gedruckt / im Umlauf: {printedLabelCodes.length}</span>
+        <span>Gedruckt und frei verfügbar: {readyFreeLabelCodes.length}</span>
         <span>
-          Wiederverwendbare freie Etiketten: {reusableFreeLabelCodes.length}
+          Nachdruck / Wiederverwendung offen:{" "}
+          {reusableUnprintedLabelCodes.length}
         </span>
       </div>
 
@@ -366,7 +474,7 @@ export function LabelSheetSection({
           type="button"
           className="secondary-button"
           onClick={removeSelectedPrintedLabels}
-          disabled={printedLabelCodes.length === 0}
+          disabled={printedLabelCodes.length === 0 || savingLabelPool}
         >
           Auswahl freigeben
         </button>
@@ -375,7 +483,7 @@ export function LabelSheetSection({
           type="button"
           className="secondary-button danger-outline-button"
           onClick={resetPrintedLabels}
-          disabled={printedLabelCodes.length === 0}
+          disabled={printedLabelCodes.length === 0 || savingLabelPool}
         >
           Druckstatus zurücksetzen
         </button>
@@ -387,7 +495,7 @@ export function LabelSheetSection({
             {activeLabelCodes.map((labelCode, index) => {
               const qrText = createInventoryLabelQrTextFromCode(labelCode);
               const isReusableFreeLabel =
-                reusableFreeLabelCodes.includes(labelCode);
+                reusableUnprintedLabelCodes.includes(labelCode);
               const calibrationNumber = index + 1;
 
               if (showCalibrationSheet) {

@@ -10,7 +10,7 @@ import {
 
 import { openInventoryLabelPrintWindow } from "../../utils/labelPrintUtils";
 
-export function InventoryLabelActions({ item }) {
+export function InventoryLabelActions({ item, onUpdateLabelPrintStatus }) {
   const [showQrCode, setShowQrCode] = useState(false);
   const [copyMessage, setCopyMessage] = useState("");
   const qrContainerRef = useRef(null);
@@ -25,6 +25,7 @@ export function InventoryLabelActions({ item }) {
 
   const qrPayload = createInventoryLabelQrPayload(item);
   const qrText = createInventoryLabelQrText(item);
+  const needsReprint = item.label_print_status === "reprint_needed";
 
   function printLabel() {
     const qrSvgMarkup = qrContainerRef.current?.innerHTML || "";
@@ -54,6 +55,10 @@ export function InventoryLabelActions({ item }) {
     <div className="inventory-label-actions">
       <span className="label-code">Etikett {item.label_code}</span>
 
+      {needsReprint && (
+        <span className="label-code warning-label">Nachdruck erforderlich</span>
+      )}
+
       <button
         type="button"
         className="secondary-button"
@@ -65,6 +70,26 @@ export function InventoryLabelActions({ item }) {
       <button type="button" className="secondary-button" onClick={printLabel}>
         Etikett drucken
       </button>
+
+      {!needsReprint && (
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => onUpdateLabelPrintStatus(item, "reprint_needed")}
+        >
+          Etikett unlesbar
+        </button>
+      )}
+
+      {needsReprint && (
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => onUpdateLabelPrintStatus(item, "printed")}
+        >
+          Druck ist in Ordnung
+        </button>
+      )}
 
       <button type="button" className="secondary-button" onClick={copyQrLink}>
         QR-Link kopieren

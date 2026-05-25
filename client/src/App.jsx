@@ -15,6 +15,8 @@ import {
   removeInventoryItemById,
   saveProduct,
   updateHistoryItemById,
+  loadLabelSlots,
+  updateLabelPrintStatus,
 } from "./api/inventoryApi";
 
 import {
@@ -75,11 +77,6 @@ import {
   extractLabelCodeFromScanText,
   findInventoryItemByLabelCode,
 } from "./utils/labelScanUtils";
-
-import {
-  loadPrintedLabelCodes,
-  removePrintedLabelCodes,
-} from "./utils/printedLabelStorageUtils";
 
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
@@ -199,9 +196,7 @@ function App() {
   const [editingProductId, setEditingProductId] = useState(null);
 
   const [labelScanInput, setLabelScanInput] = useState("");
-  const [printedLabelCodes, setPrintedLabelCodes] = useState(() =>
-    loadPrintedLabelCodes(),
-  );
+  const [labelSlots, setLabelSlots] = useState([]);
   const [highlightedInventoryItemId, setHighlightedInventoryItemId] =
     useState(null);
   const [labelScanMessage, setLabelScanMessage] = useState("");
@@ -212,18 +207,25 @@ function App() {
       try {
         setErrorMessage("");
 
-        const [storageData, productData, inventoryData, historyData] =
-          await Promise.all([
-            loadStorageTree(),
-            loadProducts(),
-            loadInventoryItems(),
-            loadHistoryItems(),
-          ]);
+        const [
+          storageData,
+          productData,
+          inventoryData,
+          historyData,
+          labelSlotData,
+        ] = await Promise.all([
+          loadStorageTree(),
+          loadProducts(),
+          loadInventoryItems(),
+          loadHistoryItems(),
+          loadLabelSlots(),
+        ]);
 
         setStorageTree(storageData);
         setProducts(productData);
         setInventoryItems(inventoryData);
         setHistoryItems(historyData);
+        setLabelSlots(labelSlotData);
       } catch (error) {
         console.error(error);
         setErrorMessage(
@@ -283,6 +285,19 @@ function App() {
       setErrorMessage("Lagerstruktur konnte nicht neu geladen werden.");
     } finally {
       setLoadingStorage(false);
+    }
+  }
+
+  async function reloadLabelSlots() {
+    try {
+      const labelSlotData = await loadLabelSlots();
+      setLabelSlots(labelSlotData);
+
+      return labelSlotData;
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Etikettenpool konnte nicht neu geladen werden.");
+      return [];
     }
   }
 
@@ -501,6 +516,8 @@ function App() {
         updateInventoryListAfterCreate(currentItems, createdItem),
       );
 
+      await reloadLabelSlots();
+
       resetInventoryForm();
     } catch (error) {
       console.error(error);
@@ -672,25 +689,44 @@ function App() {
     setSaveRemovalToHistory(shouldSuggestHistory(removalReason, nextStatus));
   }
 
-  function releasePrintedLabelCode(labelCode) {
-    if (!labelCode) {
+  async function updateInventoryLabelPrintStatus(item, printStatus) {
+    if (!item?.label_code) {
       return;
     }
 
-    setPrintedLabelCodes((currentPrintedLabelCodes) => {
-      const updatedPrintedLabelCodes = removePrintedLabelCodes(
-        currentPrintedLabelCodes,
-        [labelCode],
+    try {
+      setErrorMessage("");
+
+      await updateLabelPrintStatus(item.label_code, printStatus);
+
+      setInventoryItems((currentItems) =>
+        currentItems.map((currentItem) =>
+          currentItem.id === item.id
+            ? {
+                ...currentItem,
+                label_print_status: printStatus,
+              }
+            : currentItem,
+        ),
       );
 
-      if (updatedPrintedLabelCodes.length < currentPrintedLabelCodes.length) {
+      await reloadLabelSlots();
+
+      if (printStatus === "reprint_needed") {
         setLabelScanMessage(
-          `Etikett ${labelCode} wurde freigegeben und kann wiederverwendet werden.`,
+          `Etikett ${item.label_code} wurde als unlesbar markiert. Bestand bleibt unverändert.`,
         );
       }
 
-      return updatedPrintedLabelCodes;
-    });
+      if (printStatus === "printed") {
+        setLabelScanMessage(
+          `Druckstatus für Etikett ${item.label_code} wurde als in Ordnung bestätigt.`,
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Druckstatus konnte nicht aktualisiert werden.");
+    }
   }
 
   async function confirmRemoveInventoryItem() {
@@ -722,7 +758,13 @@ function App() {
         updateInventoryListAfterRemove(currentItems, removalDialogItem.id),
       );
 
-      releasePrintedLabelCode(removalDialogItem.label_code);
+      await reloadLabelSlots();
+
+      if (removalDialogItem.label_code) {
+        setLabelScanMessage(
+          `Etikett ${removalDialogItem.label_code} wurde freigegeben und kann wiederverwendet werden.`,
+        );
+      }
 
       setProducts((currentProducts) =>
         updateProductListAfterInventoryRemoval(currentProducts, result.product),
@@ -774,8 +816,9 @@ function App() {
       return (
         <LabelSheetSection
           inventoryItems={inventoryItems}
-          printedLabelCodes={printedLabelCodes}
-          onPrintedLabelCodesChange={setPrintedLabelCodes}
+          labelSlots={labelSlots}
+          onLabelSlotsChange={setLabelSlots}
+          onReloadLabelSlots={reloadLabelSlots}
         />
       );
     }
@@ -894,6 +937,7 @@ function App() {
           onInventoryStorageFilterChange={setInventoryStorageFilter}
           onResetInventoryFilters={resetInventoryFilters}
           onOpenRemovalDialog={openRemovalDialog}
+          onUpdateLabelPrintStatus={updateInventoryLabelPrintStatus}
           onLabelScanInputChange={setLabelScanInput}
           onLabelScanSubmit={handleLabelScanSubmit}
           labelScanMessage={labelScanMessage}
