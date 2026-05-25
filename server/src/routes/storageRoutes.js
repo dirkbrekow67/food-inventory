@@ -49,19 +49,50 @@ router.post('/locations', (req, res) => {
   try {
     const { name, description = '', sortOrder = 0 } = req.body;
 
-    if (!name || !name.trim()) {
-      return res.status(400).json({ error: 'Name ist erforderlich.' });
+    const trimmedName = String(name || '').trim();
+    const trimmedDescription = String(description || '').trim();
+
+    if (!trimmedName) {
+      return res.status(400).json({
+        error: 'Der Standortname darf nicht leer sein.',
+      });
     }
 
-    const result = db.prepare(`
-      INSERT INTO storage_locations (name, description, sort_order)
-      VALUES (?, ?, ?)
-    `).run(name.trim(), description.trim(), sortOrder);
+    const existingLocation = db
+      .prepare(`
+        SELECT id
+        FROM storage_locations
+        WHERE lower(name) = lower(?)
+      `)
+      .get(trimmedName);
 
-    res.status(201).json({ id: result.lastInsertRowid });
+    if (existingLocation) {
+      return res.status(409).json({
+        error: 'Ein Standort mit diesem Namen existiert bereits.',
+      });
+    }
+
+    const result = db
+      .prepare(`
+        INSERT INTO storage_locations (name, description, sort_order)
+        VALUES (?, ?, ?)
+      `)
+      .run(trimmedName, trimmedDescription, sortOrder);
+
+    const createdLocation = db
+      .prepare(`
+        SELECT *
+        FROM storage_locations
+        WHERE id = ?
+      `)
+      .get(result.lastInsertRowid);
+
+    res.status(201).json(createdLocation);
   } catch (error) {
     console.error('Error creating storage location:', error);
-    res.status(500).json({ error: 'Standort konnte nicht angelegt werden.' });
+    res.status(500).json({
+      error: 'Standort konnte nicht angelegt werden.',
+    });
   }
 });
 
