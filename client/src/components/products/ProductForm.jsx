@@ -30,7 +30,16 @@ export function ProductForm({
   const backCameraInputRef = useRef(null);
 
   async function handleProductImageChange(event, fieldName, side) {
-    const file = event.target.files?.[0];
+    event.preventDefault();
+    event.stopPropagation();
+
+    const inputElement = event.currentTarget;
+    const file = inputElement.files?.[0];
+
+    if (!file) {
+      inputElement.value = "";
+      return;
+    }
 
     try {
       const compressedImageDataUrl = await compressImageFileToDataUrl(file);
@@ -52,7 +61,7 @@ export function ProductForm({
         "Das Produktfoto konnte nicht verarbeitet oder gespeichert werden.",
       );
     } finally {
-      event.target.value = "";
+      inputElement.value = "";
     }
   }
 
@@ -60,7 +69,10 @@ export function ProductForm({
     onUpdateProductForm(fieldName, "");
   }
 
-  function openFileInput(inputRef) {
+  function openFileInput(event, inputRef) {
+    event.preventDefault();
+    event.stopPropagation();
+
     inputRef.current?.click();
   }
 
@@ -187,7 +199,7 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
-              onClick={() => openFileInput(frontUploadInputRef)}
+              onClick={(event) => openFileInput(event, frontUploadInputRef)}
             >
               Hochladen
             </button>
@@ -195,7 +207,7 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
-              onClick={() => openFileInput(frontCameraInputRef)}
+              onClick={(event) => openFileInput(event, frontCameraInputRef)}
             >
               Kamera
             </button>
@@ -247,7 +259,7 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
-              onClick={() => openFileInput(backUploadInputRef)}
+              onClick={(event) => openFileInput(event, backUploadInputRef)}
             >
               Hochladen
             </button>
@@ -255,7 +267,7 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
-              onClick={() => openFileInput(backCameraInputRef)}
+              onClick={(event) => openFileInput(event, backCameraInputRef)}
             >
               Kamera
             </button>
