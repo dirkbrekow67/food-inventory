@@ -96,6 +96,67 @@ router.post('/locations', (req, res) => {
   }
 });
 
+router.delete('/locations/:locationId', (req, res) => {
+  try {
+    const { locationId } = req.params;
+    const numericLocationId = Number(locationId);
+
+    if (!numericLocationId) {
+      return res.status(400).json({
+        error: 'Standort ist erforderlich.',
+      });
+    }
+
+    const existingLocation = db
+      .prepare(`
+        SELECT id, name, status
+        FROM storage_locations
+        WHERE id = ?
+      `)
+      .get(numericLocationId);
+
+    if (!existingLocation) {
+      return res.status(404).json({
+        error: 'Der ausgewählte Standort wurde nicht gefunden.',
+      });
+    }
+
+    const activeUnits = db
+      .prepare(`
+        SELECT COUNT(*) AS count
+        FROM storage_units
+        WHERE location_id = ?
+          AND status = 'active'
+      `)
+      .get(numericLocationId);
+
+    if (activeUnits.count > 0) {
+      return res.status(409).json({
+        error:
+          'Der Standort kann nicht deaktiviert werden, solange dort aktive Lagergeräte vorhanden sind.',
+      });
+    }
+
+    db.prepare(`
+      UPDATE storage_locations
+      SET status = 'inactive',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(numericLocationId);
+
+    res.json({
+      message: 'Standort wurde deaktiviert.',
+      id: numericLocationId,
+      name: existingLocation.name,
+    });
+  } catch (error) {
+    console.error('Error deactivating storage location:', error);
+    res.status(500).json({
+      error: 'Standort konnte nicht deaktiviert werden.',
+    });
+  }
+});
+
 router.post('/units', (req, res) => {
   try {
     const {

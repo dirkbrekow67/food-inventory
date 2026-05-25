@@ -6,6 +6,7 @@ import {
   createStorageLocation,
   createStorageUnit,
   deactivateStorageCompartmentById,
+  deactivateStorageLocationById,
   deactivateStorageUnitById,
   generateStorageCompartments,
 } from "../../api/inventoryApi";
@@ -90,6 +91,7 @@ export function StorageSection({
   const [deactivatingUnitId, setDeactivatingUnitId] = useState(null);
   const [deactivatingCompartmentId, setDeactivatingCompartmentId] =
     useState(null);
+  const [deactivatingLocationId, setDeactivatingLocationId] = useState(null);
 
   const [newCompartmentForm, setNewCompartmentForm] = useState({
     unitId: "",
@@ -139,6 +141,34 @@ export function StorageSection({
       );
     } finally {
       setSavingLocation(false);
+    }
+  }
+
+  async function handleDeactivateLocation(location) {
+    const confirmed = window.confirm(
+      `Standort "${location.name}" wirklich deaktivieren? Der Standort wird aus der aktiven Lagerstruktur ausgeblendet.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeactivatingLocationId(location.id);
+      setLocationError("");
+
+      await deactivateStorageLocationById(location.id);
+
+      if (typeof onReloadStorage === "function") {
+        await onReloadStorage();
+      }
+    } catch (error) {
+      console.error(error);
+      setLocationError(
+        error.message || "Standort konnte nicht deaktiviert werden.",
+      );
+    } finally {
+      setDeactivatingLocationId(null);
     }
   }
 
@@ -748,11 +778,26 @@ export function StorageSection({
       <div className="storage-tree">
         {storageTree.map((location) => (
           <article className="location-card" key={location.id}>
-            <h3>{location.name}</h3>
+            <div className="location-header">
+              <div>
+                <h3>{location.name}</h3>
 
-            {location.description && (
-              <p className="muted">{location.description}</p>
-            )}
+                {location.description && (
+                  <p className="muted">{location.description}</p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="danger-outline-button"
+                onClick={() => handleDeactivateLocation(location)}
+                disabled={deactivatingLocationId === location.id}
+              >
+                {deactivatingLocationId === location.id
+                  ? "Wird deaktiviert..."
+                  : "Standort deaktivieren"}
+              </button>
+            </div>
 
             {location.units.length === 0 ? (
               <p className="muted">Noch keine Lagergeräte angelegt.</p>

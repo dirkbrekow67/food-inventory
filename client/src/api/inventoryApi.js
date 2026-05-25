@@ -41,6 +41,16 @@ export function createStorageLocation(name) {
   );
 }
 
+export function deactivateStorageLocationById(locationId) {
+  return fetchJson(
+    `/storage/locations/${locationId}`,
+    "Standort konnte nicht deaktiviert werden.",
+    {
+      method: "DELETE",
+    },
+  );
+}
+
 export function createStorageUnit(payload) {
   return fetchJson(
     "/storage/units",

@@ -322,6 +322,14 @@ h4 {
   padding: 18px;
 }
 
+.location-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
 .unit-list {
   display: grid;
   gap: 14px;
@@ -1625,6 +1633,13 @@ h4 {
   }
 
   .inventory-subnav button {
+    width: 100%;
+  }
+  .location-header {
+    flex-direction: column;
+  }
+
+  .location-header button {
     width: 100%;
   }
 }
