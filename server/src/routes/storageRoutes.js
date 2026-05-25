@@ -102,6 +102,7 @@ router.post('/units', (req, res) => {
       locationId,
       name,
       type,
+      temperatureZone = null,
       manufacturer = null,
       model = null,
       notes = null,
@@ -111,6 +112,9 @@ router.post('/units', (req, res) => {
     const numericLocationId = Number(locationId);
     const trimmedName = String(name || '').trim();
     const trimmedType = String(type || '').trim();
+    const trimmedTemperatureZone = temperatureZone
+      ? String(temperatureZone).trim()
+      : null;
     const trimmedManufacturer = manufacturer
       ? String(manufacturer).trim()
       : null;
@@ -156,13 +160,14 @@ router.post('/units', (req, res) => {
     const result = db
       .prepare(`
         INSERT INTO storage_units
-        (location_id, name, type, manufacturer, model, notes, sort_order)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (location_id, name, type, temperature_zone, manufacturer, model, notes, sort_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `)
       .run(
         numericLocationId,
         trimmedName,
         trimmedType,
+        trimmedTemperatureZone,
         trimmedManufacturer,
         trimmedModel,
         trimmedNotes,

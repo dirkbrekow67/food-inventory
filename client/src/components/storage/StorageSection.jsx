@@ -27,12 +27,43 @@ const compartmentTypes = [
   "Sonstiges",
 ];
 
+const temperatureZones = [
+  { value: "tiefkuehlung", label: "Tiefkühlung" },
+  { value: "kuehlung", label: "Kühlung" },
+  { value: "raumtemperatur", label: "Raumtemperatur" },
+  { value: "trockenlagerung", label: "Trockenlagerung" },
+  { value: "sonstiges", label: "Sonstiges" },
+];
+
 function getStorageUnits(storageTree) {
   return storageTree.flatMap((location) =>
     location.units.map((unit) => ({
       ...unit,
       locationName: location.name,
     })),
+  );
+}
+
+function getDefaultTemperatureZoneForUnitType(unitType) {
+  if (unitType === "Gefrierschrank") {
+    return "tiefkuehlung";
+  }
+
+  if (unitType === "Kühlschrank") {
+    return "kuehlung";
+  }
+
+  if (unitType === "Regal" || unitType === "Schrank" || unitType === "Box") {
+    return "trockenlagerung";
+  }
+
+  return "sonstiges";
+}
+
+function getTemperatureZoneLabel(value) {
+  return (
+    temperatureZones.find((temperatureZone) => temperatureZone.value === value)
+      ?.label || value
   );
 }
 
@@ -49,6 +80,7 @@ export function StorageSection({
     locationId: "",
     identifier: "",
     type: "Gefrierschrank",
+    temperatureZone: "tiefkuehlung",
   });
   const [savingUnit, setSavingUnit] = useState(false);
   const [unitError, setUnitError] = useState("");
@@ -137,12 +169,14 @@ export function StorageSection({
         locationId: newUnitForm.locationId,
         name: generatedUnitName,
         type: newUnitForm.type,
+        temperatureZone: newUnitForm.temperatureZone,
       });
 
       setNewUnitForm({
         locationId: newUnitForm.locationId,
         identifier: "",
         type: newUnitForm.type,
+        temperatureZone: newUnitForm.temperatureZone,
       });
 
       if (typeof onReloadStorage === "function") {
@@ -336,14 +370,45 @@ export function StorageSection({
             <select
               id="new-storage-unit-type"
               value={newUnitForm.type}
-              onChange={(event) =>
-                updateNewUnitForm("type", event.target.value)
-              }
+              onChange={(event) => {
+                const nextUnitType = event.target.value;
+
+                setNewUnitForm((currentForm) => ({
+                  ...currentForm,
+                  type: nextUnitType,
+                  temperatureZone:
+                    getDefaultTemperatureZoneForUnitType(nextUnitType),
+                }));
+              }}
               disabled={storageTree.length === 0}
             >
               {storageUnitTypes.map((unitType) => (
                 <option key={unitType} value={unitType}>
                   {unitType}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="new-storage-unit-temperature-zone">
+              Temperaturzone
+            </label>
+
+            <select
+              id="new-storage-unit-temperature-zone"
+              value={newUnitForm.temperatureZone}
+              onChange={(event) =>
+                updateNewUnitForm("temperatureZone", event.target.value)
+              }
+              disabled={storageTree.length === 0}
+            >
+              {temperatureZones.map((temperatureZone) => (
+                <option
+                  key={temperatureZone.value}
+                  value={temperatureZone.value}
+                >
+                  {temperatureZone.label}
                 </option>
               ))}
             </select>
@@ -369,6 +434,15 @@ export function StorageSection({
                     ? `${newUnitForm.type} ${trimmedIdentifier} ${selectedLocation.name}`
                     : `${newUnitForm.type} ${selectedLocation.name}`;
                 })()}
+              </strong>
+            </p>
+          ) : null}
+
+          {newUnitForm.locationId ? (
+            <p className="muted">
+              Temperaturzone:{" "}
+              <strong>
+                {getTemperatureZoneLabel(newUnitForm.temperatureZone)}
               </strong>
             </p>
           ) : null}
@@ -628,7 +702,15 @@ export function StorageSection({
                   <div className="unit-header">
                     <div>
                       <h4>{unit.name}</h4>
-                      <p className="muted">{unit.type}</p>
+                      <p className="muted">
+                        {unit.type}
+                        {unit.temperature_zone ? (
+                          <>
+                            {" "}
+                            · {getTemperatureZoneLabel(unit.temperature_zone)}
+                          </>
+                        ) : null}
+                      </p>
                     </div>
 
                     <span className="badge">{unit.status}</span>
