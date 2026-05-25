@@ -3,7 +3,10 @@
 import { useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
-import { createInventoryLabelQrTextFromCode } from "../../utils/labelQrUtils";
+import {
+  createInventoryLabelQrText,
+  createInventoryLabelQrTextFromCode,
+} from "../../utils/labelQrUtils";
 
 import {
   createLabelCode,
@@ -110,12 +113,28 @@ export function LabelSheetSection({
     [inventoryItems],
   );
 
+  const reprintNeededInventoryItems = useMemo(
+    () =>
+      inventoryItems.filter(
+        (item) =>
+          item.label_code && item.label_print_status === "reprint_needed",
+      ),
+    [inventoryItems],
+  );
+
   const nextPoolLabelCodes = useMemo(() => {
-    const reusableCodesForSheet = reusableUnprintedLabelCodes.slice(
-      0,
+    const reservedReprintCount = Math.min(
+      reprintNeededInventoryItems.length,
       LABELS_PER_SHEET,
     );
-    const missingCodeCount = LABELS_PER_SHEET - reusableCodesForSheet.length;
+
+    const remainingPoolSlots = LABELS_PER_SHEET - reservedReprintCount;
+
+    const reusableCodesForSheet = reusableUnprintedLabelCodes.slice(
+      0,
+      remainingPoolSlots,
+    );
+    const missingCodeCount = remainingPoolSlots - reusableCodesForSheet.length;
 
     return [
       ...reusableCodesForSheet,
@@ -125,10 +144,44 @@ export function LabelSheetSection({
         usedLabelCodes,
       }),
     ];
-  }, [printedLabelCodes, reusableUnprintedLabelCodes, usedLabelCodes]);
+  }, [
+    printedLabelCodes,
+    reusableUnprintedLabelCodes,
+    reprintNeededInventoryItems.length,
+    usedLabelCodes,
+  ]);
 
-  const activeLabelCodes =
-    labelSheetMode === "pool" ? nextPoolLabelCodes : manualLabelCodes;
+  const activeSheetEntries = useMemo(() => {
+    if (labelSheetMode !== "pool") {
+      return manualLabelCodes.map((labelCode) => ({
+        type: "pool",
+        labelCode,
+        item: null,
+      }));
+    }
+
+    return [
+      ...reprintNeededInventoryItems.slice(0, LABELS_PER_SHEET).map((item) => ({
+        type: "inventory-reprint",
+        labelCode: item.label_code,
+        item,
+      })),
+      ...nextPoolLabelCodes.map((labelCode) => ({
+        type: "pool",
+        labelCode,
+        item: null,
+      })),
+    ];
+  }, [
+    labelSheetMode,
+    manualLabelCodes,
+    nextPoolLabelCodes,
+    reprintNeededInventoryItems,
+  ]);
+
+  const activeLabelCodes = activeSheetEntries.map(
+    (sheetEntry) => sheetEntry.labelCode,
+  );
 
   const sheetTitle =
     labelSheetMode === "pool"
@@ -441,8 +494,9 @@ export function LabelSheetSection({
         <div>
           <strong>Aktueller Bogen</strong>
           <span>
-            Neue Etiketten: {newActiveLabelCodes.length} · Wiederverwendete
-            Etiketten: {reusedActiveLabelCodes.length}
+            Nachdrucke: {reprintNeededInventoryItems.length} · Neue Etiketten:{" "}
+            {newActiveLabelCodes.length} · Wiederverwendete Etiketten:{" "}
+            {reusedActiveLabelCodes.length}
           </span>
         </div>
 
@@ -492,10 +546,15 @@ export function LabelSheetSection({
       {showLabelSheetPreview ? (
         <div className="label-sheet-print-area">
           <div className="label-sheet">
-            {activeLabelCodes.map((labelCode, index) => {
-              const qrText = createInventoryLabelQrTextFromCode(labelCode);
+            {activeSheetEntries.map((sheetEntry, index) => {
+              const { labelCode, item, type } = sheetEntry;
+              const qrText =
+                type === "inventory-reprint" && item
+                  ? createInventoryLabelQrText(item)
+                  : createInventoryLabelQrTextFromCode(labelCode);
               const isReusableFreeLabel =
                 reusableUnprintedLabelCodes.includes(labelCode);
+              const isInventoryReprint = type === "inventory-reprint";
               const calibrationNumber = index + 1;
 
               if (showCalibrationSheet) {
@@ -536,8 +595,19 @@ export function LabelSheetSection({
                   <div className="label-sheet-text">
                     <strong>{labelCode}</strong>
                     <span>
-                      {isReusableFreeLabel ? "wieder frei" : "Food Inventory"}
+                      {isInventoryReprint && item
+                        ? item.product_name
+                        : isReusableFreeLabel
+                          ? "wieder frei"
+                          : "Food Inventory"}
                     </span>
+                    {isInventoryReprint && item && (
+                      <small>
+                        {[item.storage_unit_name, item.storage_compartment_name]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </small>
+                    )}
                   </div>
                 </div>
               );
