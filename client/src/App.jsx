@@ -271,6 +271,21 @@ function App() {
     );
   }
 
+  async function reloadStorageTree() {
+    try {
+      setLoadingStorage(true);
+      setErrorMessage("");
+
+      const storageData = await loadStorageTree();
+      setStorageTree(storageData);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Lagerstruktur konnte nicht neu geladen werden.");
+    } finally {
+      setLoadingStorage(false);
+    }
+  }
+
   const openInventoryItemFromLabelCode = useCallback(
     (labelCode) => {
       const normalizedLabelCode = extractLabelCodeFromScanText(labelCode);
@@ -811,6 +826,7 @@ function App() {
         <StorageSection
           storageTree={storageTree}
           loadingStorage={loadingStorage}
+          onReloadStorage={reloadStorageTree}
         />
       );
     }

@@ -14,7 +14,16 @@ async function fetchJson(path, errorMessage, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, options);
 
   if (!response.ok) {
-    throw new Error(errorMessage);
+    let serverErrorMessage;
+
+    try {
+      const errorData = await response.json();
+      serverErrorMessage = errorData.error;
+    } catch (error) {
+      console.error(error);
+    }
+
+    throw new Error(serverErrorMessage || errorMessage);
   }
 
   return response.json();
@@ -22,6 +31,22 @@ async function fetchJson(path, errorMessage, options = {}) {
 
 export function loadStorageTree() {
   return fetchJson("/storage/tree", "Lagerstruktur konnte nicht geladen werden.");
+}
+
+export function createStorageLocation(name) {
+  return fetchJson(
+    "/storage/locations",
+    "Standort konnte nicht gespeichert werden.",
+    createJsonRequest("POST", { name }),
+  );
+}
+
+export function createStorageUnit(payload) {
+  return fetchJson(
+    "/storage/units",
+    "Lagergerät konnte nicht gespeichert werden.",
+    createJsonRequest("POST", payload),
+  );
 }
 
 export function loadProducts() {
