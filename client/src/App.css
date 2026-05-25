@@ -341,6 +341,14 @@ h4 {
   margin-bottom: 12px;
 }
 
+.unit-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  align-items: center;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;

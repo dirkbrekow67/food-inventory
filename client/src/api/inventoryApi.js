@@ -106,6 +106,16 @@ export function createInventoryItem(payload) {
   );
 }
 
+export function deactivateStorageUnitById(unitId) {
+  return fetchJson(
+    `/storage/units/${unitId}`,
+    "Lagergerät konnte nicht deaktiviert werden.",
+    {
+      method: "DELETE",
+    },
+  );
+}
+
 export function removeInventoryItemById(inventoryItemId, payload) {
   return fetchJson(
     `/inventory/${inventoryItemId}`,

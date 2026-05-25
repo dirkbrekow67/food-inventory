@@ -367,4 +367,72 @@ router.post('/units/:unitId/compartments', (req, res) => {
   }
 });
 
+router.delete('/units/:unitId', (req, res) => {
+  try {
+    const { unitId } = req.params;
+    const numericUnitId = Number(unitId);
+
+    if (!numericUnitId) {
+      return res.status(400).json({
+        error: 'Lagergerät ist erforderlich.',
+      });
+    }
+
+    const existingUnit = db
+      .prepare(`
+        SELECT id, name, status
+        FROM storage_units
+        WHERE id = ?
+      `)
+      .get(numericUnitId);
+
+    if (!existingUnit) {
+      return res.status(404).json({
+        error: 'Das ausgewählte Lagergerät wurde nicht gefunden.',
+      });
+    }
+
+    const activeInventoryItems = db
+      .prepare(`
+        SELECT COUNT(*) AS count
+        FROM inventory_items
+        WHERE storage_unit_id = ?
+          AND status = 'available'
+      `)
+      .get(numericUnitId);
+
+    if (activeInventoryItems.count > 0) {
+      return res.status(409).json({
+        error:
+          'Das Lagergerät kann nicht deaktiviert werden, solange dort aktive Bestandseinträge vorhanden sind.',
+      });
+    }
+
+    db.prepare(`
+      UPDATE storage_units
+      SET status = 'inactive',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(numericUnitId);
+
+    db.prepare(`
+      UPDATE storage_compartments
+      SET status = 'inactive',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE unit_id = ?
+    `).run(numericUnitId);
+
+    res.json({
+      message: 'Lagergerät wurde deaktiviert.',
+      id: numericUnitId,
+      name: existingUnit.name,
+    });
+  } catch (error) {
+    console.error('Error deactivating storage unit:', error);
+    res.status(500).json({
+      error: 'Lagergerät konnte nicht deaktiviert werden.',
+    });
+  }
+});
+
 module.exports = router;

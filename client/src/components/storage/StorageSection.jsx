@@ -5,6 +5,7 @@ import {
   createStorageCompartment,
   createStorageLocation,
   createStorageUnit,
+  deactivateStorageUnitById,
   generateStorageCompartments,
 } from "../../api/inventoryApi";
 
@@ -84,6 +85,8 @@ export function StorageSection({
   });
   const [savingUnit, setSavingUnit] = useState(false);
   const [unitError, setUnitError] = useState("");
+
+  const [deactivatingUnitId, setDeactivatingUnitId] = useState(null);
 
   const [newCompartmentForm, setNewCompartmentForm] = useState({
     unitId: "",
@@ -291,6 +294,34 @@ export function StorageSection({
       );
     } finally {
       setSavingSingleCompartment(false);
+    }
+  }
+
+  async function handleDeactivateUnit(unit) {
+    const confirmed = window.confirm(
+      `Lagergerät "${unit.name}" wirklich deaktivieren? Das Gerät und seine Fächer werden aus der aktiven Lagerstruktur ausgeblendet.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeactivatingUnitId(unit.id);
+      setUnitError("");
+
+      await deactivateStorageUnitById(unit.id);
+
+      if (typeof onReloadStorage === "function") {
+        await onReloadStorage();
+      }
+    } catch (error) {
+      console.error(error);
+      setUnitError(
+        error.message || "Lagergerät konnte nicht deaktiviert werden.",
+      );
+    } finally {
+      setDeactivatingUnitId(null);
     }
   }
 
@@ -713,7 +744,20 @@ export function StorageSection({
                       </p>
                     </div>
 
-                    <span className="badge">{unit.status}</span>
+                    <div className="unit-header-actions">
+                      <span className="badge">{unit.status}</span>
+
+                      <button
+                        type="button"
+                        className="danger-outline-button"
+                        onClick={() => handleDeactivateUnit(unit)}
+                        disabled={deactivatingUnitId === unit.id}
+                      >
+                        {deactivatingUnitId === unit.id
+                          ? "Wird deaktiviert..."
+                          : "Deaktivieren"}
+                      </button>
+                    </div>
                   </div>
 
                   {unit.compartments.length === 0 ? (
