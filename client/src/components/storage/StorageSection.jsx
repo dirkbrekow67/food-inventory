@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  createStorageCompartment,
   createStorageLocation,
   createStorageUnit,
   generateStorageCompartments,
@@ -61,6 +62,14 @@ export function StorageSection({
   });
   const [savingCompartments, setSavingCompartments] = useState(false);
   const [compartmentError, setCompartmentError] = useState("");
+
+  const [singleCompartmentForm, setSingleCompartmentForm] = useState({
+    unitId: "",
+    name: "",
+    type: "Fach",
+  });
+  const [savingSingleCompartment, setSavingSingleCompartment] = useState(false);
+  const [singleCompartmentError, setSingleCompartmentError] = useState("");
 
   const storageUnits = getStorageUnits(storageTree);
 
@@ -198,6 +207,56 @@ export function StorageSection({
       );
     } finally {
       setSavingCompartments(false);
+    }
+  }
+
+  function updateSingleCompartmentForm(field, value) {
+    setSingleCompartmentForm((currentForm) => ({
+      ...currentForm,
+      [field]: value,
+    }));
+  }
+
+  async function handleCreateSingleCompartment(event) {
+    event.preventDefault();
+
+    const trimmedName = singleCompartmentForm.name.trim();
+
+    if (
+      !singleCompartmentForm.unitId ||
+      !trimmedName ||
+      !singleCompartmentForm.type
+    ) {
+      setSingleCompartmentError(
+        "Bitte Lagergerät, Fachname und Fachtyp ausfüllen.",
+      );
+      return;
+    }
+
+    try {
+      setSavingSingleCompartment(true);
+      setSingleCompartmentError("");
+
+      await createStorageCompartment(singleCompartmentForm.unitId, {
+        name: trimmedName,
+        type: singleCompartmentForm.type,
+      });
+
+      setSingleCompartmentForm((currentForm) => ({
+        ...currentForm,
+        name: "",
+      }));
+
+      if (typeof onReloadStorage === "function") {
+        await onReloadStorage();
+      }
+    } catch (error) {
+      console.error(error);
+      setSingleCompartmentError(
+        error.message || "Fach konnte nicht gespeichert werden.",
+      );
+    } finally {
+      setSavingSingleCompartment(false);
     }
   }
 
@@ -461,6 +520,85 @@ export function StorageSection({
 
           {compartmentError ? (
             <p className="form-error">{compartmentError}</p>
+          ) : null}
+        </form>
+        <form
+          className="storage-single-compartment-form"
+          onSubmit={handleCreateSingleCompartment}
+        >
+          <div className="form-field">
+            <label htmlFor="single-storage-compartment-unit">
+              Lagergerät auswählen
+            </label>
+
+            <select
+              id="single-storage-compartment-unit"
+              value={singleCompartmentForm.unitId}
+              onChange={(event) =>
+                updateSingleCompartmentForm("unitId", event.target.value)
+              }
+              disabled={storageUnits.length === 0}
+            >
+              <option value="">Bitte auswählen</option>
+              {storageUnits.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.locationName} → {unit.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="single-storage-compartment-name">
+              Einzelnes Fach anlegen
+            </label>
+
+            <input
+              id="single-storage-compartment-name"
+              type="text"
+              value={singleCompartmentForm.name}
+              onChange={(event) =>
+                updateSingleCompartmentForm("name", event.target.value)
+              }
+              placeholder="z. B. Fach oben, Gemüsefach, Türfach"
+              disabled={storageUnits.length === 0}
+            />
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="single-storage-compartment-type">Fachtyp</label>
+
+            <select
+              id="single-storage-compartment-type"
+              value={singleCompartmentForm.type}
+              onChange={(event) =>
+                updateSingleCompartmentForm("type", event.target.value)
+              }
+              disabled={storageUnits.length === 0}
+            >
+              {compartmentTypes.map((compartmentType) => (
+                <option key={compartmentType} value={compartmentType}>
+                  {compartmentType}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            disabled={savingSingleCompartment || storageUnits.length === 0}
+          >
+            {savingSingleCompartment ? "Speichern..." : "Einzelfach speichern"}
+          </button>
+
+          {storageUnits.length === 0 ? (
+            <p className="muted">
+              Zuerst muss mindestens ein Lagergerät angelegt werden.
+            </p>
+          ) : null}
+
+          {singleCompartmentError ? (
+            <p className="form-error">{singleCompartmentError}</p>
           ) : null}
         </form>
       </div>

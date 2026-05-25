@@ -1398,7 +1398,8 @@ h4 {
 
 .storage-location-form,
 .storage-unit-form,
-.storage-compartment-form {
+.storage-compartment-form,
+.storage-single-compartment-form {
   display: grid;
   gap: 12px;
   padding: 16px;
@@ -1409,14 +1410,16 @@ h4 {
 
 .storage-location-form .form-field,
 .storage-unit-form .form-field,
-.storage-compartment-form .form-field {
+.storage-compartment-form .form-field,
+.storage-single-compartment-form .form-field {
   display: grid;
   gap: 6px;
 }
 
 .storage-location-form label,
 .storage-unit-form label,
-.storage-compartment-form label {
+.storage-compartment-form label,
+.storage-single-compartment-form label {
   color: #334155;
   font-weight: 700;
 }
@@ -1425,7 +1428,9 @@ h4 {
 .storage-unit-form input,
 .storage-unit-form select,
 .storage-compartment-form input,
-.storage-compartment-form select {
+.storage-compartment-form select,
+.storage-single-compartment-form input,
+.storage-single-compartment-form select {
   width: 100%;
 }
 

@@ -57,6 +57,14 @@ export function generateStorageCompartments(unitId, payload) {
   );
 }
 
+export function createStorageCompartment(unitId, payload) {
+  return fetchJson(
+    `/storage/units/${unitId}/compartments`,
+    "Fach konnte nicht gespeichert werden.",
+    createJsonRequest("POST", payload),
+  );
+}
+
 export function loadProducts() {
   return fetchJson("/products", "Produkte konnten nicht geladen werden.");
 }

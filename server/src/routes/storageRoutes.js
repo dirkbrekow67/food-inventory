@@ -281,4 +281,85 @@ router.post('/units/:unitId/compartments/generate', (req, res) => {
   }
 });
 
+router.post('/units/:unitId/compartments', (req, res) => {
+  try {
+    const { unitId } = req.params;
+    const {
+      name,
+      type = 'Fach',
+      levelNumber = null,
+      sortOrder = 0,
+    } = req.body;
+
+    const numericUnitId = Number(unitId);
+    const trimmedName = String(name || '').trim();
+    const trimmedType = String(type || '').trim();
+
+    if (!numericUnitId || !trimmedName || !trimmedType) {
+      return res.status(400).json({
+        error: 'Lagergerät, Fachname und Fachtyp sind erforderlich.',
+      });
+    }
+
+    const existingUnit = db
+      .prepare(`
+        SELECT id
+        FROM storage_units
+        WHERE id = ?
+          AND status = 'active'
+      `)
+      .get(numericUnitId);
+
+    if (!existingUnit) {
+      return res.status(404).json({
+        error: 'Das ausgewählte Lagergerät wurde nicht gefunden.',
+      });
+    }
+
+    const existingCompartment = db
+      .prepare(`
+        SELECT id
+        FROM storage_compartments
+        WHERE unit_id = ?
+          AND lower(name) = lower(?)
+      `)
+      .get(numericUnitId, trimmedName);
+
+    if (existingCompartment) {
+      return res.status(409).json({
+        error: 'In diesem Lagergerät existiert bereits ein Fach mit diesem Namen.',
+      });
+    }
+
+    const result = db
+      .prepare(`
+        INSERT INTO storage_compartments
+        (unit_id, name, type, level_number, sort_order)
+        VALUES (?, ?, ?, ?, ?)
+      `)
+      .run(
+        numericUnitId,
+        trimmedName,
+        trimmedType,
+        levelNumber ? Number(levelNumber) : null,
+        sortOrder,
+      );
+
+    const createdCompartment = db
+      .prepare(`
+        SELECT *
+        FROM storage_compartments
+        WHERE id = ?
+      `)
+      .get(result.lastInsertRowid);
+
+    res.status(201).json(createdCompartment);
+  } catch (error) {
+    console.error('Error creating compartment:', error);
+    res.status(500).json({
+      error: 'Fach konnte nicht angelegt werden.',
+    });
+  }
+});
+
 module.exports = router;
