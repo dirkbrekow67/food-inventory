@@ -108,30 +108,81 @@ router.post('/units', (req, res) => {
       sortOrder = 0,
     } = req.body;
 
-    if (!locationId || !name || !type) {
+    const numericLocationId = Number(locationId);
+    const trimmedName = String(name || '').trim();
+    const trimmedType = String(type || '').trim();
+    const trimmedManufacturer = manufacturer
+      ? String(manufacturer).trim()
+      : null;
+    const trimmedModel = model ? String(model).trim() : null;
+    const trimmedNotes = notes ? String(notes).trim() : null;
+
+    if (!numericLocationId || !trimmedName || !trimmedType) {
       return res.status(400).json({
-        error: 'locationId, name und type sind erforderlich.',
+        error: 'Standort, Gerätename und Gerätetyp sind erforderlich.',
       });
     }
 
-    const result = db.prepare(`
-      INSERT INTO storage_units
-      (location_id, name, type, manufacturer, model, notes, sort_order)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      locationId,
-      name.trim(),
-      type.trim(),
-      manufacturer,
-      model,
-      notes,
-      sortOrder
-    );
+    const existingLocation = db
+      .prepare(`
+        SELECT id
+        FROM storage_locations
+        WHERE id = ?
+          AND status = 'active'
+      `)
+      .get(numericLocationId);
 
-    res.status(201).json({ id: result.lastInsertRowid });
+    if (!existingLocation) {
+      return res.status(404).json({
+        error: 'Der ausgewählte Standort wurde nicht gefunden.',
+      });
+    }
+
+    const existingUnit = db
+      .prepare(`
+        SELECT id
+        FROM storage_units
+        WHERE location_id = ?
+          AND lower(name) = lower(?)
+      `)
+      .get(numericLocationId, trimmedName);
+
+    if (existingUnit) {
+      return res.status(409).json({
+        error: 'An diesem Standort existiert bereits ein Lagergerät mit diesem Namen.',
+      });
+    }
+
+    const result = db
+      .prepare(`
+        INSERT INTO storage_units
+        (location_id, name, type, manufacturer, model, notes, sort_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `)
+      .run(
+        numericLocationId,
+        trimmedName,
+        trimmedType,
+        trimmedManufacturer,
+        trimmedModel,
+        trimmedNotes,
+        sortOrder,
+      );
+
+    const createdUnit = db
+      .prepare(`
+        SELECT *
+        FROM storage_units
+        WHERE id = ?
+      `)
+      .get(result.lastInsertRowid);
+
+    res.status(201).json(createdUnit);
   } catch (error) {
     console.error('Error creating storage unit:', error);
-    res.status(500).json({ error: 'Lagergerät konnte nicht angelegt werden.' });
+    res.status(500).json({
+      error: 'Lagergerät konnte nicht angelegt werden.',
+    });
   }
 });
 
