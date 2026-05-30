@@ -35,4 +35,9 @@ export const emptyInventoryForm = {
   isFrozenChilledFood: false,
   internalExtensionMonths: "6",
   notes: "",
+
+  inventoryBatchCode: "",
+  batchPosition: "",
+  batchTotal: "",
+  batchNote: "",
 };

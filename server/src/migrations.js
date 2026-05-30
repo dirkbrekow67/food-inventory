@@ -122,9 +122,9 @@ function createLabelSlotsTable() {
   `).run();
 
     addColumnIfMissing(
-    'label_slots',
-    'print_status',
-    "TEXT NOT NULL DEFAULT 'not_printed'"
+      'label_slots',
+      'print_status',
+      "TEXT NOT NULL DEFAULT 'not_printed'"
   );
 
   db.prepare(`
@@ -188,6 +188,19 @@ function createInventoryItemsTable() {
       frozen_date TEXT,
       opened_date TEXT,
 
+      is_frozen_chilled_food INTEGER NOT NULL DEFAULT 0,
+      internal_extension_months INTEGER NOT NULL DEFAULT 6,
+      internal_use_until_date TEXT,
+
+      label_slot_id INTEGER,
+      inventory_batch_code TEXT,
+      batch_position INTEGER,
+      batch_total INTEGER,
+      batch_note TEXT,
+
+      qr_code TEXT,
+      image TEXT,
+
       status TEXT NOT NULL DEFAULT 'available',
       notes TEXT,
 
@@ -196,7 +209,8 @@ function createInventoryItemsTable() {
 
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
       FOREIGN KEY (storage_unit_id) REFERENCES storage_units(id) ON DELETE RESTRICT,
-      FOREIGN KEY (storage_compartment_id) REFERENCES storage_compartments(id) ON DELETE RESTRICT
+      FOREIGN KEY (storage_compartment_id) REFERENCES storage_compartments(id) ON DELETE RESTRICT,
+      FOREIGN KEY (label_slot_id) REFERENCES label_slots(id) ON DELETE SET NULL
     )
   `).run();
 
@@ -214,6 +228,10 @@ function createInventoryItemsTable() {
     'INTEGER NOT NULL DEFAULT 6'
   );
   addColumnIfMissing('inventory_items', 'label_slot_id', 'INTEGER');
+  addColumnIfMissing('inventory_items', 'inventory_batch_code', 'TEXT');
+  addColumnIfMissing('inventory_items', 'batch_position', 'INTEGER');
+  addColumnIfMissing('inventory_items', 'batch_total', 'INTEGER');
+  addColumnIfMissing('inventory_items', 'batch_note', 'TEXT');
 }
 
 function runMigrations() {

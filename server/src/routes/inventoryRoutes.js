@@ -157,6 +157,11 @@ router.post('/', (req, res) => {
       notes = null,
       isFrozenChilledFood = 0,
       internalExtensionMonths = 6,
+
+      inventoryBatchCode = null,
+      batchPosition = null,
+      batchTotal = null,
+      batchNote = null,
     } = req.body;
 
     if (!productId || !storageUnitId) {
@@ -223,9 +228,13 @@ router.post('/', (req, res) => {
           internal_extension_months,
           internal_use_until_date,
           label_slot_id,
+          inventory_batch_code,
+          batch_position,
+          batch_total,
+          batch_note,
           notes
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         productId,
         storageUnitId,
@@ -245,6 +254,10 @@ router.post('/', (req, res) => {
         safeInternalExtensionMonths,
         internalUseUntilDate,
         freeLabelSlot.id,
+        inventoryBatchCode,
+        batchPosition,
+        batchTotal,
+        batchNote,
         notes
       );
 
@@ -299,6 +312,11 @@ router.put('/:id', (req, res) => {
       notes = null,
       isFrozenChilledFood = 0,
       internalExtensionMonths = 6,
+
+      inventoryBatchCode = null,
+      batchPosition = null,
+      batchTotal = null,
+      batchNote = null,
     } = req.body;
 
     if (!storageUnitId) {
@@ -360,6 +378,10 @@ router.put('/:id', (req, res) => {
         is_frozen_chilled_food = ?,
         internal_extension_months = ?,
         internal_use_until_date = ?,
+        inventory_batch_code = ?,
+        batch_position = ?,
+        batch_total = ?,
+        batch_note = ?,
         notes = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
@@ -380,6 +402,10 @@ router.put('/:id', (req, res) => {
       isFrozenChilledFood ? 1 : 0,
       safeInternalExtensionMonths,
       internalUseUntilDate,
+      inventoryBatchCode,
+      batchPosition,
+      batchTotal,
+      batchNote,
       notes,
       id
     );

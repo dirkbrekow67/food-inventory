@@ -33,6 +33,13 @@ export function createInventoryPayload(inventoryForm) {
       ? Number(inventoryForm.internalExtensionMonths)
       : 6,
     notes: inventoryForm.notes.trim() || null,
+
+    inventoryBatchCode: inventoryForm.inventoryBatchCode?.trim() || null,
+    batchPosition: inventoryForm.batchPosition
+      ? Number(inventoryForm.batchPosition)
+      : null,
+    batchTotal: inventoryForm.batchTotal ? Number(inventoryForm.batchTotal) : null,
+    batchNote: inventoryForm.batchNote?.trim() || null,
   };
 }
 
@@ -72,5 +79,16 @@ export function createInventoryEditStateFromItem(item) {
       ? String(item.internal_extension_months)
       : "6",
     notes: item.notes || "",
+
+    inventoryBatchCode: item.inventory_batch_code || "",
+    batchPosition:
+      item.batch_position !== null && item.batch_position !== undefined
+        ? String(item.batch_position)
+        : "",
+    batchTotal:
+      item.batch_total !== null && item.batch_total !== undefined
+        ? String(item.batch_total)
+        : "",
+    batchNote: item.batch_note || "",
   };
 }
