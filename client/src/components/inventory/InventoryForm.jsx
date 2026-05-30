@@ -32,17 +32,39 @@ export function InventoryForm({
   title = "Bestand erfassen",
   submitLabel = "Bestand erfassen",
   productSelectionDisabled = false,
+  editingInventoryItemId = null,
+  onCancelInventoryEdit,
 }) {
+  const isEditingInventoryItem = Boolean(editingInventoryItemId);
+  const effectiveTitle = isEditingInventoryItem ? "Bestand bearbeiten" : title;
+  const effectiveSubmitLabel = isEditingInventoryItem
+    ? "Änderungen speichern"
+    : submitLabel;
+  const effectiveProductSelectionDisabled =
+    productSelectionDisabled || isEditingInventoryItem;
   return (
     <form className="inventory-form" onSubmit={onCreateInventoryItem}>
-      <h3>{title}</h3>
+      <div className="form-title-row">
+        <h3>{effectiveTitle}</h3>
+
+        {isEditingInventoryItem && (
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={onCancelInventoryEdit}
+            disabled={savingInventoryItem}
+          >
+            Bearbeitung abbrechen
+          </button>
+        )}
+      </div>
 
       <div className="form-grid">
         <label>
           Produkt *
           <select
             value={inventoryForm.productId}
-            disabled={productSelectionDisabled}
+            disabled={effectiveProductSelectionDisabled}
             onChange={(event) => onInventoryProductChange(event.target.value)}
           >
             <option value="">Produkt auswählen</option>
@@ -290,7 +312,7 @@ export function InventoryForm({
 
       <div className="form-actions">
         <button type="submit" disabled={savingInventoryItem}>
-          {savingInventoryItem ? "Speichern..." : submitLabel}
+          {savingInventoryItem ? "Speichern..." : effectiveSubmitLabel}
         </button>
       </div>
     </form>

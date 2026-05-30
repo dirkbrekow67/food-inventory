@@ -76,7 +76,6 @@ import { LabelSheetSection } from "./components/labels/LabelSheetSection";
 
 import { RemovalDialog } from "./components/dialogs/RemovalDialog";
 
-import { InventoryEditDialog } from "./components/dialogs/InventoryEditDialog";
 import { HistoryDeleteDialog } from "./components/dialogs/HistoryDeleteDialog";
 import { HistoryEditDialog } from "./components/dialogs/HistoryEditDialog";
 
@@ -182,11 +181,7 @@ function App() {
     initialInventoryFilterState.inventoryStorageFilter,
   );
   const [removalDialogItem, setRemovalDialogItem] = useState(null);
-  const [inventoryEditDialogItem, setInventoryEditDialogItem] = useState(null);
-  const [inventoryEditForm, setInventoryEditForm] = useState(
-    () => emptyInventoryForm,
-  );
-  const [savingInventoryEdit, setSavingInventoryEdit] = useState(false);
+  const [editingInventoryItemId, setEditingInventoryItemId] = useState(null);
   const [removalReason, setRemovalReason] = useState(
     initialRemovalState.removalReason,
   );
@@ -508,7 +503,7 @@ function App() {
     }
   }
 
-  async function handleCreateInventoryItem(event) {
+  async function handleSaveInventoryItem(event) {
     event.preventDefault();
 
     if (!inventoryForm.productId || !inventoryForm.storageUnitId) {
@@ -521,6 +516,25 @@ function App() {
       setErrorMessage("");
 
       const payload = createInventoryPayload(inventoryForm);
+
+      if (editingInventoryItemId) {
+        const updatedItem = await updateInventoryItemById(
+          editingInventoryItemId,
+          payload,
+        );
+
+        setInventoryItems((currentItems) =>
+          updateInventoryListAfterUpdate(currentItems, updatedItem),
+        );
+
+        setLabelScanMessage(
+          `Bestand ${updatedItem.label_code || updatedItem.product_name} wurde aktualisiert.`,
+        );
+
+        setEditingInventoryItemId(null);
+        resetInventoryForm();
+        return;
+      }
 
       const createdItem = await createInventoryItem(payload);
 
@@ -648,64 +662,18 @@ function App() {
     }
   }
 
-  function openInventoryEditDialog(item) {
-    setInventoryEditDialogItem(item);
-    setInventoryEditForm(createInventoryEditStateFromItem(item));
+  function startEditInventoryItem(item) {
+    setEditingInventoryItemId(item.id);
+    setInventoryForm(createInventoryEditStateFromItem(item));
+
+    document
+      .querySelector(".inventory-form")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function closeInventoryEditDialog() {
-    if (savingInventoryEdit) {
-      return;
-    }
-
-    setInventoryEditDialogItem(null);
-    setInventoryEditForm({ ...emptyInventoryForm });
-  }
-
-  function updateInventoryEditForm(field, value) {
-    setInventoryEditForm((currentForm) => ({
-      ...currentForm,
-      [field]: value,
-    }));
-  }
-
-  async function confirmSaveInventoryEdit(event) {
-    event.preventDefault();
-
-    if (!inventoryEditDialogItem) {
-      return;
-    }
-
-    if (!inventoryEditForm.storageUnitId) {
-      setErrorMessage("Bitte ein Lagergerät auswählen.");
-      return;
-    }
-
-    try {
-      setSavingInventoryEdit(true);
-      setErrorMessage("");
-
-      const updatedItem = await updateInventoryItemById(
-        inventoryEditDialogItem.id,
-        createInventoryPayload(inventoryEditForm),
-      );
-
-      setInventoryItems((currentItems) =>
-        updateInventoryListAfterUpdate(currentItems, updatedItem),
-      );
-
-      setInventoryEditDialogItem(null);
-      setInventoryEditForm({ ...emptyInventoryForm });
-
-      setLabelScanMessage(
-        `Bestand ${updatedItem.label_code || updatedItem.product_name} wurde aktualisiert.`,
-      );
-    } catch (error) {
-      console.error(error);
-      setErrorMessage("Bestandseintrag konnte nicht gespeichert werden.");
-    } finally {
-      setSavingInventoryEdit(false);
-    }
+  function cancelInventoryEdit() {
+    setEditingInventoryItemId(null);
+    resetInventoryForm();
   }
 
   function openRemovalDialog(item) {
@@ -1001,7 +969,7 @@ function App() {
           loadingInventory={loadingInventory}
           labelScanInput={labelScanInput}
           highlightedInventoryItemId={highlightedInventoryItemId}
-          onCreateInventoryItem={handleCreateInventoryItem}
+          onCreateInventoryItem={handleSaveInventoryItem}
           onInventoryProductChange={handleInventoryProductChange}
           onUpdateInventoryForm={updateInventoryForm}
           onInventorySearchTermChange={setInventorySearchTerm}
@@ -1009,12 +977,14 @@ function App() {
           onInventoryStorageFilterChange={setInventoryStorageFilter}
           onResetInventoryFilters={resetInventoryFilters}
           onOpenRemovalDialog={openRemovalDialog}
-          onOpenInventoryEditDialog={openInventoryEditDialog}
+          onOpenInventoryEditDialog={startEditInventoryItem}
           onUpdateLabelPrintStatus={updateInventoryLabelPrintStatus}
           onLabelScanInputChange={setLabelScanInput}
           onLabelScanSubmit={handleLabelScanSubmit}
           labelScanMessage={labelScanMessage}
           onResetLabelScan={resetLabelScan}
+          editingInventoryItemId={editingInventoryItemId}
+          onCancelInventoryEdit={cancelInventoryEdit}
         />
       </>
     );
@@ -1078,17 +1048,6 @@ function App() {
       </nav>
 
       {renderActiveSection()}
-
-      <InventoryEditDialog
-        inventoryEditDialogItem={inventoryEditDialogItem}
-        inventoryEditForm={inventoryEditForm}
-        products={products}
-        storageTree={storageTree}
-        savingInventoryEdit={savingInventoryEdit}
-        onCloseInventoryEditDialog={closeInventoryEditDialog}
-        onSaveInventoryEdit={confirmSaveInventoryEdit}
-        onUpdateInventoryEditForm={updateInventoryEditForm}
-      />
 
       <RemovalDialog
         removalDialogItem={removalDialogItem}

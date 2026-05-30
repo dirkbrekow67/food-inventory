@@ -33,6 +33,8 @@ export function InventorySection({
   onResetLabelScan,
   onUpdateLabelPrintStatus,
   onOpenInventoryEditDialog,
+  editingInventoryItemId,
+  onCancelInventoryEdit,
 }) {
   return (
     <section className="card">
@@ -54,6 +56,8 @@ export function InventorySection({
         onCreateInventoryItem={onCreateInventoryItem}
         onInventoryProductChange={onInventoryProductChange}
         onUpdateInventoryForm={onUpdateInventoryForm}
+        editingInventoryItemId={editingInventoryItemId}
+        onCancelInventoryEdit={onCancelInventoryEdit}
       />
 
       <InventoryOverview
