@@ -50,6 +50,72 @@ function calculateInternalUseUntilDate({
   return addMonthsToDate(baseDate, internalExtensionMonths);
 }
 
+function generateInventoryBatchCode() {
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/[-:.TZ]/g, '')
+    .slice(0, 14);
+
+  const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
+
+  return `BATCH-${timestamp}-${randomPart}`;
+}
+
+function normalizeBatchUnits(batchUnits) {
+  if (!Array.isArray(batchUnits)) {
+    return [];
+  }
+
+  return batchUnits
+    .map((unit, index) => ({
+      storageUnitId: unit.storageUnitId ? Number(unit.storageUnitId) : null,
+      storageCompartmentId: unit.storageCompartmentId
+        ? Number(unit.storageCompartmentId)
+        : null,
+
+      originalQuantity:
+        unit.originalQuantity !== null &&
+        unit.originalQuantity !== undefined &&
+        unit.originalQuantity !== ''
+          ? Number(unit.originalQuantity)
+          : null,
+      originalUnit: unit.originalUnit || null,
+
+      remainingQuantity:
+        unit.remainingQuantity !== null &&
+        unit.remainingQuantity !== undefined &&
+        unit.remainingQuantity !== ''
+          ? Number(unit.remainingQuantity)
+          : unit.originalQuantity !== null &&
+              unit.originalQuantity !== undefined &&
+              unit.originalQuantity !== ''
+            ? Number(unit.originalQuantity)
+            : null,
+      remainingUnit: unit.remainingUnit || unit.originalUnit || null,
+
+      remainingFractionNumerator:
+        unit.remainingFractionNumerator !== null &&
+        unit.remainingFractionNumerator !== undefined &&
+        unit.remainingFractionNumerator !== ''
+          ? Number(unit.remainingFractionNumerator)
+          : null,
+      remainingFractionDenominator:
+        unit.remainingFractionDenominator !== null &&
+        unit.remainingFractionDenominator !== undefined &&
+        unit.remainingFractionDenominator !== ''
+          ? Number(unit.remainingFractionDenominator)
+          : null,
+
+      quantityEstimated: unit.quantityEstimated ? 1 : 0,
+      batchPosition: unit.batchPosition ? Number(unit.batchPosition) : index + 1,
+      batchNote:
+        typeof unit.batchNote === 'string' && unit.batchNote.trim()
+          ? unit.batchNote.trim()
+          : null,
+    }))
+    .filter((unit) => unit.storageUnitId);
+}
+
 function selectInventoryItemById(id) {
   return db.prepare(`
     SELECT
@@ -162,11 +228,33 @@ router.post('/', (req, res) => {
       batchPosition = null,
       batchTotal = null,
       batchNote = null,
+
+      createMultipleItems = false,
+      batchUnits = [],
     } = req.body;
 
-    if (!productId || !storageUnitId) {
+    const shouldCreateMultipleItems =
+      createMultipleItems === true ||
+      createMultipleItems === 1 ||
+      createMultipleItems === 'true';
+
+    const normalizedBatchUnits = normalizeBatchUnits(batchUnits);
+
+    if (!productId) {
+      return res.status(400).json({
+        error: 'Produkt ist erforderlich.',
+      });
+    }
+
+    if (!shouldCreateMultipleItems && !storageUnitId) {
       return res.status(400).json({
         error: 'Produkt und Lagergerät sind erforderlich.',
+      });
+    }
+
+    if (shouldCreateMultipleItems && normalizedBatchUnits.length < 2) {
+      return res.status(400).json({
+        error: 'Für die Mehrfachanlage sind mindestens zwei Einheiten erforderlich.',
       });
     }
 
@@ -191,23 +279,53 @@ router.post('/', (req, res) => {
       internalExtensionMonths: safeInternalExtensionMonths,
     });
 
-    const createInventoryItem = db.transaction(() => {
-      const freeLabelSlot = db.prepare(`
+    const createInventoryItems = db.transaction(() => {
+      const unitsToCreate = shouldCreateMultipleItems
+        ? normalizedBatchUnits
+        : [
+            {
+              storageUnitId: Number(storageUnitId),
+              storageCompartmentId: storageCompartmentId
+                ? Number(storageCompartmentId)
+                : null,
+              originalQuantity,
+              originalUnit,
+              remainingQuantity,
+              remainingUnit,
+              remainingFractionNumerator,
+              remainingFractionDenominator,
+              quantityEstimated: quantityEstimated ? 1 : 0,
+              batchPosition: batchPosition ? Number(batchPosition) : null,
+              batchNote,
+            },
+          ];
+
+      const freeLabelSlots = db.prepare(`
         SELECT *
         FROM label_slots
         WHERE status = 'free'
           AND print_status = 'printed'
         ORDER BY label_code
-        LIMIT 1
-      `).get();
+        LIMIT ?
+      `).all(unitsToCreate.length);
 
-      if (!freeLabelSlot) {
-        const error = new Error('Keine freie Etiketten-ID verfügbar.');
+      if (freeLabelSlots.length < unitsToCreate.length) {
+        const error = new Error(
+          `Nicht genug freie gedruckte Etiketten verfügbar. Benötigt: ${unitsToCreate.length}, verfügbar: ${freeLabelSlots.length}.`
+        );
         error.statusCode = 409;
         throw error;
       }
 
-      const result = db.prepare(`
+      const effectiveInventoryBatchCode = shouldCreateMultipleItems
+        ? inventoryBatchCode || generateInventoryBatchCode()
+        : inventoryBatchCode;
+
+      const effectiveBatchTotal = shouldCreateMultipleItems
+        ? unitsToCreate.length
+        : batchTotal;
+
+      const insertStatement = db.prepare(`
         INSERT INTO inventory_items
         (
           product_id,
@@ -235,33 +353,9 @@ router.post('/', (req, res) => {
           notes
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(
-        productId,
-        storageUnitId,
-        storageCompartmentId || null,
-        originalQuantity,
-        originalUnit,
-        remainingQuantity,
-        remainingUnit,
-        remainingFractionNumerator,
-        remainingFractionDenominator,
-        quantityEstimated ? 1 : 0,
-        safePackageState,
-        bestBeforeDate,
-        frozenDate,
-        openedDate,
-        isFrozenChilledFood ? 1 : 0,
-        safeInternalExtensionMonths,
-        internalUseUntilDate,
-        freeLabelSlot.id,
-        inventoryBatchCode,
-        batchPosition,
-        batchTotal,
-        batchNote,
-        notes
-      );
+      `);
 
-      db.prepare(`
+      const updateLabelSlotStatement = db.prepare(`
         UPDATE label_slots
         SET
           status = 'used',
@@ -269,15 +363,95 @@ router.post('/', (req, res) => {
           last_used_at = CURRENT_TIMESTAMP,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-      `).run(result.lastInsertRowid, freeLabelSlot.id);
+      `);
 
-      return result.lastInsertRowid;
+      const createdItemIds = [];
+
+      unitsToCreate.forEach((unit, index) => {
+        const freeLabelSlot = freeLabelSlots[index];
+
+        const effectiveBatchPosition = shouldCreateMultipleItems
+          ? unit.batchPosition || index + 1
+          : unit.batchPosition;
+
+        const effectiveBatchNote = shouldCreateMultipleItems
+          ? unit.batchNote ||
+            `${effectiveBatchPosition} von ${unitsToCreate.length}`
+          : unit.batchNote;
+
+        const unitOriginalQuantity =
+          unit.originalQuantity !== null && unit.originalQuantity !== undefined
+            ? unit.originalQuantity
+            : originalQuantity;
+
+        const unitOriginalUnit = unit.originalUnit || originalUnit;
+
+        const unitRemainingQuantity =
+          unit.remainingQuantity !== null && unit.remainingQuantity !== undefined
+            ? unit.remainingQuantity
+            : remainingQuantity;
+
+        const unitRemainingUnit =
+          unit.remainingUnit || remainingUnit || unitOriginalUnit;
+
+        const unitRemainingFractionNumerator =
+          unit.remainingFractionNumerator !== null &&
+          unit.remainingFractionNumerator !== undefined
+            ? unit.remainingFractionNumerator
+            : remainingFractionNumerator;
+
+        const unitRemainingFractionDenominator =
+          unit.remainingFractionDenominator !== null &&
+          unit.remainingFractionDenominator !== undefined
+            ? unit.remainingFractionDenominator
+            : remainingFractionDenominator;
+
+        const unitQuantityEstimated = shouldCreateMultipleItems
+          ? unit.quantityEstimated
+          : quantityEstimated
+            ? 1
+            : 0;
+
+        const result = insertStatement.run(
+          productId,
+          unit.storageUnitId,
+          unit.storageCompartmentId || null,
+          unitOriginalQuantity,
+          unitOriginalUnit,
+          unitRemainingQuantity,
+          unitRemainingUnit,
+          unitRemainingFractionNumerator,
+          unitRemainingFractionDenominator,
+          unitQuantityEstimated,
+          shouldCreateMultipleItems ? 'portioniert' : safePackageState,
+          bestBeforeDate,
+          frozenDate,
+          openedDate,
+          isFrozenChilledFood ? 1 : 0,
+          safeInternalExtensionMonths,
+          internalUseUntilDate,
+          freeLabelSlot.id,
+          effectiveInventoryBatchCode,
+          effectiveBatchPosition,
+          effectiveBatchTotal,
+          effectiveBatchNote,
+          notes
+        );
+
+        updateLabelSlotStatement.run(result.lastInsertRowid, freeLabelSlot.id);
+
+        createdItemIds.push(result.lastInsertRowid);
+      });
+
+      return createdItemIds;
     });
 
-    const newInventoryItemId = createInventoryItem();
-    const item = selectInventoryItemById(newInventoryItemId);
+    const newInventoryItemIds = createInventoryItems();
+    const items = newInventoryItemIds.map((newInventoryItemId) =>
+      selectInventoryItemById(newInventoryItemId)
+    );
 
-    res.status(201).json(item);
+    res.status(201).json(shouldCreateMultipleItems ? items : items[0]);
   } catch (error) {
     console.error('Error creating inventory item:', error);
 
