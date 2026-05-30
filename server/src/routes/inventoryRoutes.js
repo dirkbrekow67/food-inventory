@@ -514,15 +514,18 @@ router.delete('/:id', (req, res) => {
       );
 
       if (existingItem.label_slot_id) {
+        const releasedPrintStatus =
+          safeRemovalReason === 'falsch_erfasst' ? 'printed' : 'not_printed';
+
         db.prepare(`
           UPDATE label_slots
           SET
             status = 'free',
-            print_status = 'printed',
+            print_status = ?,
             current_inventory_item_id = NULL,
             updated_at = CURRENT_TIMESTAMP
           WHERE id = ?
-        `).run(existingItem.label_slot_id);
+        `).run(releasedPrintStatus, existingItem.label_slot_id);
       }
 
       let updatedProduct = null;
