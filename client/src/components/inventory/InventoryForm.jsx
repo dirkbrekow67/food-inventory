@@ -29,16 +29,20 @@ export function InventoryForm({
   onCreateInventoryItem,
   onInventoryProductChange,
   onUpdateInventoryForm,
+  title = "Bestand erfassen",
+  submitLabel = "Bestand erfassen",
+  productSelectionDisabled = false,
 }) {
   return (
     <form className="inventory-form" onSubmit={onCreateInventoryItem}>
-      <h3>Bestand erfassen</h3>
+      <h3>{title}</h3>
 
       <div className="form-grid">
         <label>
           Produkt *
           <select
             value={inventoryForm.productId}
+            disabled={productSelectionDisabled}
             onChange={(event) => onInventoryProductChange(event.target.value)}
           >
             <option value="">Produkt auswählen</option>
@@ -286,7 +290,7 @@ export function InventoryForm({
 
       <div className="form-actions">
         <button type="submit" disabled={savingInventoryItem}>
-          {savingInventoryItem ? "Speichern..." : "Bestand erfassen"}
+          {savingInventoryItem ? "Speichern..." : submitLabel}
         </button>
       </div>
     </form>

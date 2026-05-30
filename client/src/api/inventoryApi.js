@@ -1,3 +1,5 @@
+// client/src/api/inventoryApi.js
+
 import { API_BASE_URL } from "../config/apiConfig";
 
 function createJsonRequest(method, payload) {
@@ -168,6 +170,14 @@ export function createInventoryItem(payload) {
     "/inventory",
     "Bestand konnte nicht gespeichert werden.",
     createJsonRequest("POST", payload),
+  );
+}
+
+export function updateInventoryItemById(inventoryItemId, payload) {
+  return fetchJson(
+    `/inventory/${inventoryItemId}`,
+    "Bestandseintrag konnte nicht gespeichert werden.",
+    createJsonRequest("PUT", payload),
   );
 }
 

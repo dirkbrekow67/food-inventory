@@ -198,3 +198,17 @@ export function updateInventoryListAfterCreate(currentItems, createdItem) {
 export function updateInventoryListAfterRemove(currentItems, inventoryItemId) {
   return currentItems.filter((item) => item.id !== inventoryItemId);
 }
+
+export function updateInventoryListAfterUpdate(currentItems, updatedItem) {
+  return currentItems
+    .map((item) => (item.id === updatedItem.id ? updatedItem : item))
+    .sort((a, b) => {
+      const dateA = getInventoryEffectiveDate(a);
+      const dateB = getInventoryEffectiveDate(b);
+
+      if (!dateA && dateB) return 1;
+      if (dateA && !dateB) return -1;
+
+      return String(dateA || "").localeCompare(String(dateB || ""));
+    });
+}

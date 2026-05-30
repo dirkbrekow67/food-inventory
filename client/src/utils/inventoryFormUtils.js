@@ -1,3 +1,5 @@
+// client/src/utils/inventoryFormUtils.js
+
 import { parseRemainingFraction } from "./inventoryDataUtils";
 
 export function createInventoryPayload(inventoryForm) {
@@ -34,3 +36,41 @@ export function createInventoryPayload(inventoryForm) {
   };
 }
 
+export function createInventoryEditStateFromItem(item) {
+  const remainingFraction =
+    item.remaining_fraction_numerator && item.remaining_fraction_denominator
+      ? `${item.remaining_fraction_numerator}/${item.remaining_fraction_denominator}`
+      : "";
+
+  return {
+    productId: item.product_id ? String(item.product_id) : "",
+    storageUnitId: item.storage_unit_id ? String(item.storage_unit_id) : "",
+    storageCompartmentId: item.storage_compartment_id
+      ? String(item.storage_compartment_id)
+      : "",
+
+    originalQuantity:
+      item.original_quantity !== null && item.original_quantity !== undefined
+        ? String(item.original_quantity)
+        : "",
+    originalUnit: item.original_unit || "g",
+
+    remainingQuantity:
+      item.remaining_quantity !== null && item.remaining_quantity !== undefined
+        ? String(item.remaining_quantity)
+        : "",
+    remainingUnit: item.remaining_unit || item.original_unit || "g",
+    remainingFraction,
+    quantityEstimated: item.quantity_estimated === 1,
+
+    packageState: item.package_state || "ungeoeffnet",
+    bestBeforeDate: item.best_before_date || "",
+    frozenDate: item.frozen_date || "",
+    openedDate: item.opened_date || "",
+    isFrozenChilledFood: item.is_frozen_chilled_food === 1,
+    internalExtensionMonths: item.internal_extension_months
+      ? String(item.internal_extension_months)
+      : "6",
+    notes: item.notes || "",
+  };
+}

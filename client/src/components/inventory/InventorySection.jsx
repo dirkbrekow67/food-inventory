@@ -32,6 +32,7 @@ export function InventorySection({
   labelScanMessage,
   onResetLabelScan,
   onUpdateLabelPrintStatus,
+  onOpenInventoryEditDialog,
 }) {
   return (
     <section className="card">
@@ -76,6 +77,7 @@ export function InventorySection({
         onLabelScanSubmit={onLabelScanSubmit}
         labelScanMessage={labelScanMessage}
         onResetLabelScan={onResetLabelScan}
+        onOpenInventoryEditDialog={onOpenInventoryEditDialog}
       />
     </section>
   );

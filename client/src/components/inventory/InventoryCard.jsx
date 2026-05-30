@@ -10,7 +10,13 @@ import {
 
 import { InventoryLabelActions } from "./InventoryLabelActions";
 
-export function InventoryCard({ item, isHighlighted, onOpenRemovalDialog }) {
+export function InventoryCard({
+  item,
+  isHighlighted,
+  onOpenRemovalDialog,
+  onOpenInventoryEditDialog,
+  onUpdateLabelPrintStatus,
+}) {
   return (
     <article
       className={`inventory-card${isHighlighted ? " inventory-card-highlighted" : ""}`}
@@ -69,11 +75,22 @@ export function InventoryCard({ item, isHighlighted, onOpenRemovalDialog }) {
         )}
       </div>
 
-      <InventoryLabelActions item={item} />
+      <InventoryLabelActions
+        item={item}
+        onUpdateLabelPrintStatus={onUpdateLabelPrintStatus}
+      />
 
       {item.notes && <p className="product-notes">{item.notes}</p>}
 
       <div className="product-actions">
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => onOpenInventoryEditDialog(item)}
+        >
+          Bearbeiten
+        </button>
+
         <button
           type="button"
           className="danger-button"

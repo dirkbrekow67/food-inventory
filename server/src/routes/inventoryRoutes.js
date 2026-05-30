@@ -1,3 +1,5 @@
+// server/src/routes/inventoryRoutes.js
+
 const express = require('express');
 const db = require('../db');
 
@@ -23,6 +25,21 @@ function addMonthsToDate(dateString, monthsToAdd) {
   }
 
   return date.toISOString().slice(0, 10);
+}
+
+function calculateInternalUseUntilDate({
+  isFrozenChilledFood,
+  frozenDate,
+  bestBeforeDate,
+  internalExtensionMonths,
+}) {
+  if (!isFrozenChilledFood) {
+    return null;
+  }
+
+  const baseDate = frozenDate || bestBeforeDate;
+
+  return addMonthsToDate(baseDate, internalExtensionMonths);
 }
 
 function selectInventoryItemById(id) {
@@ -154,9 +171,12 @@ router.post('/', (req, res) => {
       ? Number(internalExtensionMonths)
       : 6;
 
-    const internalUseUntilDate = isFrozenChilledFood
-      ? addMonthsToDate(frozenDate, safeInternalExtensionMonths)
-      : null;
+    const internalUseUntilDate = calculateInternalUseUntilDate({
+      isFrozenChilledFood,
+      frozenDate,
+      bestBeforeDate,
+      internalExtensionMonths: safeInternalExtensionMonths,
+    });
 
     const createInventoryItem = db.transaction(() => {
       const freeLabelSlot = db.prepare(`
@@ -245,6 +265,125 @@ router.post('/', (req, res) => {
     }
 
     res.status(500).json({ error: 'Bestand konnte nicht angelegt werden.' });
+  }
+});
+
+router.put('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      storageUnitId,
+      storageCompartmentId = null,
+
+      originalQuantity = null,
+      originalUnit = null,
+      remainingQuantity = null,
+      remainingUnit = null,
+      remainingFractionNumerator = null,
+      remainingFractionDenominator = null,
+      quantityEstimated = 0,
+
+      packageState = 'ungeoeffnet',
+      bestBeforeDate = null,
+      frozenDate = null,
+      openedDate = null,
+      notes = null,
+      isFrozenChilledFood = 0,
+      internalExtensionMonths = 6,
+    } = req.body;
+
+    if (!storageUnitId) {
+      return res.status(400).json({
+        error: 'Lagergerät ist erforderlich.',
+      });
+    }
+
+    const existingItem = db.prepare(`
+      SELECT *
+      FROM inventory_items
+      WHERE id = ?
+        AND status = 'available'
+    `).get(id);
+
+    if (!existingItem) {
+      return res.status(404).json({
+        error: 'Bestandseintrag wurde nicht gefunden.',
+      });
+    }
+
+    const allowedPackageStates = [
+      'ungeoeffnet',
+      'angebrochen',
+      'portioniert',
+    ];
+
+    const safePackageState = allowedPackageStates.includes(packageState)
+      ? packageState
+      : 'ungeoeffnet';
+
+    const safeInternalExtensionMonths = internalExtensionMonths
+      ? Number(internalExtensionMonths)
+      : 6;
+
+    const internalUseUntilDate = calculateInternalUseUntilDate({
+      isFrozenChilledFood,
+      frozenDate,
+      bestBeforeDate,
+      internalExtensionMonths: safeInternalExtensionMonths,
+    });
+
+    db.prepare(`
+      UPDATE inventory_items
+      SET
+        storage_unit_id = ?,
+        storage_compartment_id = ?,
+        original_quantity = ?,
+        original_unit = ?,
+        remaining_quantity = ?,
+        remaining_unit = ?,
+        remaining_fraction_numerator = ?,
+        remaining_fraction_denominator = ?,
+        quantity_estimated = ?,
+        package_state = ?,
+        best_before_date = ?,
+        frozen_date = ?,
+        opened_date = ?,
+        is_frozen_chilled_food = ?,
+        internal_extension_months = ?,
+        internal_use_until_date = ?,
+        notes = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(
+      storageUnitId,
+      storageCompartmentId || null,
+      originalQuantity,
+      originalUnit,
+      remainingQuantity,
+      remainingUnit,
+      remainingFractionNumerator,
+      remainingFractionDenominator,
+      quantityEstimated ? 1 : 0,
+      safePackageState,
+      bestBeforeDate,
+      frozenDate,
+      openedDate,
+      isFrozenChilledFood ? 1 : 0,
+      safeInternalExtensionMonths,
+      internalUseUntilDate,
+      notes,
+      id
+    );
+
+    const updatedItem = selectInventoryItemById(id);
+
+    res.json(updatedItem);
+  } catch (error) {
+    console.error('Error updating inventory item:', error);
+    res.status(500).json({
+      error: 'Bestandseintrag konnte nicht gespeichert werden.',
+    });
   }
 });
 

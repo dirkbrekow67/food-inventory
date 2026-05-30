@@ -17,12 +17,14 @@ import {
   updateHistoryItemById,
   loadLabelSlots,
   updateLabelPrintStatus,
+  updateInventoryItemById,
 } from "./api/inventoryApi";
 
 import {
   getLatestInventoryItemForProduct,
   updateInventoryListAfterCreate,
   updateInventoryListAfterRemove,
+  updateInventoryListAfterUpdate,
 } from "./utils/inventoryDataUtils";
 
 import {
@@ -33,7 +35,10 @@ import {
   updateProductListAfterSave,
 } from "./utils/productDataUtils";
 
-import { createInventoryPayload } from "./utils/inventoryFormUtils";
+import {
+  createInventoryEditStateFromItem,
+  createInventoryPayload,
+} from "./utils/inventoryFormUtils";
 
 import {
   createHistoryEditStateFromItem,
@@ -70,6 +75,8 @@ import { StorageSection } from "./components/storage/StorageSection";
 import { LabelSheetSection } from "./components/labels/LabelSheetSection";
 
 import { RemovalDialog } from "./components/dialogs/RemovalDialog";
+
+import { InventoryEditDialog } from "./components/dialogs/InventoryEditDialog";
 import { HistoryDeleteDialog } from "./components/dialogs/HistoryDeleteDialog";
 import { HistoryEditDialog } from "./components/dialogs/HistoryEditDialog";
 
@@ -175,6 +182,11 @@ function App() {
     initialInventoryFilterState.inventoryStorageFilter,
   );
   const [removalDialogItem, setRemovalDialogItem] = useState(null);
+  const [inventoryEditDialogItem, setInventoryEditDialogItem] = useState(null);
+  const [inventoryEditForm, setInventoryEditForm] = useState(
+    () => emptyInventoryForm,
+  );
+  const [savingInventoryEdit, setSavingInventoryEdit] = useState(false);
   const [removalReason, setRemovalReason] = useState(
     initialRemovalState.removalReason,
   );
@@ -636,6 +648,66 @@ function App() {
     }
   }
 
+  function openInventoryEditDialog(item) {
+    setInventoryEditDialogItem(item);
+    setInventoryEditForm(createInventoryEditStateFromItem(item));
+  }
+
+  function closeInventoryEditDialog() {
+    if (savingInventoryEdit) {
+      return;
+    }
+
+    setInventoryEditDialogItem(null);
+    setInventoryEditForm({ ...emptyInventoryForm });
+  }
+
+  function updateInventoryEditForm(field, value) {
+    setInventoryEditForm((currentForm) => ({
+      ...currentForm,
+      [field]: value,
+    }));
+  }
+
+  async function confirmSaveInventoryEdit(event) {
+    event.preventDefault();
+
+    if (!inventoryEditDialogItem) {
+      return;
+    }
+
+    if (!inventoryEditForm.storageUnitId) {
+      setErrorMessage("Bitte ein Lagergerät auswählen.");
+      return;
+    }
+
+    try {
+      setSavingInventoryEdit(true);
+      setErrorMessage("");
+
+      const updatedItem = await updateInventoryItemById(
+        inventoryEditDialogItem.id,
+        createInventoryPayload(inventoryEditForm),
+      );
+
+      setInventoryItems((currentItems) =>
+        updateInventoryListAfterUpdate(currentItems, updatedItem),
+      );
+
+      setInventoryEditDialogItem(null);
+      setInventoryEditForm({ ...emptyInventoryForm });
+
+      setLabelScanMessage(
+        `Bestand ${updatedItem.label_code || updatedItem.product_name} wurde aktualisiert.`,
+      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Bestandseintrag konnte nicht gespeichert werden.");
+    } finally {
+      setSavingInventoryEdit(false);
+    }
+  }
+
   function openRemovalDialog(item) {
     setRemovalDialogItem(item);
     setRemovalReason(initialRemovalState.removalReason);
@@ -937,6 +1009,7 @@ function App() {
           onInventoryStorageFilterChange={setInventoryStorageFilter}
           onResetInventoryFilters={resetInventoryFilters}
           onOpenRemovalDialog={openRemovalDialog}
+          onOpenInventoryEditDialog={openInventoryEditDialog}
           onUpdateLabelPrintStatus={updateInventoryLabelPrintStatus}
           onLabelScanInputChange={setLabelScanInput}
           onLabelScanSubmit={handleLabelScanSubmit}
@@ -1005,6 +1078,17 @@ function App() {
       </nav>
 
       {renderActiveSection()}
+
+      <InventoryEditDialog
+        inventoryEditDialogItem={inventoryEditDialogItem}
+        inventoryEditForm={inventoryEditForm}
+        products={products}
+        storageTree={storageTree}
+        savingInventoryEdit={savingInventoryEdit}
+        onCloseInventoryEditDialog={closeInventoryEditDialog}
+        onSaveInventoryEdit={confirmSaveInventoryEdit}
+        onUpdateInventoryEditForm={updateInventoryEditForm}
+      />
 
       <RemovalDialog
         removalDialogItem={removalDialogItem}

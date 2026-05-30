@@ -26,6 +26,8 @@ export function InventoryOverview({
   onLabelScanSubmit,
   labelScanMessage,
   onResetLabelScan,
+  onUpdateLabelPrintStatus,
+  onOpenInventoryEditDialog,
 }) {
   return (
     <>
@@ -77,7 +79,9 @@ export function InventoryOverview({
       <InventoryList
         filteredInventoryItems={filteredInventoryItems}
         onOpenRemovalDialog={onOpenRemovalDialog}
+        onUpdateLabelPrintStatus={onUpdateLabelPrintStatus}
         highlightedInventoryItemId={highlightedInventoryItemId}
+        onOpenInventoryEditDialog={onOpenInventoryEditDialog}
       />
     </>
   );
