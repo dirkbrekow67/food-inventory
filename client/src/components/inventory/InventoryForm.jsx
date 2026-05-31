@@ -1,6 +1,7 @@
 // client/src/components/inventory/InventoryForm.jsx
 
 import {
+  batchQuantityModeOptions,
   internalExtensionMonthOptions,
   packageStateOptions,
   quantityUnitOptions,
@@ -570,8 +571,7 @@ export function InventoryForm({
                     updateBatchQuantityMode(event.target.value)
                   }
                 >
-                  <option value="same">Gleiche Menge je Einheit</option>
-                  <option value="manual">Individuelle Mengen je Einheit</option>
+                  {renderSelectOptions(batchQuantityModeOptions)}
                 </select>
               </label>
 

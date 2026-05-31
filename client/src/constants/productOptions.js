@@ -1,3 +1,5 @@
+// client/src/constants/productOptions.js
+
 export const countryOptions = [
   "Deutschland",
   "Polen",

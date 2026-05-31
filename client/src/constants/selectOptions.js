@@ -1,3 +1,5 @@
+// client/src/constants/selectOptions.js
+
 export const productCategoryOptions = [
   { value: "", label: "Kategorie auswählen" },
   { value: "Tiefkühlware", label: "Tiefkühlware" },
@@ -121,4 +123,26 @@ export const historyEditRemovalReasonOptions = [
   { value: "entsorgt", label: "Entsorgt" },
   { value: "verschenkt", label: "Verschenkt" },
   { value: "sonstiges", label: "Sonstiges" },
+];
+
+export const batchQuantityModeOptions = [
+  {
+    value: "same",
+    label: "Gleiche Menge je Einheit",
+  },
+  {
+    value: "manual",
+    label: "Individuelle Mengen je Einheit",
+  },
+];
+
+export const labelSheetModeOptions = [
+  {
+    value: "pool",
+    label: "Pool-Bogen automatisch",
+  },
+  {
+    value: "manual",
+    label: "Manueller Bogen",
+  },
 ];
