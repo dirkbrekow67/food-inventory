@@ -43,23 +43,69 @@ export function InventoryForm({
   const effectiveProductSelectionDisabled =
     productSelectionDisabled || isEditingInventoryItem;
 
-  const getDefaultBatchUnit = (index, total) => ({
+  const getBatchUnitTotalQuantity = () => {
+    return (inventoryForm.batchUnits || []).reduce((total, unit) => {
+      const quantity = Number(unit.originalQuantity);
+
+      if (Number.isNaN(quantity)) {
+        return total;
+      }
+
+      return total + quantity;
+    }, 0);
+  };
+
+  const getBatchQuantityMode = () => {
+    return inventoryForm.batchQuantityMode || "same";
+  };
+
+  const getBatchUnitQuantity = () => {
+    const quantity = Number(inventoryForm.batchUnitQuantity);
+
+    if (Number.isNaN(quantity)) {
+      return null;
+    }
+
+    return quantity;
+  };
+
+  const formatBatchQuantity = (quantity, unit) => {
+    if (quantity === null || quantity === undefined) {
+      return "nicht angegeben";
+    }
+
+    const formattedQuantity = Number.isInteger(quantity)
+      ? String(quantity)
+      : String(quantity).replace(".", ",");
+
+    return unit ? `${formattedQuantity} ${unit}` : formattedQuantity;
+  };
+
+  const getDefaultBatchUnit = (index, total, quantity = "") => ({
     storageUnitId: inventoryForm.storageUnitId || "",
     storageCompartmentId: inventoryForm.storageCompartmentId || "",
-    originalQuantity: inventoryForm.originalQuantity || "",
+    originalQuantity: quantity,
     originalUnit: inventoryForm.originalUnit || "g",
-    remainingQuantity: inventoryForm.remainingQuantity || "",
-    remainingUnit:
-      inventoryForm.remainingUnit || inventoryForm.originalUnit || "g",
+    remainingQuantity: quantity,
+    remainingUnit: inventoryForm.originalUnit || "g",
     quantityEstimated: inventoryForm.quantityEstimated || false,
     batchNote: `${index + 1} von ${total}`,
   });
+
+  const createBatchUnits = (count, mode = getBatchQuantityMode()) => {
+    const quantity =
+      mode === "same" ? inventoryForm.batchUnitQuantity || "" : "";
+
+    return Array.from({ length: count }, (_, index) =>
+      getDefaultBatchUnit(index, count, quantity),
+    );
+  };
 
   const toggleCreateMultipleItems = (checked) => {
     const nextBatchUnits =
       checked &&
       (!inventoryForm.batchUnits || inventoryForm.batchUnits.length === 0)
-        ? [getDefaultBatchUnit(0, 2), getDefaultBatchUnit(1, 2)]
+        ? createBatchUnits(2)
         : inventoryForm.batchUnits || [];
 
     onUpdateInventoryForm("createMultipleItems", checked);
@@ -70,16 +116,52 @@ export function InventoryForm({
     }
   };
 
+  const updateBatchQuantityMode = (mode) => {
+    const currentCount = Math.max(2, inventoryForm.batchUnits?.length || 2);
+    onUpdateInventoryForm("batchQuantityMode", mode);
+    onUpdateInventoryForm("batchUnits", createBatchUnits(currentCount, mode));
+  };
+
+  const updateBatchUnitQuantity = (value) => {
+    onUpdateInventoryForm("batchUnitQuantity", value);
+
+    if (getBatchQuantityMode() !== "same") {
+      return;
+    }
+
+    const nextBatchUnits = (inventoryForm.batchUnits || []).map(
+      (unit, index, allUnits) => ({
+        ...unit,
+        originalQuantity: value,
+        remainingQuantity: value,
+        originalUnit: inventoryForm.originalUnit || "g",
+        remainingUnit: inventoryForm.originalUnit || "g",
+        batchNote: `${index + 1} von ${allUnits.length}`,
+      }),
+    );
+
+    onUpdateInventoryForm("batchUnits", nextBatchUnits);
+  };
+
   const setBatchUnitCount = (value) => {
     const nextCount = Math.max(2, Number(value) || 2);
     const currentUnits = inventoryForm.batchUnits || [];
+    const mode = getBatchQuantityMode();
 
     const nextBatchUnits = Array.from({ length: nextCount }, (_, index) => {
       const existingUnit = currentUnits[index];
 
-      return existingUnit || getDefaultBatchUnit(index, nextCount);
+      if (existingUnit) {
+        return existingUnit;
+      }
+
+      const quantity =
+        mode === "same" ? inventoryForm.batchUnitQuantity || "" : "";
+      return getDefaultBatchUnit(index, nextCount, quantity);
     }).map((unit, index) => ({
       ...unit,
+      originalUnit: inventoryForm.originalUnit || unit.originalUnit || "g",
+      remainingUnit: inventoryForm.originalUnit || unit.remainingUnit || "g",
       batchNote: `${index + 1} von ${nextCount}`,
     }));
 
@@ -129,10 +211,14 @@ export function InventoryForm({
   const addBatchUnit = () => {
     const currentUnits = inventoryForm.batchUnits || [];
     const nextCount = currentUnits.length + 1;
+    const quantity =
+      getBatchQuantityMode() === "same"
+        ? inventoryForm.batchUnitQuantity || ""
+        : "";
 
     const nextBatchUnits = [
       ...currentUnits,
-      getDefaultBatchUnit(currentUnits.length, nextCount),
+      getDefaultBatchUnit(currentUnits.length, nextCount, quantity),
     ].map((unit, index) => ({
       ...unit,
       batchNote: `${index + 1} von ${nextCount}`,
@@ -164,6 +250,10 @@ export function InventoryForm({
 
     onCreateInventoryItem(event);
   };
+
+  const batchUnitTotalQuantity = getBatchUnitTotalQuantity();
+  const batchUnitQuantity = getBatchUnitQuantity();
+  const batchQuantityMode = getBatchQuantityMode();
 
   return (
     <form className="inventory-form" onSubmit={handleSubmit}>
@@ -302,9 +392,24 @@ export function InventoryForm({
           Original-Einheit
           <select
             value={inventoryForm.originalUnit}
-            onChange={(event) =>
-              onUpdateInventoryForm("originalUnit", event.target.value)
-            }
+            onChange={(event) => {
+              const nextUnit = event.target.value;
+
+              onUpdateInventoryForm("originalUnit", nextUnit);
+              onUpdateInventoryForm("remainingUnit", nextUnit);
+
+              if (inventoryForm.createMultipleItems) {
+                const nextBatchUnits = (inventoryForm.batchUnits || []).map(
+                  (unit) => ({
+                    ...unit,
+                    originalUnit: nextUnit,
+                    remainingUnit: nextUnit,
+                  }),
+                );
+
+                onUpdateInventoryForm("batchUnits", nextBatchUnits);
+              }
+            }}
           >
             {renderSelectOptions(quantityUnitOptions)}
           </select>
@@ -456,11 +561,67 @@ export function InventoryForm({
               </button>
             </div>
 
+            <div className="batch-mode-box">
+              <label>
+                Mengenmodus
+                <select
+                  value={batchQuantityMode}
+                  onChange={(event) =>
+                    updateBatchQuantityMode(event.target.value)
+                  }
+                >
+                  <option value="same">Gleiche Menge je Einheit</option>
+                  <option value="manual">Individuelle Mengen je Einheit</option>
+                </select>
+              </label>
+
+              {batchQuantityMode === "same" && (
+                <label>
+                  Menge je Einheit
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value={inventoryForm.batchUnitQuantity || ""}
+                    onChange={(event) =>
+                      updateBatchUnitQuantity(event.target.value)
+                    }
+                    placeholder="z. B. 1,25 oder 400"
+                  />
+                </label>
+              )}
+            </div>
+
             <p className="form-hint">
-              Gemeinsame Daten wie Produkt, MHD, Einfrierdatum und interne Frist
-              werden aus dem Hauptformular übernommen. Menge und Lagerort können
-              je Einheit abweichen.
+              Bei Einzelanlage gilt die Originalmenge als Menge der einen
+              Packung. Bei Mehrfachanlage gilt die Menge je Etikett. Gemeinsame
+              Daten wie Produkt, MHD, Einfrierdatum und interne Frist werden
+              übernommen.
             </p>
+
+            <div className="batch-summary-box">
+              {batchQuantityMode === "same" && (
+                <p>
+                  Je Einheit:{" "}
+                  <strong>
+                    {formatBatchQuantity(
+                      batchUnitQuantity,
+                      inventoryForm.originalUnit,
+                    )}
+                  </strong>
+                </p>
+              )}
+
+              <p>
+                Rechnerische Gesamtsumme:{" "}
+                <strong>
+                  {formatBatchQuantity(
+                    batchUnitTotalQuantity,
+                    inventoryForm.originalUnit,
+                  )}
+                </strong>
+              </p>
+            </div>
 
             <div className="batch-units-list">
               {(inventoryForm.batchUnits || []).map((unit, index) => {
@@ -492,6 +653,7 @@ export function InventoryForm({
                           min="0"
                           step="0.001"
                           value={unit.originalQuantity || ""}
+                          disabled={batchQuantityMode === "same"}
                           onChange={(event) =>
                             updateBatchUnit(
                               index,
