@@ -127,6 +127,7 @@ export function ProductsSection({
   const [productCountryFilter, setProductCountryFilter] = useState("all");
   const [productStoreFilter, setProductStoreFilter] = useState("all");
   const [productSortMode, setProductSortMode] = useState("name_asc");
+  const [showProductForm, setShowProductForm] = useState(false);
 
   const productCountryFilterOptions = useMemo(
     () => getUniqueProductOptions(products, "country", "Alle Länder"),
@@ -186,6 +187,22 @@ export function ProductsSection({
     setProductSortMode("name_asc");
   }
 
+  function openProductForm() {
+    setShowProductForm(true);
+  }
+
+  function closeProductForm() {
+    setShowProductForm(false);
+    onResetProductForm();
+  }
+
+  function handleSaveProduct(event) {
+    onSaveProduct(event);
+    setShowProductForm(false);
+  }
+
+  const shouldShowProductForm = showProductForm || Boolean(editingProductId);
+
   return (
     <section className="card">
       <div className="section-header">
@@ -194,19 +211,33 @@ export function ProductsSection({
           <p>Produkt-Stammdaten mit Bewertung für spätere Einkäufe.</p>
         </div>
 
-        <span className="result-count">
-          {filteredProducts.length} von {products.length} Produkten
-        </span>
+        <div className="section-header-actions">
+          <span className="result-count">
+            {filteredProducts.length} von {products.length} Produkten
+          </span>
+
+          {!shouldShowProductForm && (
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={openProductForm}
+            >
+              Neues Produkt anlegen
+            </button>
+          )}
+        </div>
       </div>
 
-      <ProductForm
-        productForm={productForm}
-        editingProductId={editingProductId}
-        savingProduct={savingProduct}
-        onSaveProduct={onSaveProduct}
-        onUpdateProductForm={onUpdateProductForm}
-        onResetProductForm={onResetProductForm}
-      />
+      {shouldShowProductForm && (
+        <ProductForm
+          productForm={productForm}
+          editingProductId={editingProductId}
+          savingProduct={savingProduct}
+          onSaveProduct={handleSaveProduct}
+          onUpdateProductForm={onUpdateProductForm}
+          onResetProductForm={closeProductForm}
+        />
+      )}
 
       <div className="inventory-toolbar">
         <label className="inventory-search">
