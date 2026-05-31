@@ -15,6 +15,17 @@ export const productCategoryOptions = [
   { value: "Sonstiges", label: "Sonstiges" },
 ];
 
+export const productSortOptions = [
+  { value: "name_asc", label: "Produktname A–Z" },
+  { value: "name_desc", label: "Produktname Z–A" },
+  { value: "id_desc", label: "Zuletzt angelegt zuerst" },
+  { value: "id_asc", label: "Älteste zuerst" },
+  { value: "category_asc", label: "Kategorie A–Z" },
+  { value: "country_asc", label: "Land A–Z" },
+  { value: "store_asc", label: "Geschäft A–Z" },
+  { value: "rating_desc", label: "Beste Bewertung zuerst" },
+];
+
 export const buyAgainStatusOptions = [
   { value: "neutral", label: "Neutral" },
   { value: "wieder_kaufen", label: "Wieder kaufen" },
