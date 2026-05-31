@@ -1,4 +1,5 @@
 // client/src/utils/productDataUtils.js
+
 export function createProductPayload(productForm) {
   return {
     name: productForm.name.trim(),

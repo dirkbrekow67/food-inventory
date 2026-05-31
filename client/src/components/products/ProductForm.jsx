@@ -16,6 +16,8 @@ import { uploadProductPhoto } from "../../api/inventoryApi";
 
 import { createImageSrc } from "../../utils/imageUrlUtils";
 
+import { countryOptions, storeOptions } from "../../constants/productOptions";
+
 export function ProductForm({
   productForm,
   editingProductId,
@@ -135,24 +137,36 @@ export function ProductForm({
           Land
           <input
             type="text"
+            list="country-options"
             value={productForm.country}
             onChange={(event) =>
               onUpdateProductForm("country", event.target.value)
             }
             placeholder="z. B. Italien"
           />
+          <datalist id="country-options">
+            {countryOptions.map((country) => (
+              <option value={country} key={country} />
+            ))}
+          </datalist>
         </label>
 
         <label>
           Geschäft
           <input
             type="text"
+            list="store-options"
             value={productForm.store}
             onChange={(event) =>
               onUpdateProductForm("store", event.target.value)
             }
-            placeholder="z. B. Coop"
+            placeholder="z. B. Lidl"
           />
+          <datalist id="store-options">
+            {storeOptions.map((store) => (
+              <option value={store} key={store} />
+            ))}
+          </datalist>
         </label>
 
         <label>

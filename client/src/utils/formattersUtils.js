@@ -1,3 +1,5 @@
+// client/src/utils/formattersUtils.js
+
 export function getBuyAgainLabel(status) {
   switch (status) {
     case "wieder_kaufen":
