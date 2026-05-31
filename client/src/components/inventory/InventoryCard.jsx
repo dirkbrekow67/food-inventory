@@ -2,13 +2,51 @@
 
 import {
   formatDateGerman,
-  formatQuantity,
   getInventoryDateStatus,
   getInventoryDateStatusLabel,
   getPackageStateLabel,
 } from "../../utils/formattersUtils";
 
 import { InventoryLabelActions } from "./InventoryLabelActions";
+
+function formatInventoryQuantity(quantity, unit) {
+  if (quantity === null || quantity === undefined || quantity === "") {
+    return null;
+  }
+
+  const numericQuantity = Number(quantity);
+
+  if (Number.isNaN(numericQuantity)) {
+    return null;
+  }
+
+  const formattedQuantity = Number.isInteger(numericQuantity)
+    ? String(numericQuantity)
+    : String(numericQuantity).replace(".", ",");
+
+  return unit ? `${formattedQuantity} ${unit}` : formattedQuantity;
+}
+
+function getInventoryQuantityLabel(item) {
+  const remainingQuantityLabel = formatInventoryQuantity(
+    item.remaining_quantity,
+    item.remaining_unit,
+  );
+
+  if (remainingQuantityLabel) {
+    return remainingQuantityLabel;
+  }
+
+  return formatInventoryQuantity(item.original_quantity, item.original_unit);
+}
+
+function getBatchPositionLabel(item) {
+  if (!item.batch_position || !item.batch_total) {
+    return null;
+  }
+
+  return `${item.batch_position} von ${item.batch_total}`;
+}
 
 export function InventoryCard({
   item,
@@ -17,6 +55,9 @@ export function InventoryCard({
   onOpenInventoryEditDialog,
   onUpdateLabelPrintStatus,
 }) {
+  const quantityLabel = getInventoryQuantityLabel(item);
+  const batchPositionLabel = getBatchPositionLabel(item);
+
   return (
     <article
       className={`inventory-card${isHighlighted ? " inventory-card-highlighted" : ""}`}
@@ -35,6 +76,10 @@ export function InventoryCard({
         <div className="inventory-status-group">
           {item.label_code && (
             <span className="label-code">{item.label_code}</span>
+          )}
+
+          {batchPositionLabel && (
+            <span className="package-state">{batchPositionLabel}</span>
           )}
 
           {item.product_favorite === 1 && (
@@ -62,7 +107,7 @@ export function InventoryCard({
           <span>{item.storage_compartment_name}</span>
         )}
 
-        <span>{formatQuantity(item)}</span>
+        <span>{quantityLabel || "Menge nicht angegeben"}</span>
 
         {item.best_before_date && (
           <span>MHD: {formatDateGerman(item.best_before_date)}</span>
@@ -79,6 +124,8 @@ export function InventoryCard({
         item={item}
         onUpdateLabelPrintStatus={onUpdateLabelPrintStatus}
       />
+
+      {item.batch_note && <p className="product-notes">{item.batch_note}</p>}
 
       {item.notes && <p className="product-notes">{item.notes}</p>}
 

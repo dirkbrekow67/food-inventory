@@ -506,7 +506,12 @@ function App() {
   async function handleSaveInventoryItem(event) {
     event.preventDefault();
 
-    if (!inventoryForm.productId || !inventoryForm.storageUnitId) {
+    if (!inventoryForm.productId) {
+      setErrorMessage("Bitte Produkt auswählen.");
+      return;
+    }
+
+    if (!inventoryForm.createMultipleItems && !inventoryForm.storageUnitId) {
       setErrorMessage("Bitte Produkt und Lagergerät auswählen.");
       return;
     }
@@ -536,11 +541,29 @@ function App() {
         return;
       }
 
-      const createdItem = await createInventoryItem(payload);
+      const createdResult = await createInventoryItem(payload);
+
+      const createdItems = Array.isArray(createdResult)
+        ? createdResult
+        : [createdResult];
 
       setInventoryItems((currentItems) =>
-        updateInventoryListAfterCreate(currentItems, createdItem),
+        createdItems.reduce(
+          (nextItems, createdItem) =>
+            updateInventoryListAfterCreate(nextItems, createdItem),
+          currentItems,
+        ),
       );
+
+      if (createdItems.length === 1) {
+        setLabelScanMessage(
+          `Bestand ${createdItems[0].label_code || createdItems[0].product_name} wurde angelegt.`,
+        );
+      } else {
+        setLabelScanMessage(
+          `${createdItems.length} Bestandseinträge wurden angelegt.`,
+        );
+      }
 
       await reloadLabelSlots();
 

@@ -40,4 +40,7 @@ export const emptyInventoryForm = {
   batchPosition: "",
   batchTotal: "",
   batchNote: "",
+
+  createMultipleItems: false,
+  batchUnits: [],
 };

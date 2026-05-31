@@ -2,6 +2,33 @@
 
 import { parseRemainingFraction } from "./inventoryDataUtils";
 
+function normalizeInventoryBatchUnits(batchUnits = []) {
+  if (!Array.isArray(batchUnits)) {
+    return [];
+  }
+
+  return batchUnits
+    .map((unit) => ({
+      storageUnitId: unit.storageUnitId ? Number(unit.storageUnitId) : null,
+      storageCompartmentId: unit.storageCompartmentId
+        ? Number(unit.storageCompartmentId)
+        : null,
+      originalQuantity: unit.originalQuantity
+        ? Number(unit.originalQuantity)
+        : null,
+      originalUnit: unit.originalUnit || null,
+      remainingQuantity: unit.remainingQuantity
+        ? Number(unit.remainingQuantity)
+        : unit.originalQuantity
+          ? Number(unit.originalQuantity)
+          : null,
+      remainingUnit: unit.remainingUnit || unit.originalUnit || null,
+      quantityEstimated: unit.quantityEstimated ? 1 : 0,
+      batchNote: unit.batchNote?.trim() || null,
+    }))
+    .filter((unit) => unit.storageUnitId);
+}
+
 export function createInventoryPayload(inventoryForm) {
   const fraction = parseRemainingFraction(inventoryForm.remainingFraction);
 
@@ -40,6 +67,11 @@ export function createInventoryPayload(inventoryForm) {
       : null,
     batchTotal: inventoryForm.batchTotal ? Number(inventoryForm.batchTotal) : null,
     batchNote: inventoryForm.batchNote?.trim() || null,
+
+    createMultipleItems: inventoryForm.createMultipleItems ? 1 : 0,
+    batchUnits: inventoryForm.createMultipleItems
+      ? normalizeInventoryBatchUnits(inventoryForm.batchUnits)
+      : [],
   };
 }
 
@@ -90,5 +122,8 @@ export function createInventoryEditStateFromItem(item) {
         ? String(item.batch_total)
         : "",
     batchNote: item.batch_note || "",
+
+    createMultipleItems: false,
+    batchUnits: [],
   };
 }
