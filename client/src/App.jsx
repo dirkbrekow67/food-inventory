@@ -93,6 +93,8 @@ const initialHistoryFilterState = createInitialHistoryFilterState();
 const INVENTORY_PRODUCTS_VISIBILITY_STORAGE_KEY =
   "food-inventory.showProductsInInventoryView";
 
+const PRODUCT_FORM_DRAFT_STORAGE_KEY = "food-inventory.productFormDraft";
+
 function loadShowProductsInInventoryView() {
   try {
     const storedValue = window.localStorage.getItem(
@@ -121,6 +123,47 @@ function saveShowProductsInInventoryView(nextValue) {
   }
 
   return nextValue;
+}
+
+function loadProductFormDraft() {
+  try {
+    const storedValue = window.localStorage.getItem(
+      PRODUCT_FORM_DRAFT_STORAGE_KEY,
+    );
+
+    if (!storedValue) {
+      return { ...emptyProductForm };
+    }
+
+    return {
+      ...emptyProductForm,
+      ...JSON.parse(storedValue),
+    };
+  } catch (error) {
+    console.error(error);
+    return { ...emptyProductForm };
+  }
+}
+
+function saveProductFormDraft(nextProductForm) {
+  try {
+    window.localStorage.setItem(
+      PRODUCT_FORM_DRAFT_STORAGE_KEY,
+      JSON.stringify(nextProductForm),
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
+  return nextProductForm;
+}
+
+function clearProductFormDraft() {
+  try {
+    window.localStorage.removeItem(PRODUCT_FORM_DRAFT_STORAGE_KEY);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function App() {
@@ -167,7 +210,7 @@ function App() {
   );
   const [savingHistoryItem, setSavingHistoryItem] = useState(false);
 
-  const [productForm, setProductForm] = useState(() => emptyProductForm);
+  const [productForm, setProductForm] = useState(() => loadProductFormDraft());
   const [inventoryForm, setInventoryForm] = useState(() => emptyInventoryForm);
 
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
@@ -253,13 +296,22 @@ function App() {
   }, []);
 
   function updateProductForm(field, value) {
-    setProductForm((currentForm) => ({
-      ...currentForm,
-      [field]: value,
-    }));
+    setProductForm((currentForm) => {
+      const nextProductForm = {
+        ...currentForm,
+        [field]: value,
+      };
+
+      if (!editingProductId) {
+        saveProductFormDraft(nextProductForm);
+      }
+
+      return nextProductForm;
+    });
   }
 
   function resetProductForm() {
+    clearProductFormDraft();
     setProductForm({ ...emptyProductForm });
     setEditingProductId(null);
   }
@@ -473,6 +525,7 @@ function App() {
   }
 
   function startEditProduct(product) {
+    clearProductFormDraft();
     setEditingProductId(product.id);
 
     setProductForm(createProductFormFromProduct(product));

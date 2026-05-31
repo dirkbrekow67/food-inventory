@@ -1,6 +1,6 @@
 // client/src/components/products/ProductForm.jsx
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import {
   buyAgainStatusOptions,
@@ -31,9 +31,18 @@ export function ProductForm({
   const backUploadInputRef = useRef(null);
   const backCameraInputRef = useRef(null);
 
+  const [processingProductImageSide, setProcessingProductImageSide] =
+    useState("");
+
+  const isProcessingProductImage = Boolean(processingProductImageSide);
+
   async function handleProductImageChange(event, fieldName, side) {
     event.preventDefault();
     event.stopPropagation();
+
+    if (isProcessingProductImage) {
+      return;
+    }
 
     const inputElement = event.currentTarget;
     const file = inputElement.files?.[0];
@@ -44,6 +53,8 @@ export function ProductForm({
     }
 
     try {
+      setProcessingProductImageSide(side);
+
       const compressedImageDataUrl = await compressImageFileToDataUrl(file);
 
       if (!compressedImageDataUrl) {
@@ -64,6 +75,7 @@ export function ProductForm({
       );
     } finally {
       inputElement.value = "";
+      setProcessingProductImageSide("");
     }
   }
 
@@ -213,6 +225,7 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
+              disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, frontUploadInputRef)}
             >
               Hochladen
@@ -221,11 +234,16 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
+              disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, frontCameraInputRef)}
             >
               Kamera
             </button>
           </div>
+
+          {processingProductImageSide === "front" && (
+            <p className="form-hint">Vorderseite wird verarbeitet...</p>
+          )}
 
           <input
             ref={frontUploadInputRef}
@@ -273,6 +291,7 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
+              disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, backUploadInputRef)}
             >
               Hochladen
@@ -281,11 +300,16 @@ export function ProductForm({
             <button
               type="button"
               className="secondary-button"
+              disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, backCameraInputRef)}
             >
               Kamera
             </button>
           </div>
+
+          {processingProductImageSide === "back" && (
+            <p className="form-hint">Rückseite wird verarbeitet...</p>
+          )}
 
           <input
             ref={backUploadInputRef}
