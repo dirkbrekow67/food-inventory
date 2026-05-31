@@ -180,6 +180,9 @@ function App() {
   const [inventoryStorageFilter, setInventoryStorageFilter] = useState(
     initialInventoryFilterState.inventoryStorageFilter,
   );
+  const [inventorySortMode, setInventorySortMode] = useState(
+    initialInventoryFilterState.inventorySortMode,
+  );
   const [removalDialogItem, setRemovalDialogItem] = useState(null);
   const [editingInventoryItemId, setEditingInventoryItemId] = useState(null);
   const [removalReason, setRemovalReason] = useState(
@@ -278,6 +281,7 @@ function App() {
     setInventoryStorageFilter(
       initialInventoryFilterState.inventoryStorageFilter,
     );
+    setInventorySortMode(initialInventoryFilterState.inventorySortMode);
   }
 
   async function reloadStorageTree() {
@@ -851,6 +855,7 @@ function App() {
     inventorySearchTerm,
     inventoryStatusFilter,
     inventoryStorageFilter,
+    inventorySortMode,
   });
 
   const {
@@ -987,6 +992,7 @@ function App() {
           inventorySearchTerm={inventorySearchTerm}
           inventoryStatusFilter={inventoryStatusFilter}
           inventoryStorageFilter={inventoryStorageFilter}
+          inventorySortMode={inventorySortMode}
           inventoryStorageFilterOptions={inventoryStorageFilterOptions}
           hasActiveInventoryFilters={hasActiveInventoryFilters}
           loadingInventory={loadingInventory}
@@ -998,6 +1004,7 @@ function App() {
           onInventorySearchTermChange={setInventorySearchTerm}
           onInventoryStatusFilterChange={setInventoryStatusFilter}
           onInventoryStorageFilterChange={setInventoryStorageFilter}
+          onInventorySortModeChange={setInventorySortMode}
           onResetInventoryFilters={resetInventoryFilters}
           onOpenRemovalDialog={openRemovalDialog}
           onOpenInventoryEditDialog={startEditInventoryItem}

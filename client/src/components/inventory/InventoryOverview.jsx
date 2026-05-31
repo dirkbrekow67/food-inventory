@@ -12,12 +12,14 @@ export function InventoryOverview({
   inventorySearchTerm,
   inventoryStatusFilter,
   inventoryStorageFilter,
+  inventorySortMode,
   inventoryStorageFilterOptions,
   hasActiveInventoryFilters,
   loadingInventory,
   onInventorySearchTermChange,
   onInventoryStatusFilterChange,
   onInventoryStorageFilterChange,
+  onInventorySortModeChange,
   onResetInventoryFilters,
   onOpenRemovalDialog,
   labelScanInput,
@@ -48,11 +50,13 @@ export function InventoryOverview({
         inventorySearchTerm={inventorySearchTerm}
         inventoryStatusFilter={inventoryStatusFilter}
         inventoryStorageFilter={inventoryStorageFilter}
+        inventorySortMode={inventorySortMode}
         inventoryStorageFilterOptions={inventoryStorageFilterOptions}
         hasActiveInventoryFilters={hasActiveInventoryFilters}
         onInventorySearchTermChange={onInventorySearchTermChange}
         onInventoryStatusFilterChange={onInventoryStatusFilterChange}
         onInventoryStorageFilterChange={onInventoryStorageFilterChange}
+        onInventorySortModeChange={onInventorySortModeChange}
         onResetInventoryFilters={onResetInventoryFilters}
       />
 

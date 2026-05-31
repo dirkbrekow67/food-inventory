@@ -5,6 +5,7 @@ export function createInitialInventoryFilterState() {
     inventorySearchTerm: "",
     inventoryStatusFilter: "all",
     inventoryStorageFilter: "all",
+    inventorySortMode: "label_desc",
   };
 }
 

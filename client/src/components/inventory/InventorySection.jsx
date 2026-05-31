@@ -14,6 +14,7 @@ export function InventorySection({
   inventorySearchTerm,
   inventoryStatusFilter,
   inventoryStorageFilter,
+  inventorySortMode,
   inventoryStorageFilterOptions,
   hasActiveInventoryFilters,
   loadingInventory,
@@ -23,6 +24,7 @@ export function InventorySection({
   onInventorySearchTermChange,
   onInventoryStatusFilterChange,
   onInventoryStorageFilterChange,
+  onInventorySortModeChange,
   onResetInventoryFilters,
   onOpenRemovalDialog,
   labelScanInput,
@@ -66,12 +68,14 @@ export function InventorySection({
         inventorySearchTerm={inventorySearchTerm}
         inventoryStatusFilter={inventoryStatusFilter}
         inventoryStorageFilter={inventoryStorageFilter}
+        inventorySortMode={inventorySortMode}
         inventoryStorageFilterOptions={inventoryStorageFilterOptions}
         hasActiveInventoryFilters={hasActiveInventoryFilters}
         loadingInventory={loadingInventory}
         onInventorySearchTermChange={onInventorySearchTermChange}
         onInventoryStatusFilterChange={onInventoryStatusFilterChange}
         onInventoryStorageFilterChange={onInventoryStorageFilterChange}
+        onInventorySortModeChange={onInventorySortModeChange}
         onResetInventoryFilters={onResetInventoryFilters}
         onOpenRemovalDialog={onOpenRemovalDialog}
         onUpdateLabelPrintStatus={onUpdateLabelPrintStatus}

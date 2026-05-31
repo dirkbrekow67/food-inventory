@@ -1,6 +1,9 @@
 // client/src/components/inventory/InventoryToolbar.jsx
 
-import { inventoryStatusFilterOptions } from "../../constants/selectOptions";
+import {
+  inventorySortOptions,
+  inventoryStatusFilterOptions,
+} from "../../constants/selectOptions";
 
 import { renderSelectOptions } from "../form/FormSelectOptions";
 
@@ -8,11 +11,13 @@ export function InventoryToolbar({
   inventorySearchTerm,
   inventoryStatusFilter,
   inventoryStorageFilter,
+  inventorySortMode,
   inventoryStorageFilterOptions,
   hasActiveInventoryFilters,
   onInventorySearchTermChange,
   onInventoryStatusFilterChange,
   onInventoryStorageFilterChange,
+  onInventorySortModeChange,
   onResetInventoryFilters,
 }) {
   return (
@@ -54,6 +59,16 @@ export function InventoryToolbar({
                 {option.name}
               </option>
             ))}
+          </select>
+        </label>
+
+        <label>
+          Sortierung
+          <select
+            value={inventorySortMode}
+            onChange={(event) => onInventorySortModeChange(event.target.value)}
+          >
+            {renderSelectOptions(inventorySortOptions)}
           </select>
         </label>
 

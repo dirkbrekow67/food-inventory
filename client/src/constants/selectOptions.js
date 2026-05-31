@@ -69,6 +69,14 @@ export const inventoryStatusFilterOptions = [
   { value: "no_date", label: "Ohne Datum" },
 ];
 
+export const inventorySortOptions = [
+  { value: "label_desc", label: "Etikett-ID absteigend" },
+  { value: "label_asc", label: "Etikett-ID aufsteigend" },
+  { value: "date_asc", label: "MHD / Frist zuerst" },
+  { value: "product_asc", label: "Produktname A–Z" },
+  { value: "storage_asc", label: "Lagerort A–Z" },
+];
+
 export const removalReasonOptions = [
   { value: "verbraucht", label: "Verbraucht" },
   { value: "abgelaufen", label: "Abgelaufen" },
