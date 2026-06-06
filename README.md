@@ -9,13 +9,12 @@ Das Projekt besteht aus:
 
 ## Entwicklung starten
 
-Es werden zwei Terminals benötigt.
+Es werden zwei Terminals benötigt. Die Befehle können direkt aus dem Projekt-Hauptordner ausgeführt werden.
 
 ### Terminal 1 – Server
 
 ```bash
-cd server
-npm run dev
+npm run dev:server
 ```
 
 Der Server läuft auf Port `3101`.
@@ -35,8 +34,7 @@ Erwartete Antwort:
 ### Terminal 2 – Client
 
 ```bash
-cd client
-npm run dev
+npm run dev:client
 ```
 
 Der Client läuft auf Port `5174`.
@@ -82,7 +80,12 @@ server/database/food_inventory.db
 Vor jedem Commit ausführen:
 
 ```bash
-cd client
+npm run check:client
+```
+
+Dieser Befehl führt im Client nacheinander aus:
+
+```bash
 npm run build
 npm run lint
 ```
