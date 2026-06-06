@@ -99,6 +99,8 @@ const PRODUCT_FORM_DRAFT_STORAGE_KEY = "food-inventory.productFormDraft";
 
 const INVENTORY_FORM_DRAFT_STORAGE_KEY = "food-inventory.inventoryFormDraft";
 
+const INVENTORY_FILTER_STORAGE_KEY = "food-inventory.inventoryFilters";
+
 function loadShowProductsInInventoryView() {
   try {
     const storedValue = window.localStorage.getItem(
@@ -127,6 +129,39 @@ function saveShowProductsInInventoryView(nextValue) {
   }
 
   return nextValue;
+}
+
+function loadInventoryFilterState() {
+  try {
+    const storedValue = window.localStorage.getItem(
+      INVENTORY_FILTER_STORAGE_KEY,
+    );
+
+    if (!storedValue) {
+      return initialInventoryFilterState;
+    }
+
+    return {
+      ...initialInventoryFilterState,
+      ...JSON.parse(storedValue),
+    };
+  } catch (error) {
+    console.error(error);
+    return initialInventoryFilterState;
+  }
+}
+
+function saveInventoryFilterState(nextFilterState) {
+  try {
+    window.localStorage.setItem(
+      INVENTORY_FILTER_STORAGE_KEY,
+      JSON.stringify(nextFilterState),
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
+  return nextFilterState;
 }
 
 function loadProductFormDraft() {
@@ -298,18 +333,18 @@ function App() {
   );
 
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
-  const [inventorySearchTerm, setInventorySearchTerm] = useState(
-    initialInventoryFilterState.inventorySearchTerm,
+
+  const [inventoryFilterState, setInventoryFilterState] = useState(() =>
+    loadInventoryFilterState(),
   );
-  const [inventoryStatusFilter, setInventoryStatusFilter] = useState(
-    initialInventoryFilterState.inventoryStatusFilter,
-  );
-  const [inventoryStorageFilter, setInventoryStorageFilter] = useState(
-    initialInventoryFilterState.inventoryStorageFilter,
-  );
-  const [inventorySortMode, setInventorySortMode] = useState(
-    initialInventoryFilterState.inventorySortMode,
-  );
+
+  const {
+    inventorySearchTerm,
+    inventoryStatusFilter,
+    inventoryStorageFilter,
+    inventorySortMode,
+  } = inventoryFilterState;
+
   const [removalDialogItem, setRemovalDialogItem] = useState(null);
   const [editingInventoryItemId, setEditingInventoryItemId] = useState(null);
   const [removalReason, setRemovalReason] = useState(
@@ -440,13 +475,21 @@ function App() {
     setEditingInventoryItemId(null);
   }
 
+  function updateInventoryFilter(field, value) {
+    setInventoryFilterState((currentFilterState) => {
+      const nextFilterState = {
+        ...currentFilterState,
+        [field]: value,
+      };
+
+      return saveInventoryFilterState(nextFilterState);
+    });
+  }
+
   function resetInventoryFilters() {
-    setInventorySearchTerm(initialInventoryFilterState.inventorySearchTerm);
-    setInventoryStatusFilter(initialInventoryFilterState.inventoryStatusFilter);
-    setInventoryStorageFilter(
-      initialInventoryFilterState.inventoryStorageFilter,
+    setInventoryFilterState(
+      saveInventoryFilterState(initialInventoryFilterState),
     );
-    setInventorySortMode(initialInventoryFilterState.inventorySortMode);
   }
 
   async function reloadStorageTree() {
@@ -1185,6 +1228,18 @@ function App() {
           inventoryStatusFilter={inventoryStatusFilter}
           inventoryStorageFilter={inventoryStorageFilter}
           inventorySortMode={inventorySortMode}
+          onInventorySearchTermChange={(value) =>
+            updateInventoryFilter("inventorySearchTerm", value)
+          }
+          onInventoryStatusFilterChange={(value) =>
+            updateInventoryFilter("inventoryStatusFilter", value)
+          }
+          onInventoryStorageFilterChange={(value) =>
+            updateInventoryFilter("inventoryStorageFilter", value)
+          }
+          onInventorySortModeChange={(value) =>
+            updateInventoryFilter("inventorySortMode", value)
+          }
           inventoryStorageFilterOptions={inventoryStorageFilterOptions}
           hasActiveInventoryFilters={hasActiveInventoryFilters}
           loadingInventory={loadingInventory}
@@ -1193,10 +1248,6 @@ function App() {
           onCreateInventoryItem={handleSaveInventoryItem}
           onInventoryProductChange={handleInventoryProductChange}
           onUpdateInventoryForm={updateInventoryForm}
-          onInventorySearchTermChange={setInventorySearchTerm}
-          onInventoryStatusFilterChange={setInventoryStatusFilter}
-          onInventoryStorageFilterChange={setInventoryStorageFilter}
-          onInventorySortModeChange={setInventorySortMode}
           onResetInventoryFilters={resetInventoryFilters}
           onOpenRemovalDialog={openRemovalDialog}
           onOpenInventoryEditDialog={startEditInventoryItem}
