@@ -1287,8 +1287,8 @@ h4 {
 
 .label-sheet {
   box-sizing: border-box;
-  width: 213mm;
-  min-height: 298mm;
+  width: 210mm;
+  min-height: 297mm;
   display: grid;
   grid-template-columns: repeat(4, 45mm);
   grid-template-rows: repeat(9, 30mm);
@@ -1297,7 +1297,7 @@ h4 {
   justify-content: start;
   align-content: start;
   margin: 0 auto;
-  padding: 14mm 8mm 14mm 4mm;
+  padding: 6mm 6mm;
   background: #ffffff;
 }
 
@@ -1664,8 +1664,8 @@ h4 {
   html,
   body,
   #root {
-    width: 213mm;
-    height: 298mm;
+    width: 210mm;
+    height: 297mm;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -1673,8 +1673,8 @@ h4 {
   }
 
   .app-shell {
-    width: 213mm;
-    height: 298mm;
+    width: 210mm;
+    height: 297mm;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -1686,8 +1686,8 @@ h4 {
 
   .label-sheet-section {
     display: block !important;
-    width: 213mm;
-    height: 298mm;
+    width: 210mm;
+    height: 297mm;
     margin: 0;
     padding: 0;
     border: none;
@@ -1706,8 +1706,8 @@ h4 {
 
   .label-sheet-print-area {
     display: block !important;
-    width: 213mm;
-    height: 298mm;
+    width: 210mm;
+    height: 297mm;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -1718,9 +1718,9 @@ h4 {
 
   .label-sheet {
     box-sizing: border-box;
-    width: 213mm;
-    height: 298mm;
-    min-height: 298mm;
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
     display: grid;
     grid-template-columns: repeat(4, 45mm);
     grid-template-rows: repeat(9, 30mm);
@@ -1729,7 +1729,7 @@ h4 {
     justify-content: start;
     align-content: start;
     margin: 0;
-    padding: 14mm 8mm 14mm 4mm;
+    padding: 6mm 6mm;
     background: #ffffff;
     page-break-before: avoid;
     page-break-after: avoid;

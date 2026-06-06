@@ -586,8 +586,8 @@ export function LabelSheetSection({
                   <div className="label-sheet-qr">
                     <QRCodeSVG
                       value={qrText}
-                      size={54}
-                      level="M"
+                      size={64}
+                      level="L"
                       includeMargin
                     />
                   </div>
