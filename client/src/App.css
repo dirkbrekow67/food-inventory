@@ -1771,6 +1771,43 @@ h4 {
     padding: 16px;
   }
 
+  .inventory-toolbar,
+  .history-toolbar,
+  .inventory-label-scanner,
+  .label-sheet-toolbar,
+  .label-sheet-correction {
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .inventory-search,
+  .history-search,
+  .inventory-filter-row label,
+  .history-filter-row label,
+  .inventory-label-scanner label,
+  .label-sheet-toolbar label,
+  .label-sheet-correction label {
+    gap: 4px;
+  }
+
+  .inventory-search input,
+  .history-search input,
+  .inventory-filter-row select,
+  .history-filter-row select,
+  .inventory-label-scanner input,
+  .label-sheet-toolbar input,
+  .label-sheet-toolbar select,
+  .label-sheet-correction input {
+    padding: 9px 10px;
+  }
+
+  .inventory-filter-row,
+  .history-filter-row {
+    gap: 10px;
+  }
+
   .product-form,
   .inventory-form {
     gap: 12px;
