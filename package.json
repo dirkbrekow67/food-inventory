@@ -1,0 +1,13 @@
+{
+  "name": "food-inventory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lebensmittel-Inventar-App mit React/Vite-Frontend und Express/SQLite-Backend.",
+  "scripts": {
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build:client": "npm run build --prefix client",
+    "lint:client": "npm run lint --prefix client",
+    "check:client": "npm run build --prefix client && npm run lint --prefix client"
+  }
+}
