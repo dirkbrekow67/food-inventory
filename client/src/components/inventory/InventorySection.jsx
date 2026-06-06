@@ -1,5 +1,7 @@
 // client/src/components/inventory/InventorySection.jsx
 
+import { useState } from "react";
+
 import { InventoryForm } from "./InventoryForm";
 import { InventoryOverview } from "./InventoryOverview";
 
@@ -38,6 +40,25 @@ export function InventorySection({
   editingInventoryItemId,
   onCancelInventoryEdit,
 }) {
+  const [showInventoryForm, setShowInventoryForm] = useState(false);
+
+  const shouldShowInventoryForm =
+    showInventoryForm || Boolean(editingInventoryItemId);
+
+  function openInventoryForm() {
+    setShowInventoryForm(true);
+  }
+
+  function closeInventoryForm() {
+    setShowInventoryForm(false);
+    onCancelInventoryEdit();
+  }
+
+  function handleCreateInventoryItem(event) {
+    onCreateInventoryItem(event);
+    setShowInventoryForm(false);
+  }
+
   return (
     <section className="card">
       <div className="section-header">
@@ -45,22 +66,41 @@ export function InventorySection({
           <h2>Bestand</h2>
           <p>Konkrete Packungen mit Lagerort, MHD und Restmenge.</p>
         </div>
+
+        <div className="section-header-actions">
+          <span className="result-count">
+            {filteredInventoryItems.length} von {inventoryItems.length}{" "}
+            Einträgen
+          </span>
+
+          {!shouldShowInventoryForm && (
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={openInventoryForm}
+            >
+              Neuen Bestand erfassen
+            </button>
+          )}
+        </div>
       </div>
 
-      <InventoryForm
-        inventoryForm={inventoryForm}
-        products={products}
-        storageTree={storageTree}
-        selectedInventoryProductHistorySummary={
-          selectedInventoryProductHistorySummary
-        }
-        savingInventoryItem={savingInventoryItem}
-        onCreateInventoryItem={onCreateInventoryItem}
-        onInventoryProductChange={onInventoryProductChange}
-        onUpdateInventoryForm={onUpdateInventoryForm}
-        editingInventoryItemId={editingInventoryItemId}
-        onCancelInventoryEdit={onCancelInventoryEdit}
-      />
+      {shouldShowInventoryForm && (
+        <InventoryForm
+          inventoryForm={inventoryForm}
+          products={products}
+          storageTree={storageTree}
+          selectedInventoryProductHistorySummary={
+            selectedInventoryProductHistorySummary
+          }
+          savingInventoryItem={savingInventoryItem}
+          onCreateInventoryItem={handleCreateInventoryItem}
+          onInventoryProductChange={onInventoryProductChange}
+          onUpdateInventoryForm={onUpdateInventoryForm}
+          editingInventoryItemId={editingInventoryItemId}
+          onCancelInventoryEdit={closeInventoryForm}
+        />
+      )}
 
       <InventoryOverview
         inventoryItems={inventoryItems}
