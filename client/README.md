@@ -1,16 +1,95 @@
-# React + Vite
+# client/README.md
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Food Inventory – Client
 
-Currently, two official plugins are available:
+React/Vite-Frontend für die Lebensmittel-Inventar-App.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Entwicklung starten
 
-## React Compiler
+Der Client läuft standardmäßig auf Port `5174` und ist im lokalen Netzwerk erreichbar.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+cd client
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Vite zeigt danach z. B.:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```text
+Local:   http://localhost:5174/
+Network: http://192.168.176.82:5174/
+```
+
+## Server starten
+
+In einem zweiten Terminal den Server starten:
+
+```bash
+cd server
+npm run dev
+```
+
+Der Server läuft auf Port `3101`.
+
+## Handytest im lokalen Netzwerk
+
+Voraussetzungen:
+
+- Mac und Handy sind im selben WLAN.
+- Server läuft.
+- Client läuft.
+- Die Mac-IP ist erreichbar.
+
+Auf dem Handy öffnen:
+
+```text
+http://192.168.176.82:5174
+```
+
+API-Test vom Mac:
+
+```bash
+curl http://localhost:3101/api/health
+curl http://192.168.176.82:3101/api/health
+```
+
+Erwartete Antwort:
+
+```json
+{ "status": "ok", "service": "food-inventory-server" }
+```
+
+## API-Adresse
+
+Der Client ermittelt die API-Adresse automatisch aus der geöffneten Host-Adresse.
+
+Beispiele:
+
+```text
+http://localhost:5174
+→ API: http://localhost:3101/api
+```
+
+```text
+http://192.168.176.82:5174
+→ API: http://192.168.176.82:3101/api
+```
+
+Die Konfiguration befindet sich in:
+
+```text
+src/config/apiConfig.js
+```
+
+## Qualitätssicherung
+
+Vor jedem Commit ausführen:
+
+```bash
+npm run build
+npm run lint
+```
+
+## Hinweise
+
+Die IP-Adresse `192.168.176.82` ist die aktuelle lokale Mac-IP. Sie kann sich durch DHCP oder Netzwerkwechsel ändern.
