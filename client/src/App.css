@@ -2011,6 +2011,67 @@ h4 {
     padding: 10px;
   }
 
+  .storage-tree {
+    gap: 12px;
+  }
+
+  .location-card {
+    padding: 14px;
+  }
+
+  .unit-list {
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .unit-card {
+    padding: 12px;
+  }
+
+  .unit-header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .unit-header-actions {
+    gap: 6px;
+    justify-content: stretch;
+  }
+
+  .unit-header-actions button {
+    flex: 1 1 auto;
+  }
+
+  .compartment-list {
+    gap: 6px;
+  }
+
+  .compartment-pill {
+    min-height: 26px;
+    padding: 4px 6px 4px 9px;
+    font-size: 0.85rem;
+  }
+
+  .compartment-deactivate-button {
+    width: 17px;
+    height: 17px;
+    font-size: 0.78rem;
+  }
+
+  .storage-management-grid {
+    gap: 10px;
+    margin: 14px 0 18px;
+  }
+
+  .storage-location-form,
+  .storage-unit-form,
+  .storage-compartment-form,
+  .storage-single-compartment-form {
+    gap: 10px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
   .inventory-subnav {
     align-items: stretch;
   }
