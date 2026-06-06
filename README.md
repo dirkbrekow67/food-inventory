@@ -91,6 +91,22 @@ Server nicht erreichbar
 
 Diese Anzeige erscheint nur bei `npm run dev:client` und nicht im Produktions-Build.
 
+## Lokal gespeicherte Einstellungen
+
+Die App speichert einige Einstellungen lokal im Browser, damit sie nach dem Neuladen erhalten bleiben.
+
+Gespeichert werden derzeit:
+
+- aktive Hauptseite, z. B. Bestand, Produkte, Historie
+- Produktfilter
+- Bestandsfilter
+- Historienfilter
+- Anzeigeoption „Produkte in Bestandsansicht ein-/ausblenden“
+- Produktentwürfe
+- Bestandsentwürfe
+
+Die Speicherung erfolgt über `localStorage` des jeweiligen Browsers und Geräts. Die Werte werden nicht automatisch zwischen Mac, Handy oder Raspberry Pi synchronisiert.
+
 ## Datenbank
 
 Die SQLite-Datenbank liegt unter:
