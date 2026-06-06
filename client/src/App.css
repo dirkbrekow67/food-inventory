@@ -1853,6 +1853,56 @@ h4 {
     flex: 1 1 auto;
   }
 
+  .inventory-list {
+    gap: 10px;
+  }
+
+  .inventory-card {
+    padding: 14px;
+  }
+
+  .inventory-card-header {
+    gap: 8px;
+  }
+
+  .inventory-status-group {
+    gap: 6px;
+  }
+
+  .inventory-meta {
+    gap: 6px;
+    margin: 10px 0;
+  }
+
+  .inventory-meta span {
+    min-height: 24px;
+    padding: 3px 8px;
+    font-size: 0.8rem;
+  }
+
+  .package-state,
+  .date-status,
+  .label-code,
+  .buy-again {
+    min-height: 24px;
+    padding: 3px 8px;
+    font-size: 0.8rem;
+  }
+
+  .inventory-label-actions {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .inventory-label-actions button {
+    flex: 1 1 auto;
+  }
+
+  .inventory-qr-preview {
+    gap: 10px;
+    padding: 10px;
+  }
+
   .inventory-subnav {
     align-items: stretch;
   }
