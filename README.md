@@ -67,6 +67,24 @@ API-Test mit Mac-IP:
 curl http://192.168.176.82:3101/api/health
 ```
 
+## Entwicklungsanzeige der API-Adresse
+
+Im Entwicklungsmodus zeigt die App oben im Kopfbereich die aktuell verwendete API-Adresse an.
+
+Beispiel am Mac:
+
+```text
+API: http://localhost:3101/api
+```
+
+Beispiel auf dem Handy im lokalen Netzwerk:
+
+```text
+API: http://192.168.176.82:3101/api
+```
+
+Diese Anzeige erscheint nur bei `npm run dev:client` und nicht im Produktions-Build.
+
 ## Datenbank
 
 Die SQLite-Datenbank liegt unter:
