@@ -9,6 +9,8 @@ export function InventorySection({
   inventoryForm,
   products,
   storageTree,
+  hasInventoryFormDraft,
+  onDiscardInventoryFormDraft,
   selectedInventoryProductHistorySummary,
   savingInventoryItem,
   inventoryItems,
@@ -87,6 +89,27 @@ export function InventorySection({
           )}
         </div>
       </div>
+
+      {hasInventoryFormDraft && !editingInventoryItemId && (
+        <div className="draft-hint">
+          <div>
+            <strong>Gespeicherter Bestandsentwurf vorhanden.</strong>
+            <p>
+              Der zuletzt begonnene Bestandseintrag wurde lokal gespeichert und
+              kann weiterbearbeitet werden.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="secondary-button danger-outline-button"
+            onClick={onDiscardInventoryFormDraft}
+            disabled={savingInventoryItem}
+          >
+            Entwurf verwerfen
+          </button>
+        </div>
+      )}
 
       {shouldShowInventoryForm && (
         <InventoryForm

@@ -1594,6 +1594,28 @@ h4 {
   justify-content: flex-end;
 }
 
+.draft-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.draft-hint p {
+  margin: 4px 0 0;
+  color: #334155;
+}
+
+.draft-hint button {
+  flex: 0 0 auto;
+}
+
 
 @media print {
   @page {
@@ -1771,6 +1793,13 @@ h4 {
 
   .section-header {
     gap: 1rem;
+  }
+  .draft-hint {
+    flex-direction: column;
+  }
+
+  .draft-hint button {
+    width: 100%;
   }
 
 }

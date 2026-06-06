@@ -258,6 +258,10 @@ function App() {
     loadInventoryFormDraft(),
   );
 
+  const [hasInventoryFormDraft, setHasInventoryFormDraft] = useState(() =>
+    Boolean(window.localStorage.getItem(INVENTORY_FORM_DRAFT_STORAGE_KEY)),
+  );
+
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
   const [inventorySearchTerm, setInventorySearchTerm] = useState(
     initialInventoryFilterState.inventorySearchTerm,
@@ -370,6 +374,7 @@ function App() {
 
       if (!editingInventoryItemId) {
         saveInventoryFormDraft(nextInventoryForm);
+        setHasInventoryFormDraft(true);
       }
 
       return nextInventoryForm;
@@ -378,7 +383,15 @@ function App() {
 
   function resetInventoryForm() {
     clearInventoryFormDraft();
+    setHasInventoryFormDraft(false);
     setInventoryForm({ ...emptyInventoryForm });
+  }
+
+  function discardInventoryFormDraft() {
+    clearInventoryFormDraft();
+    setHasInventoryFormDraft(false);
+    setInventoryForm({ ...emptyInventoryForm });
+    setEditingInventoryItemId(null);
   }
 
   function resetInventoryFilters() {
@@ -542,6 +555,7 @@ function App() {
 
       if (!editingInventoryItemId) {
         saveInventoryFormDraft(nextInventoryForm);
+        setHasInventoryFormDraft(true);
       }
 
       return nextInventoryForm;
@@ -1106,6 +1120,8 @@ function App() {
           inventoryForm={inventoryForm}
           products={products}
           storageTree={storageTree}
+          hasInventoryFormDraft={hasInventoryFormDraft}
+          onDiscardInventoryFormDraft={discardInventoryFormDraft}
           selectedInventoryProductHistorySummary={
             selectedInventoryProductHistorySummary
           }
