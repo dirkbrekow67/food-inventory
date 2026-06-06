@@ -67,20 +67,26 @@ API-Test mit Mac-IP:
 curl http://192.168.176.82:3101/api/health
 ```
 
-## Entwicklungsanzeige der API-Adresse
+## Entwicklungsanzeige der API-Adresse und Serverstatus
 
-Im Entwicklungsmodus zeigt die App oben im Kopfbereich die aktuell verwendete API-Adresse an.
+Im Entwicklungsmodus zeigt die App oben im Kopfbereich die aktuell verwendete API-Adresse und den Serverstatus an.
 
 Beispiel am Mac:
 
 ```text
-API: http://localhost:3101/api
+API: http://localhost:3101/api · Server erreichbar
 ```
 
 Beispiel auf dem Handy im lokalen Netzwerk:
 
 ```text
-API: http://192.168.176.82:3101/api
+API: http://192.168.176.82:3101/api · Server erreichbar
+```
+
+Wenn der Server nicht erreichbar ist, erscheint entsprechend:
+
+```text
+Server nicht erreichbar
 ```
 
 Diese Anzeige erscheint nur bei `npm run dev:client` und nicht im Produktions-Build.
