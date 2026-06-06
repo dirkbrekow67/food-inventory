@@ -54,9 +54,12 @@ export function InventorySection({
     onCancelInventoryEdit();
   }
 
-  function handleCreateInventoryItem(event) {
-    onCreateInventoryItem(event);
-    setShowInventoryForm(false);
+  async function handleCreateInventoryItem(event) {
+    const savedSuccessfully = await onCreateInventoryItem(event);
+
+    if (savedSuccessfully) {
+      setShowInventoryForm(false);
+    }
   }
 
   return (

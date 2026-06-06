@@ -196,9 +196,12 @@ export function ProductsSection({
     onResetProductForm();
   }
 
-  function handleSaveProduct(event) {
-    onSaveProduct(event);
-    setShowProductForm(false);
+  async function handleSaveProduct(event) {
+    const savedSuccessfully = await onSaveProduct(event);
+
+    if (savedSuccessfully) {
+      setShowProductForm(false);
+    }
   }
 
   const shouldShowProductForm = showProductForm || Boolean(editingProductId);

@@ -500,7 +500,7 @@ function App() {
 
     if (!productForm.name.trim()) {
       setErrorMessage("Bitte einen Produktnamen eingeben.");
-      return;
+      return false;
     }
 
     try {
@@ -516,9 +516,12 @@ function App() {
       );
 
       resetProductForm();
+
+      return true;
     } catch (error) {
       console.error(error);
       setErrorMessage("Produkt konnte nicht gespeichert werden.");
+      return false;
     } finally {
       setSavingProduct(false);
     }
@@ -565,12 +568,12 @@ function App() {
 
     if (!inventoryForm.productId) {
       setErrorMessage("Bitte Produkt auswählen.");
-      return;
+      return false;
     }
 
     if (!inventoryForm.createMultipleItems && !inventoryForm.storageUnitId) {
       setErrorMessage("Bitte Produkt und Lagergerät auswählen.");
-      return;
+      return false;
     }
 
     try {
@@ -595,7 +598,8 @@ function App() {
 
         setEditingInventoryItemId(null);
         resetInventoryForm();
-        return;
+
+        return true;
       }
 
       const createdResult = await createInventoryItem(payload);
@@ -625,9 +629,12 @@ function App() {
       await reloadLabelSlots();
 
       resetInventoryForm();
+
+      return true;
     } catch (error) {
       console.error(error);
       setErrorMessage("Bestand konnte nicht gespeichert werden.");
+      return false;
     } finally {
       setSavingInventoryItem(false);
     }
