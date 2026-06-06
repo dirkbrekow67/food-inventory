@@ -12,6 +12,47 @@ import { renderSelectOptions } from "../form/FormSelectOptions";
 import { ProductForm } from "./ProductForm";
 import { ProductGrid } from "./ProductGrid";
 
+const PRODUCT_FILTER_STORAGE_KEY = "food-inventory.productFilters";
+
+const initialProductFilterState = {
+  productSearchTerm: "",
+  productCategoryFilter: "all",
+  productCountryFilter: "all",
+  productStoreFilter: "all",
+  productSortMode: "name_asc",
+};
+
+function loadProductFilterState() {
+  try {
+    const storedValue = window.localStorage.getItem(PRODUCT_FILTER_STORAGE_KEY);
+
+    if (!storedValue) {
+      return initialProductFilterState;
+    }
+
+    return {
+      ...initialProductFilterState,
+      ...JSON.parse(storedValue),
+    };
+  } catch (error) {
+    console.error(error);
+    return initialProductFilterState;
+  }
+}
+
+function saveProductFilterState(nextFilterState) {
+  try {
+    window.localStorage.setItem(
+      PRODUCT_FILTER_STORAGE_KEY,
+      JSON.stringify(nextFilterState),
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
+  return nextFilterState;
+}
+
 function compareText(firstValue, secondValue) {
   return String(firstValue || "").localeCompare(
     String(secondValue || ""),
@@ -124,11 +165,18 @@ export function ProductsSection({
   onShowProductHistory,
   onDeactivateProduct,
 }) {
-  const [productSearchTerm, setProductSearchTerm] = useState("");
-  const [productCategoryFilter, setProductCategoryFilter] = useState("all");
-  const [productCountryFilter, setProductCountryFilter] = useState("all");
-  const [productStoreFilter, setProductStoreFilter] = useState("all");
-  const [productSortMode, setProductSortMode] = useState("name_asc");
+  const [productFilterState, setProductFilterState] = useState(() =>
+    loadProductFilterState(),
+  );
+
+  const {
+    productSearchTerm,
+    productCategoryFilter,
+    productCountryFilter,
+    productStoreFilter,
+    productSortMode,
+  } = productFilterState;
+
   const [showProductForm, setShowProductForm] = useState(false);
 
   const productCountryFilterOptions = useMemo(
@@ -181,12 +229,19 @@ export function ProductsSection({
     productStoreFilter !== "all" ||
     productSortMode !== "name_asc";
 
+  function updateProductFilter(field, value) {
+    setProductFilterState((currentFilterState) => {
+      const nextFilterState = {
+        ...currentFilterState,
+        [field]: value,
+      };
+
+      return saveProductFilterState(nextFilterState);
+    });
+  }
+
   function resetProductFilters() {
-    setProductSearchTerm("");
-    setProductCategoryFilter("all");
-    setProductCountryFilter("all");
-    setProductStoreFilter("all");
-    setProductSortMode("name_asc");
+    setProductFilterState(saveProductFilterState(initialProductFilterState));
   }
 
   function openProductForm() {
@@ -273,7 +328,9 @@ export function ProductsSection({
           <input
             type="search"
             value={productSearchTerm}
-            onChange={(event) => setProductSearchTerm(event.target.value)}
+            onChange={(event) =>
+              updateProductFilter("productSearchTerm", event.target.value)
+            }
             placeholder="z. B. Pommes, Lidl, Polen, Milch"
           />
         </label>
@@ -283,7 +340,9 @@ export function ProductsSection({
             Kategorie
             <select
               value={productCategoryFilter}
-              onChange={(event) => setProductCategoryFilter(event.target.value)}
+              onChange={(event) =>
+                updateProductFilter("productCategoryFilter", event.target.value)
+              }
             >
               {renderSelectOptions(productCategoryFilterOptions)}
             </select>
@@ -293,7 +352,9 @@ export function ProductsSection({
             Land
             <select
               value={productCountryFilter}
-              onChange={(event) => setProductCountryFilter(event.target.value)}
+              onChange={(event) =>
+                updateProductFilter("productCountryFilter", event.target.value)
+              }
             >
               {renderSelectOptions(productCountryFilterOptions)}
             </select>
@@ -303,7 +364,9 @@ export function ProductsSection({
             Geschäft
             <select
               value={productStoreFilter}
-              onChange={(event) => setProductStoreFilter(event.target.value)}
+              onChange={(event) =>
+                updateProductFilter("productStoreFilter", event.target.value)
+              }
             >
               {renderSelectOptions(productStoreFilterOptions)}
             </select>
@@ -313,7 +376,9 @@ export function ProductsSection({
             Sortierung
             <select
               value={productSortMode}
-              onChange={(event) => setProductSortMode(event.target.value)}
+              onChange={(event) =>
+                updateProductFilter("productSortMode", event.target.value)
+              }
             >
               {renderSelectOptions(productSortOptions)}
             </select>
