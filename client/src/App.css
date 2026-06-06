@@ -1767,6 +1767,48 @@ h4 {
     flex: 1 1 auto;
   }
 
+  .card {
+    padding: 16px;
+  }
+
+  .product-form,
+  .inventory-form {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .form-grid,
+  .batch-mode-box,
+  .batch-unit-card .form-row {
+    gap: 10px;
+  }
+
+  .product-form input,
+  .product-form select,
+  .product-form textarea,
+  .inventory-form input,
+  .inventory-form select,
+  .inventory-form textarea {
+    padding: 9px 10px;
+  }
+
+  .form-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-title-row .secondary-button {
+    width: 100%;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
   .inventory-subnav {
     align-items: stretch;
   }
