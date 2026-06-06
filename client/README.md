@@ -8,9 +8,10 @@ React/Vite-Frontend für die Lebensmittel-Inventar-App.
 
 Der Client läuft standardmäßig auf Port `5174` und ist im lokalen Netzwerk erreichbar.
 
+Bevorzugt aus dem Projekt-Hauptordner starten:
+
 ```bash
-cd client
-npm run dev
+npm run dev:client
 ```
 
 Vite zeigt danach z. B.:
@@ -22,7 +23,15 @@ Network: http://192.168.176.82:5174/
 
 ## Server starten
 
-In einem zweiten Terminal den Server starten:
+In einem zweiten Terminal den Server starten.
+
+Bevorzugt aus dem Projekt-Hauptordner:
+
+```bash
+npm run dev:server
+```
+
+Alternativ direkt aus dem Server-Ordner:
 
 ```bash
 cd server
@@ -81,11 +90,36 @@ Die Konfiguration befindet sich in:
 src/config/apiConfig.js
 ```
 
+## Entwicklungsanzeige der API-Adresse
+
+Im Entwicklungsmodus zeigt die App oben im Kopfbereich die aktuell verwendete API-Adresse an.
+
+Beispiel am Mac:
+
+```text
+API: http://localhost:3101/api
+```
+
+Beispiel auf dem Handy im lokalen Netzwerk:
+
+```text
+API: http://192.168.176.82:3101/api
+```
+
+Diese Anzeige erscheint nur bei `npm run dev:client` bzw. `npm run dev` im Client-Ordner und nicht im Produktions-Build.
+
 ## Qualitätssicherung
 
-Vor jedem Commit ausführen:
+Vor jedem Commit bevorzugt aus dem Projekt-Hauptordner ausführen:
 
 ```bash
+npm run check:client
+```
+
+Alternativ direkt aus dem Client-Ordner:
+
+```bash
+cd client
 npm run build
 npm run lint
 ```
@@ -93,3 +127,7 @@ npm run lint
 ## Hinweise
 
 Die IP-Adresse `192.168.176.82` ist die aktuelle lokale Mac-IP. Sie kann sich durch DHCP oder Netzwerkwechsel ändern.
+
+```
+
+```
