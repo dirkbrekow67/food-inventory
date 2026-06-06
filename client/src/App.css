@@ -1615,6 +1615,17 @@ h4 {
   flex: 0 0 auto;
 }
 
+.dev-api-info {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.dev-api-info code {
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+
 @media print {
   @page {
     size: A4;
@@ -2098,7 +2109,7 @@ h4 {
   .section-header {
     gap: 1rem;
   }
-  
+
   .draft-hint {
     flex-direction: column;
   }

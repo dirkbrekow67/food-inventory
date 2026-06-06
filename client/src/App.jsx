@@ -84,6 +84,8 @@ import {
   findInventoryItemByLabelCode,
 } from "./utils/labelScanUtils";
 
+import DevApiInfo from "./components/common/DevApiInfo";
+
 const initialHistoryEditState = createInitialHistoryEditState();
 const initialRemovalState = createInitialRemovalState();
 
@@ -1220,6 +1222,7 @@ function App() {
             Verwaltung für Gefrierschrank, Kühlschrank, Vorratskammer und
             Auslandseinkäufe.
           </p>
+          <DevApiInfo />
         </div>
       </header>
 
