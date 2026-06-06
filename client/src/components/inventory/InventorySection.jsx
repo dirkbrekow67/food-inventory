@@ -84,7 +84,9 @@ export function InventorySection({
               className="secondary-button"
               onClick={openInventoryForm}
             >
-              Neuen Bestand erfassen
+              {hasInventoryFormDraft
+                ? "Bestandsentwurf öffnen"
+                : "Neuen Bestand erfassen"}
             </button>
           )}
         </div>
