@@ -522,7 +522,6 @@ h4 {
   background: #fee2e2;
 }
 
-
 .inventory-form {
   display: grid;
   gap: 16px;
@@ -1616,7 +1615,6 @@ h4 {
   flex: 0 0 auto;
 }
 
-
 @media print {
   @page {
     size: A4;
@@ -2079,6 +2077,7 @@ h4 {
   .inventory-subnav button {
     width: 100%;
   }
+
   .location-header {
     flex-direction: column;
   }
@@ -2099,6 +2098,7 @@ h4 {
   .section-header {
     gap: 1rem;
   }
+  
   .draft-hint {
     flex-direction: column;
   }
