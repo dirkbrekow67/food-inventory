@@ -111,6 +111,8 @@ function sortProducts(products, productSortMode) {
 export function ProductsSection({
   productForm,
   editingProductId,
+  hasProductFormDraft,
+  onDiscardProductFormDraft,
   savingProduct,
   loadingProducts,
   products,
@@ -225,11 +227,34 @@ export function ProductsSection({
               className="secondary-button"
               onClick={openProductForm}
             >
-              Neues Produkt anlegen
+              {hasProductFormDraft
+                ? "Produktentwurf öffnen"
+                : "Neues Produkt anlegen"}
             </button>
           )}
         </div>
       </div>
+
+      {hasProductFormDraft && !editingProductId && (
+        <div className="draft-hint">
+          <div>
+            <strong>Gespeicherter Produktentwurf vorhanden.</strong>
+            <p>
+              Das zuletzt begonnene Produkt wurde lokal gespeichert und kann
+              weiterbearbeitet werden.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="secondary-button danger-outline-button"
+            onClick={onDiscardProductFormDraft}
+            disabled={savingProduct}
+          >
+            Entwurf verwerfen
+          </button>
+        </div>
+      )}
 
       {shouldShowProductForm && (
         <ProductForm

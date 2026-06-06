@@ -254,6 +254,10 @@ function App() {
   const [savingHistoryItem, setSavingHistoryItem] = useState(false);
 
   const [productForm, setProductForm] = useState(() => loadProductFormDraft());
+  const [hasProductFormDraft, setHasProductFormDraft] = useState(() =>
+    Boolean(window.localStorage.getItem(PRODUCT_FORM_DRAFT_STORAGE_KEY)),
+  );
+
   const [inventoryForm, setInventoryForm] = useState(() =>
     loadInventoryFormDraft(),
   );
@@ -353,6 +357,7 @@ function App() {
 
       if (!editingProductId) {
         saveProductFormDraft(nextProductForm);
+        setHasProductFormDraft(true);
       }
 
       return nextProductForm;
@@ -361,6 +366,14 @@ function App() {
 
   function resetProductForm() {
     clearProductFormDraft();
+    setHasProductFormDraft(false);
+    setProductForm({ ...emptyProductForm });
+    setEditingProductId(null);
+  }
+
+  function discardProductFormDraft() {
+    clearProductFormDraft();
+    setHasProductFormDraft(false);
     setProductForm({ ...emptyProductForm });
     setEditingProductId(null);
   }
@@ -605,6 +618,7 @@ function App() {
 
   function startEditProduct(product) {
     clearProductFormDraft();
+    setHasProductFormDraft(false);
     setEditingProductId(product.id);
 
     setProductForm(createProductFormFromProduct(product));
@@ -1033,6 +1047,8 @@ function App() {
         <ProductsSection
           productForm={productForm}
           editingProductId={editingProductId}
+          hasProductFormDraft={hasProductFormDraft}
+          onDiscardProductFormDraft={discardProductFormDraft}
           savingProduct={savingProduct}
           loadingProducts={loadingProducts}
           products={products}
@@ -1103,6 +1119,8 @@ function App() {
           <ProductsSection
             productForm={productForm}
             editingProductId={editingProductId}
+            hasProductFormDraft={hasProductFormDraft}
+            onDiscardProductFormDraft={discardProductFormDraft}
             savingProduct={savingProduct}
             loadingProducts={loadingProducts}
             products={products}
