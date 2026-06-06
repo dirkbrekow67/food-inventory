@@ -95,6 +95,8 @@ const INVENTORY_PRODUCTS_VISIBILITY_STORAGE_KEY =
 
 const PRODUCT_FORM_DRAFT_STORAGE_KEY = "food-inventory.productFormDraft";
 
+const INVENTORY_FORM_DRAFT_STORAGE_KEY = "food-inventory.inventoryFormDraft";
+
 function loadShowProductsInInventoryView() {
   try {
     const storedValue = window.localStorage.getItem(
@@ -166,6 +168,47 @@ function clearProductFormDraft() {
   }
 }
 
+function loadInventoryFormDraft() {
+  try {
+    const storedValue = window.localStorage.getItem(
+      INVENTORY_FORM_DRAFT_STORAGE_KEY,
+    );
+
+    if (!storedValue) {
+      return { ...emptyInventoryForm };
+    }
+
+    return {
+      ...emptyInventoryForm,
+      ...JSON.parse(storedValue),
+    };
+  } catch (error) {
+    console.error(error);
+    return { ...emptyInventoryForm };
+  }
+}
+
+function saveInventoryFormDraft(nextInventoryForm) {
+  try {
+    window.localStorage.setItem(
+      INVENTORY_FORM_DRAFT_STORAGE_KEY,
+      JSON.stringify(nextInventoryForm),
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
+  return nextInventoryForm;
+}
+
+function clearInventoryFormDraft() {
+  try {
+    window.localStorage.removeItem(INVENTORY_FORM_DRAFT_STORAGE_KEY);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -211,7 +254,9 @@ function App() {
   const [savingHistoryItem, setSavingHistoryItem] = useState(false);
 
   const [productForm, setProductForm] = useState(() => loadProductFormDraft());
-  const [inventoryForm, setInventoryForm] = useState(() => emptyInventoryForm);
+  const [inventoryForm, setInventoryForm] = useState(() =>
+    loadInventoryFormDraft(),
+  );
 
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
   const [inventorySearchTerm, setInventorySearchTerm] = useState(
@@ -317,13 +362,22 @@ function App() {
   }
 
   function updateInventoryForm(field, value) {
-    setInventoryForm((currentForm) => ({
-      ...currentForm,
-      [field]: value,
-    }));
+    setInventoryForm((currentForm) => {
+      const nextInventoryForm = {
+        ...currentForm,
+        [field]: value,
+      };
+
+      if (!editingInventoryItemId) {
+        saveInventoryFormDraft(nextInventoryForm);
+      }
+
+      return nextInventoryForm;
+    });
   }
 
   function resetInventoryForm() {
+    clearInventoryFormDraft();
     setInventoryForm({ ...emptyInventoryForm });
   }
 
@@ -451,39 +505,47 @@ function App() {
       productId,
     );
 
-    setInventoryForm((currentForm) => ({
-      ...currentForm,
-      productId,
+    setInventoryForm((currentForm) => {
+      const nextInventoryForm = {
+        ...currentForm,
+        productId,
 
-      storageUnitId: latestItem ? String(latestItem.storage_unit_id) : "",
-      storageCompartmentId: latestItem?.storage_compartment_id
-        ? String(latestItem.storage_compartment_id)
-        : "",
+        storageUnitId: latestItem ? String(latestItem.storage_unit_id) : "",
+        storageCompartmentId: latestItem?.storage_compartment_id
+          ? String(latestItem.storage_compartment_id)
+          : "",
 
-      originalQuantity: latestItem?.original_quantity
-        ? String(latestItem.original_quantity)
-        : "",
-      originalUnit: latestItem?.original_unit || "g",
+        originalQuantity: latestItem?.original_quantity
+          ? String(latestItem.original_quantity)
+          : "",
+        originalUnit: latestItem?.original_unit || "g",
 
-      remainingQuantity: "",
-      remainingUnit:
-        latestItem?.remaining_unit || latestItem?.original_unit || "g",
-      remainingFraction: "",
+        remainingQuantity: "",
+        remainingUnit:
+          latestItem?.remaining_unit || latestItem?.original_unit || "g",
+        remainingFraction: "",
 
-      quantityEstimated: latestItem?.quantity_estimated === 1,
-      packageState: latestItem?.package_state || "ungeoeffnet",
+        quantityEstimated: latestItem?.quantity_estimated === 1,
+        packageState: latestItem?.package_state || "ungeoeffnet",
 
-      bestBeforeDate: "",
-      frozenDate: "",
-      openedDate: "",
+        bestBeforeDate: "",
+        frozenDate: "",
+        openedDate: "",
 
-      isFrozenChilledFood: latestItem?.is_frozen_chilled_food === 1,
-      internalExtensionMonths: latestItem?.internal_extension_months
-        ? String(latestItem.internal_extension_months)
-        : "6",
+        isFrozenChilledFood: latestItem?.is_frozen_chilled_food === 1,
+        internalExtensionMonths: latestItem?.internal_extension_months
+          ? String(latestItem.internal_extension_months)
+          : "6",
 
-      notes: "",
-    }));
+        notes: "",
+      };
+
+      if (!editingInventoryItemId) {
+        saveInventoryFormDraft(nextInventoryForm);
+      }
+
+      return nextInventoryForm;
+    });
   }
 
   function showProductHistory(product) {
@@ -750,6 +812,7 @@ function App() {
   }
 
   function startEditInventoryItem(item) {
+    clearInventoryFormDraft();
     setEditingInventoryItemId(item.id);
     setInventoryForm(createInventoryEditStateFromItem(item));
 
