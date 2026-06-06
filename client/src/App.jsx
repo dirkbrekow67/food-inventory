@@ -101,6 +101,10 @@ const INVENTORY_FORM_DRAFT_STORAGE_KEY = "food-inventory.inventoryFormDraft";
 
 const INVENTORY_FILTER_STORAGE_KEY = "food-inventory.inventoryFilters";
 
+const HISTORY_FILTER_STORAGE_KEY = "food-inventory.historyFilters";
+
+const ACTIVE_SECTION_STORAGE_KEY = "food-inventory.activeSection";
+
 function loadShowProductsInInventoryView() {
   try {
     const storedValue = window.localStorage.getItem(
@@ -162,6 +166,62 @@ function saveInventoryFilterState(nextFilterState) {
   }
 
   return nextFilterState;
+}
+
+function loadHistoryFilterState() {
+  try {
+    const storedValue = window.localStorage.getItem(HISTORY_FILTER_STORAGE_KEY);
+
+    if (!storedValue) {
+      return initialHistoryFilterState;
+    }
+
+    return {
+      ...initialHistoryFilterState,
+      ...JSON.parse(storedValue),
+    };
+  } catch (error) {
+    console.error(error);
+    return initialHistoryFilterState;
+  }
+}
+
+function saveHistoryFilterState(nextFilterState) {
+  try {
+    window.localStorage.setItem(
+      HISTORY_FILTER_STORAGE_KEY,
+      JSON.stringify(nextFilterState),
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
+  return nextFilterState;
+}
+
+function loadActiveSection() {
+  try {
+    const storedValue = window.localStorage.getItem(ACTIVE_SECTION_STORAGE_KEY);
+
+    if (!storedValue) {
+      return "inventory";
+    }
+
+    return storedValue;
+  } catch (error) {
+    console.error(error);
+    return "inventory";
+  }
+}
+
+function saveActiveSection(nextActiveSection) {
+  try {
+    window.localStorage.setItem(ACTIVE_SECTION_STORAGE_KEY, nextActiveSection);
+  } catch (error) {
+    console.error(error);
+  }
+
+  return nextActiveSection;
 }
 
 function loadProductFormDraft() {
@@ -279,7 +339,7 @@ function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [activeSection, setActiveSection] = useState("inventory");
+  const [activeSection, setActiveSection] = useState(() => loadActiveSection());
   const [showProductsInInventoryView, setShowProductsInInventoryView] =
     useState(() => loadShowProductsInInventoryView());
   const [loadingStorage, setLoadingStorage] = useState(true);
@@ -287,18 +347,17 @@ function App() {
   const [loadingInventory, setLoadingInventory] = useState(true);
   const [historyItems, setHistoryItems] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
-  const [historySearchTerm, setHistorySearchTerm] = useState(
-    initialHistoryFilterState.historySearchTerm,
+  const [historyFilterState, setHistoryFilterState] = useState(() =>
+    loadHistoryFilterState(),
   );
-  const [historyReasonFilter, setHistoryReasonFilter] = useState(
-    initialHistoryFilterState.historyReasonFilter,
-  );
-  const [historyBuyAgainFilter, setHistoryBuyAgainFilter] = useState(
-    initialHistoryFilterState.historyBuyAgainFilter,
-  );
-  const [historyProductFilter, setHistoryProductFilter] = useState(
-    initialHistoryFilterState.historyProductFilter,
-  );
+
+  const {
+    historySearchTerm,
+    historyReasonFilter,
+    historyBuyAgainFilter,
+    historyProductFilter,
+  } = historyFilterState;
+
   const [errorMessage, setErrorMessage] = useState("");
   const [historyDialogItem, setHistoryDialogItem] = useState(null);
   const [historyEditReason, setHistoryEditReason] = useState(
@@ -594,11 +653,19 @@ function App() {
     setLabelScanMessage("");
   }
 
+  function updateHistoryFilter(field, value) {
+    setHistoryFilterState((currentFilterState) => {
+      const nextFilterState = {
+        ...currentFilterState,
+        [field]: value,
+      };
+
+      return saveHistoryFilterState(nextFilterState);
+    });
+  }
+
   function resetHistoryFilters() {
-    setHistorySearchTerm(initialHistoryFilterState.historySearchTerm);
-    setHistoryReasonFilter(initialHistoryFilterState.historyReasonFilter);
-    setHistoryBuyAgainFilter(initialHistoryFilterState.historyBuyAgainFilter);
-    setHistoryProductFilter(initialHistoryFilterState.historyProductFilter);
+    setHistoryFilterState(saveHistoryFilterState(initialHistoryFilterState));
   }
 
   function handleInventoryProductChange(productId) {
@@ -654,8 +721,12 @@ function App() {
   }
 
   function showProductHistory(product) {
-    resetHistoryFilters();
-    setHistoryProductFilter(String(product.id));
+    const nextHistoryFilterState = {
+      ...initialHistoryFilterState,
+      historyProductFilter: String(product.id),
+    };
+
+    setHistoryFilterState(saveHistoryFilterState(nextHistoryFilterState));
 
     document
       .getElementById("product-history-section")
@@ -1102,6 +1173,10 @@ function App() {
     inventoryForm,
   });
 
+  function changeActiveSection(nextActiveSection) {
+    setActiveSection(saveActiveSection(nextActiveSection));
+  }
+
   function toggleProductsInInventoryView() {
     setShowProductsInInventoryView((currentShowProductsInInventoryView) =>
       saveShowProductsInInventoryView(!currentShowProductsInInventoryView),
@@ -1153,9 +1228,15 @@ function App() {
           selectedHistoryProduct={selectedHistoryProduct}
           hasActiveHistoryFilters={hasActiveHistoryFilters}
           loadingHistory={loadingHistory}
-          onHistorySearchTermChange={setHistorySearchTerm}
-          onHistoryReasonFilterChange={setHistoryReasonFilter}
-          onHistoryBuyAgainFilterChange={setHistoryBuyAgainFilter}
+          onHistorySearchTermChange={(value) =>
+            updateHistoryFilter("historySearchTerm", value)
+          }
+          onHistoryReasonFilterChange={(value) =>
+            updateHistoryFilter("historyReasonFilter", value)
+          }
+          onHistoryBuyAgainFilterChange={(value) =>
+            updateHistoryFilter("historyBuyAgainFilter", value)
+          }
           onResetHistoryFilters={resetHistoryFilters}
           onOpenHistoryDialog={openHistoryDialog}
           onOpenHistoryDeleteDialog={openHistoryDeleteDialog}
@@ -1283,7 +1364,7 @@ function App() {
         <button
           type="button"
           className={activeSection === "inventory" ? "active" : ""}
-          onClick={() => setActiveSection("inventory")}
+          onClick={() => changeActiveSection("inventory")}
         >
           Bestand
         </button>
@@ -1291,7 +1372,7 @@ function App() {
         <button
           type="button"
           className={activeSection === "products" ? "active" : ""}
-          onClick={() => setActiveSection("products")}
+          onClick={() => changeActiveSection("products")}
         >
           Produkte
         </button>
@@ -1299,7 +1380,7 @@ function App() {
         <button
           type="button"
           className={activeSection === "labels" ? "active" : ""}
-          onClick={() => setActiveSection("labels")}
+          onClick={() => changeActiveSection("labels")}
         >
           Etiketten
         </button>
@@ -1307,7 +1388,7 @@ function App() {
         <button
           type="button"
           className={activeSection === "history" ? "active" : ""}
-          onClick={() => setActiveSection("history")}
+          onClick={() => changeActiveSection("history")}
         >
           Historie
         </button>
@@ -1315,7 +1396,7 @@ function App() {
         <button
           type="button"
           className={activeSection === "storage" ? "active" : ""}
-          onClick={() => setActiveSection("storage")}
+          onClick={() => changeActiveSection("storage")}
         >
           Lagerorte
         </button>
