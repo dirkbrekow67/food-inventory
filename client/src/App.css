@@ -1616,6 +1616,10 @@ h4 {
 }
 
 .dev-api-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
   margin-top: 0.5rem;
   font-size: 0.8rem;
   color: #64748b;
@@ -1624,6 +1628,31 @@ h4 {
 .dev-api-info code {
   font-size: 0.78rem;
   word-break: break-all;
+}
+
+.dev-api-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.dev-api-status-checking {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.dev-api-status-online {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.dev-api-status-offline {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 @media print {
