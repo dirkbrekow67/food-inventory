@@ -209,6 +209,35 @@ function clearInventoryFormDraft() {
   }
 }
 
+function hasMeaningfulProductDraft(productFormDraft) {
+  return [
+    productFormDraft.name,
+    productFormDraft.brand,
+    productFormDraft.category,
+    productFormDraft.country,
+    productFormDraft.store,
+    productFormDraft.rating,
+    productFormDraft.notes,
+    productFormDraft.imageFront,
+    productFormDraft.imageBack,
+  ].some((value) => String(value || "").trim());
+}
+
+function hasMeaningfulInventoryDraft(inventoryFormDraft) {
+  return [
+    inventoryFormDraft.productId,
+    inventoryFormDraft.storageUnitId,
+    inventoryFormDraft.storageCompartmentId,
+    inventoryFormDraft.originalQuantity,
+    inventoryFormDraft.remainingQuantity,
+    inventoryFormDraft.remainingFraction,
+    inventoryFormDraft.bestBeforeDate,
+    inventoryFormDraft.frozenDate,
+    inventoryFormDraft.openedDate,
+    inventoryFormDraft.notes,
+  ].some((value) => String(value || "").trim());
+}
+
 function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
@@ -255,7 +284,7 @@ function App() {
 
   const [productForm, setProductForm] = useState(() => loadProductFormDraft());
   const [hasProductFormDraft, setHasProductFormDraft] = useState(() =>
-    Boolean(window.localStorage.getItem(PRODUCT_FORM_DRAFT_STORAGE_KEY)),
+    hasMeaningfulProductDraft(loadProductFormDraft()),
   );
 
   const [inventoryForm, setInventoryForm] = useState(() =>
@@ -263,7 +292,7 @@ function App() {
   );
 
   const [hasInventoryFormDraft, setHasInventoryFormDraft] = useState(() =>
-    Boolean(window.localStorage.getItem(INVENTORY_FORM_DRAFT_STORAGE_KEY)),
+    hasMeaningfulInventoryDraft(loadInventoryFormDraft()),
   );
 
   const [savingInventoryItem, setSavingInventoryItem] = useState(false);
@@ -357,7 +386,7 @@ function App() {
 
       if (!editingProductId) {
         saveProductFormDraft(nextProductForm);
-        setHasProductFormDraft(true);
+        setHasProductFormDraft(hasMeaningfulProductDraft(nextProductForm));
       }
 
       return nextProductForm;
@@ -387,7 +416,9 @@ function App() {
 
       if (!editingInventoryItemId) {
         saveInventoryFormDraft(nextInventoryForm);
-        setHasInventoryFormDraft(true);
+        setHasInventoryFormDraft(
+          hasMeaningfulInventoryDraft(nextInventoryForm),
+        );
       }
 
       return nextInventoryForm;
@@ -568,7 +599,9 @@ function App() {
 
       if (!editingInventoryItemId) {
         saveInventoryFormDraft(nextInventoryForm);
-        setHasInventoryFormDraft(true);
+        setHasInventoryFormDraft(
+          hasMeaningfulInventoryDraft(nextInventoryForm),
+        );
       }
 
       return nextInventoryForm;
