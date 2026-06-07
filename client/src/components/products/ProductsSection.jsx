@@ -19,6 +19,7 @@ const initialProductFilterState = {
   productCategoryFilter: "all",
   productCountryFilter: "all",
   productStoreFilter: "all",
+  productBuyAgainFilter: "all",
   productSortMode: "name_asc",
 };
 
@@ -176,6 +177,7 @@ export function ProductsSection({
     productCategoryFilter,
     productCountryFilter,
     productStoreFilter,
+    productBuyAgainFilter,
     productSortMode,
   } = productFilterState;
 
@@ -206,7 +208,18 @@ export function ProductsSection({
       const matchesStore =
         productStoreFilter === "all" || product.store === productStoreFilter;
 
-      return matchesSearch && matchesCategory && matchesCountry && matchesStore;
+      const matchesBuyAgain =
+        productBuyAgainFilter === "all" ||
+        product.buy_again_status === productBuyAgainFilter ||
+        (productBuyAgainFilter === "favorite" && product.favorite === 1);
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesCountry &&
+        matchesStore &&
+        matchesBuyAgain
+      );
     });
 
     return sortProducts(nextProducts, productSortMode);
@@ -216,6 +229,7 @@ export function ProductsSection({
     productCategoryFilter,
     productCountryFilter,
     productStoreFilter,
+    productBuyAgainFilter,
     productSortMode,
   ]);
 
@@ -224,11 +238,21 @@ export function ProductsSection({
     ...productCategoryOptions.filter((option) => option.value),
   ];
 
+  const productBuyAgainFilterOptions = [
+    { value: "all", label: "Alle Bewertungen" },
+    { value: "wieder_kaufen", label: "Wieder kaufen" },
+    { value: "neutral", label: "Neutral" },
+    { value: "nicht_wieder_kaufen", label: "Nicht wieder kaufen" },
+    { value: "testen", label: "Testen" },
+    { value: "favorite", label: "Favoriten" },
+  ];
+
   const hasActiveProductFilters =
     Boolean(productSearchTerm.trim()) ||
     productCategoryFilter !== "all" ||
     productCountryFilter !== "all" ||
     productStoreFilter !== "all" ||
+    productBuyAgainFilter !== "all" ||
     productSortMode !== "name_asc";
 
   function updateProductFilter(field, value) {
@@ -371,6 +395,18 @@ export function ProductsSection({
               }
             >
               {renderSelectOptions(productStoreFilterOptions)}
+            </select>
+          </label>
+
+          <label>
+            Kaufbewertung
+            <select
+              value={productBuyAgainFilter}
+              onChange={(event) =>
+                updateProductFilter("productBuyAgainFilter", event.target.value)
+              }
+            >
+              {renderSelectOptions(productBuyAgainFilterOptions)}
             </select>
           </label>
 
