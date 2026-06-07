@@ -136,6 +136,28 @@ function createLabelSlotsTable() {
   `).run();
 }
 
+function createShoppingListItemsTable() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS shopping_list_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER,
+      custom_name TEXT,
+      quantity REAL,
+      unit TEXT,
+      note TEXT,
+      category TEXT,
+      is_foreign_purchase INTEGER NOT NULL DEFAULT 0,
+      priority TEXT NOT NULL DEFAULT 'normal',
+      status TEXT NOT NULL DEFAULT 'open',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      completed_at TEXT,
+
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+    )
+  `).run();
+}
+
 
 function createInventoryHistoryTable() {
   db.prepare(`
@@ -242,6 +264,7 @@ function runMigrations() {
   createLabelSlotsTable();
   createInventoryItemsTable();
   createInventoryHistoryTable();
+  createShoppingListItemsTable();
 
   console.log('Datenbank-Migrationen abgeschlossen.');
 }
