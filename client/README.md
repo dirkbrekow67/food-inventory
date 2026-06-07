@@ -1,5 +1,3 @@
-# client/README.md
-
 # Food Inventory – Client
 
 React/Vite-Frontend für die Lebensmittel-Inventar-App.
@@ -127,7 +125,3 @@ npm run lint
 ## Hinweise
 
 Die IP-Adresse `192.168.176.82` ist die aktuelle lokale Mac-IP. Sie kann sich durch DHCP oder Netzwerkwechsel ändern.
-
-```
-
-```

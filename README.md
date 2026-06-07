@@ -11,6 +11,16 @@ Das Projekt besteht aus:
 
 Es werden zwei Terminals benötigt. Die Befehle können direkt aus dem Projekt-Hauptordner ausgeführt werden.
 
+### Abhängigkeiten installieren
+
+Nach dem ersten Klonen oder Entpacken des Projekts einmalig aus dem Projekt-Hauptordner ausführen:
+
+```bash
+npm install
+npm install --prefix client
+npm install --prefix server
+```
+
 ### Terminal 1 – Server
 
 ```bash
@@ -117,7 +127,7 @@ server/database/food_inventory.db
 
 ## Qualitätssicherung
 
-Vor jedem Commit ausführen:
+Vor jedem Commit, der Client-Code betrifft, ausführen:
 
 ```bash
 npm run check:client
