@@ -478,6 +478,50 @@ Die Wiederherstellung ersetzt nur die SQLite-Datenbank.
 
 Produktbilder im Ordner `server/uploads/products/` werden dadurch nicht wiederhergestellt. Dafür ist später eine separate Sicherung der Upload-Dateien erforderlich.
 
+### Produktbilder und Upload-Dateien sichern
+
+Die Datenbank-Backups sichern nur die SQLite-Datenbank.
+
+Produktbilder werden separat im Projektordner gespeichert und sind nicht Bestandteil der Datei:
+
+```text
+server/database/food_inventory.db
+```
+
+Der Speicherort für hochgeladene Produktbilder ist:
+
+```text
+server/uploads/products/
+```
+
+Dieser Ordner enthält z. B. Bilder der Vorderseite und Rückseite von Produkten.
+
+Der Upload-Ordner ist bewusst nicht Bestandteil von Git. Produktbilder sollen nicht versehentlich in das Repository hochgeladen werden.
+
+Wichtig:
+
+```text
+Ein Datenbank-Backup allein reicht nicht aus, um Produktbilder wiederherzustellen.
+```
+
+Für eine vollständige Sicherung müssen daher später zusätzlich gesichert werden:
+
+```text
+server/database/food_inventory.db
+server/uploads/products/
+```
+
+Bis eine automatische Upload-Sicherung eingebaut ist, sollten wichtige Produktbilder bei Bedarf manuell mitgesichert werden.
+
+Beispiel für eine manuelle Sicherung des Upload-Ordners:
+
+```bash
+mkdir -p backups/uploads
+cp -R server/uploads/products "backups/uploads/products_$(date +"%Y-%m-%d_%H-%M-%S")"
+```
+
+Hinweis: Diese manuelle Sicherung wird im lokalen Ordner `backups/` abgelegt und nicht in Git übernommen.
+
 ### Backup manuell über systemd starten
 
 ```bash
