@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-07
+Stand: 2026-06-07 – nach Block 199
 
 ## Ziel des Projekts
 
@@ -180,12 +180,113 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
-f04a930 Document database backup retention
-49e08bd Limit retained database backups
-9088e9e Document Raspberry Pi backup timer setup
-459c3fb Document SQLite backup dependency
-908e2a9 Use SQLite backup command for database backups
+48f6d41 Document project zip handoff
+5a69836 Document product image storage
+519b2a8 Add database restore script
+31b811e Document database restore workflow
+10044e1 Add project roadmap
 ```
+
+## Abgeschlossene Blöcke seit letzter Projektstand-Aktualisierung
+
+### Block 195 – Roadmap festgehalten
+
+Die nächsten 50 geplanten Blöcke wurden in dieser Datei dokumentiert.
+
+Festgelegt wurde:
+
+- Projektstand spätestens alle 10 Blöcke aktualisieren
+- zuerst Bestand und Wiederherstellung absichern
+- danach Einkaufsliste als nächste Hauptfunktion
+- Benutzerkonto und Nutzung außerhalb des WLANs später behandeln
+
+### Block 196 – Backup-Wiederherstellung dokumentiert
+
+Die README wurde um eine Anleitung zur Wiederherstellung eines Datenbank-Backups ergänzt.
+
+Dokumentiert wurde:
+
+- Server stoppen
+- vorhandene Backups anzeigen
+- aktuelle Datenbank vor Restore zusätzlich sichern
+- gewünschtes Backup zurückkopieren
+- Server neu starten
+- Funktion prüfen
+- Hinweis, dass Produktbilder nicht durch Datenbank-Restore wiederhergestellt werden
+
+### Block 197 – Restore-Skript erstellt
+
+Das Skript wurde ergänzt:
+
+```text
+scripts/restore-database.sh
+```
+
+Eigenschaften:
+
+- Backup-Datei muss ausdrücklich angegeben werden
+- Skript prüft, ob Backup-Datei vorhanden ist
+- Skript prüft, ob aktuelle Datenbank vorhanden ist
+- aktuelle Datenbank wird vor Restore automatisch gesichert
+- Restore erfolgt nur nach Eingabe von `RESTORE`
+- Skript ist ausführbar
+
+### Block 198 – Produktbildspeicher dokumentiert
+
+Die README wurde um den Abschnitt Produktbilder und Upload-Dateien ergänzt.
+
+Dokumentiert wurde:
+
+- Datenbank-Backup sichert nur SQLite-Datenbank
+- Produktbilder liegen separat unter `server/uploads/products/`
+- Upload-Ordner wird nicht in Git übernommen
+- vollständige Sicherung benötigt Datenbank und Upload-Ordner
+- Beispiel für manuelle Sicherung des Upload-Ordners
+
+### Block 199 – ZIP- und Projektübergabe dokumentiert
+
+Die README wurde um eine ZIP-Anleitung für Chat-Neustart, Übergabe oder externe Prüfung ergänzt.
+
+Dokumentiert wurde, dass folgende Inhalte nicht in die ZIP-Datei gehören:
+
+```text
+.git
+node_modules
+client/node_modules
+server/node_modules
+client/dist
+server/database/food_inventory.db
+backups
+server/uploads
+.env.local
+client/.env.local
+server/.env.local
+```
+
+Für eine spätere Fortsetzung reichen in der Regel:
+
+```text
+food-inventory-projektstand.zip
+docs/PROJEKTSTAND.md
+git log --oneline -20
+```
+
+## Aktueller Sicherungsstand
+
+Aktuell vorhanden:
+
+- Backup-Skript für SQLite-Datenbank
+- automatische Begrenzung auf die letzten 12 Datenbank-Backups
+- README-Anleitung für Datenbank-Restore
+- Restore-Skript mit Sicherheitsabfrage
+- Dokumentation zu Produktbildern und Upload-Dateien
+- Dokumentation zur ZIP-Projektübergabe
+
+Noch offen:
+
+- automatische Sicherung des Upload-Ordners
+- vollständige Sicherung aus Datenbank und Produktbildern
+- Aufräumlogik für nicht mehr verwendete Produktbilder
 
 ## Arbeitsregel für Projektstand
 
@@ -267,14 +368,17 @@ Wichtig auszuschließen:
 
 ### Block 200 – Projektstand aktualisieren
 
-`docs/PROJEKTSTAND.md` aktualisieren.
+Status: abgeschlossen.
 
-Geplante Inhalte:
+`docs/PROJEKTSTAND.md` wurde nach Block 199 aktualisiert.
 
-- neuer letzter Commit
+Festgehalten wurden:
+
+- letzter sauberer Commit
 - abgeschlossene Blöcke 195 bis 199
-- offene Punkte
-- ggf. angepasste Roadmap
+- aktueller Sicherungsstand
+- offene Sicherungsthemen
+- nächste Phase: Einkaufsliste ab Block 201
 
 ## Phase 2 – Einkaufsliste als Hauptfunktion aufbauen
 
