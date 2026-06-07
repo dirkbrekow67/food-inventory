@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# scripts/backup-database.sh
 
 set -euo pipefail
 
