@@ -18,6 +18,11 @@ import {
   loadLabelSlots,
   updateLabelPrintStatus,
   updateInventoryItemById,
+  loadShoppingListItems,
+  createShoppingListItem,
+  completeShoppingListItemById,
+  reopenShoppingListItemById,
+  deleteShoppingListItemById,
 } from "./api/inventoryApi";
 
 import {
@@ -73,6 +78,8 @@ import { HistorySection } from "./components/history/HistorySection";
 import { StorageSection } from "./components/storage/StorageSection";
 
 import { LabelSheetSection } from "./components/labels/LabelSheetSection";
+
+import { ShoppingListSection } from "./components/shopping/ShoppingListSection";
 
 import { RemovalDialog } from "./components/dialogs/RemovalDialog";
 
@@ -347,6 +354,13 @@ function App() {
   const [loadingInventory, setLoadingInventory] = useState(true);
   const [historyItems, setHistoryItems] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+
+  const [shoppingListItems, setShoppingListItems] = useState([]);
+  const [loadingShoppingList, setLoadingShoppingList] = useState(true);
+  const [savingShoppingListItem, setSavingShoppingListItem] = useState(false);
+  const [showCompletedShoppingItems, setShowCompletedShoppingItems] =
+    useState(false);
+
   const [historyFilterState, setHistoryFilterState] = useState(() =>
     loadHistoryFilterState(),
   );
@@ -444,12 +458,14 @@ function App() {
           inventoryData,
           historyData,
           labelSlotData,
+          shoppingListData,
         ] = await Promise.all([
           loadStorageTree(),
           loadProducts(),
           loadInventoryItems(),
           loadHistoryItems(),
           loadLabelSlots(),
+          loadShoppingListItems(true),
         ]);
 
         setStorageTree(storageData);
@@ -457,6 +473,7 @@ function App() {
         setInventoryItems(inventoryData);
         setHistoryItems(historyData);
         setLabelSlots(labelSlotData);
+        setShoppingListItems(shoppingListData);
       } catch (error) {
         console.error(error);
         setErrorMessage(
@@ -467,6 +484,7 @@ function App() {
         setLoadingProducts(false);
         setLoadingInventory(false);
         setLoadingHistory(false);
+        setLoadingShoppingList(false);
       }
     }
 
@@ -1183,6 +1201,85 @@ function App() {
     );
   }
 
+  async function handleCreateShoppingListItem(payload) {
+    if (!payload.customName.trim()) {
+      setErrorMessage("Bitte einen Artikelnamen eingeben.");
+      return false;
+    }
+
+    try {
+      setSavingShoppingListItem(true);
+      setErrorMessage("");
+
+      const createdItem = await createShoppingListItem(payload);
+
+      setShoppingListItems((currentItems) => [createdItem, ...currentItems]);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Einkaufslisteneintrag konnte nicht gespeichert werden.");
+      return false;
+    } finally {
+      setSavingShoppingListItem(false);
+    }
+  }
+
+  async function handleCompleteShoppingListItem(itemId) {
+    try {
+      setErrorMessage("");
+
+      const updatedItem = await completeShoppingListItemById(itemId);
+
+      setShoppingListItems((currentItems) =>
+        currentItems.map((item) => (item.id === itemId ? updatedItem : item)),
+      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Einkaufslisteneintrag konnte nicht erledigt werden.");
+    }
+  }
+
+  async function handleReopenShoppingListItem(itemId) {
+    try {
+      setErrorMessage("");
+
+      const updatedItem = await reopenShoppingListItemById(itemId);
+
+      setShoppingListItems((currentItems) =>
+        currentItems.map((item) => (item.id === itemId ? updatedItem : item)),
+      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage(
+        "Einkaufslisteneintrag konnte nicht wieder geöffnet werden.",
+      );
+    }
+  }
+
+  async function handleDeleteShoppingListItem(itemId) {
+    const confirmed = window.confirm(
+      "Diesen Einkaufslisteneintrag wirklich löschen?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setErrorMessage("");
+
+      await deleteShoppingListItemById(itemId);
+
+      setShoppingListItems((currentItems) =>
+        currentItems.filter((item) => item.id !== itemId),
+      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Einkaufslisteneintrag konnte nicht gelöscht werden.");
+    }
+  }
+
   function renderActiveSection() {
     if (activeSection === "labels") {
       return (
@@ -1212,6 +1309,22 @@ function App() {
           onEditProduct={startEditProduct}
           onShowProductHistory={showProductHistory}
           onDeactivateProduct={deactivateProduct}
+        />
+      );
+    }
+
+    if (activeSection === "shopping") {
+      return (
+        <ShoppingListSection
+          shoppingListItems={shoppingListItems}
+          loadingShoppingList={loadingShoppingList}
+          showCompletedShoppingItems={showCompletedShoppingItems}
+          savingShoppingListItem={savingShoppingListItem}
+          onShowCompletedShoppingItemsChange={setShowCompletedShoppingItems}
+          onCreateShoppingListItem={handleCreateShoppingListItem}
+          onCompleteShoppingListItem={handleCompleteShoppingListItem}
+          onReopenShoppingListItem={handleReopenShoppingListItem}
+          onDeleteShoppingListItem={handleDeleteShoppingListItem}
         />
       );
     }
@@ -1383,6 +1496,14 @@ function App() {
           onClick={() => changeActiveSection("labels")}
         >
           Etiketten
+        </button>
+
+        <button
+          type="button"
+          className={activeSection === "shopping" ? "active" : ""}
+          onClick={() => changeActiveSection("shopping")}
+        >
+          Einkaufsliste
         </button>
 
         <button

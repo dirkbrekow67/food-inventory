@@ -28,6 +28,10 @@ async function fetchJson(path, errorMessage, options = {}) {
     throw new Error(serverErrorMessage || errorMessage);
   }
 
+  if (response.status === 204) {
+    return null;
+  }
+
   return response.json();
 }
 
@@ -256,5 +260,52 @@ export function uploadProductPhoto({ productId = "new", side = "front", imageDat
       side,
       imageDataUrl,
     }),
+  );
+}
+
+export function loadShoppingListItems(includeCompleted = false) {
+  const query = includeCompleted ? "?includeCompleted=1" : "";
+
+  return fetchJson(
+    `/shopping-list${query}`,
+    "Einkaufsliste konnte nicht geladen werden.",
+  );
+}
+
+export function createShoppingListItem(payload) {
+  return fetchJson(
+    "/shopping-list",
+    "Einkaufslisteneintrag konnte nicht gespeichert werden.",
+    createJsonRequest("POST", payload),
+  );
+}
+
+export function completeShoppingListItemById(itemId) {
+  return fetchJson(
+    `/shopping-list/${itemId}/complete`,
+    "Einkaufslisteneintrag konnte nicht erledigt werden.",
+    {
+      method: "PATCH",
+    },
+  );
+}
+
+export function reopenShoppingListItemById(itemId) {
+  return fetchJson(
+    `/shopping-list/${itemId}/reopen`,
+    "Einkaufslisteneintrag konnte nicht wieder geöffnet werden.",
+    {
+      method: "PATCH",
+    },
+  );
+}
+
+export function deleteShoppingListItemById(itemId) {
+  return fetchJson(
+    `/shopping-list/${itemId}`,
+    "Einkaufslisteneintrag konnte nicht gelöscht werden.",
+    {
+      method: "DELETE",
+    },
   );
 }
