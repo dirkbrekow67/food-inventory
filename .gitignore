@@ -1,23 +1,42 @@
+# Dependencies
 node_modules/
+client/node_modules/
 server/node_modules/
+
+# Build outputs
+client/dist/
+dist/
+
+# Environment files
 .env
+.env.local
+.env.*.local
+client/.env.local
+client/.env.*.local
+server/.env.local
+server/.env.*.local
+
+# macOS
 .DS_Store
 
+# SQLite databases
 server/database/*.db
+server/database/*.db-shm
+server/database/*.db-wal
 server/database/*.sqlite
+server/database/*.sqlite-shm
+server/database/*.sqlite-wal
 server/database/*.sqlite3
+server/database/*.sqlite3-shm
+server/database/*.sqlite3-wal
 
+# Generated QR files
 qr/generated/*.pdf
 qr/generated/*.png
 qr/generated/*.svg
 
-client/dist/
-server/uploads/
-# Lokale Vite-Umgebung
-client/.env.local
-client/.env.*.local
-.env.local
-.env.*.local
-
+# Uploaded files
+server/uploads/*
+!server/uploads/.gitkeep
 server/uploads/products/*
 !server/uploads/products/.gitkeep
