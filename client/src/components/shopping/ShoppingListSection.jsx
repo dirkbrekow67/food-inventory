@@ -17,6 +17,63 @@ function formatShoppingListQuantity(item) {
   return `${quantity} ${unit}`.trim();
 }
 
+function compareText(firstValue, secondValue) {
+  return String(firstValue || "").localeCompare(
+    String(secondValue || ""),
+    "de",
+    {
+      sensitivity: "base",
+      numeric: true,
+    },
+  );
+}
+
+function getPriorityWeight(priority) {
+  if (priority === "hoch") {
+    return 0;
+  }
+
+  if (priority === "normal") {
+    return 1;
+  }
+
+  return 2;
+}
+
+function sortShoppingListItems(items) {
+  return [...items].sort((firstItem, secondItem) => {
+    const firstPriorityWeight = getPriorityWeight(firstItem.priority);
+    const secondPriorityWeight = getPriorityWeight(secondItem.priority);
+
+    if (firstPriorityWeight !== secondPriorityWeight) {
+      return firstPriorityWeight - secondPriorityWeight;
+    }
+
+    return (
+      compareText(firstItem.category, secondItem.category) ||
+      compareText(
+        getShoppingListItemTitle(firstItem),
+        getShoppingListItemTitle(secondItem),
+      ) ||
+      Number(firstItem.id || 0) - Number(secondItem.id || 0)
+    );
+  });
+}
+
+function groupShoppingListItemsByCategory(items) {
+  return items.reduce((groups, item) => {
+    const category = item.category || "Ohne Kategorie";
+
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+
+    groups[category].push(item);
+
+    return groups;
+  }, {});
+}
+
 function createEditStateFromItem(item) {
   return {
     customName: item.custom_name || "",
@@ -51,10 +108,16 @@ export function ShoppingListSection({
     useState(null);
   const [editState, setEditState] = useState(createEditStateFromItem({}));
 
-  const openItems = shoppingListItems.filter((item) => item.status === "open");
-  const completedItems = shoppingListItems.filter(
-    (item) => item.status === "completed",
+  const openItems = sortShoppingListItems(
+    shoppingListItems.filter((item) => item.status === "open"),
   );
+
+  const completedItems = sortShoppingListItems(
+    shoppingListItems.filter((item) => item.status === "completed"),
+  );
+
+  const openItemsByCategory = groupShoppingListItemsByCategory(openItems);
+  const openCategoryNames = Object.keys(openItemsByCategory).sort(compareText);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -434,11 +497,19 @@ export function ShoppingListSection({
         <p className="muted">Noch keine Einkaufslisteneinträge vorhanden.</p>
       )}
 
-      {!loadingShoppingList && openItems.length > 0 && (
-        <ul className="shopping-list-items">
-          {openItems.map(renderShoppingListItem)}
-        </ul>
-      )}
+      {!loadingShoppingList &&
+        openCategoryNames.map((categoryName) => (
+          <div key={categoryName} className="shopping-list-category-group">
+            <div className="shopping-list-category-header">
+              <h3>{categoryName}</h3>
+              <span>{openItemsByCategory[categoryName].length} Einträge</span>
+            </div>
+
+            <ul className="shopping-list-items">
+              {openItemsByCategory[categoryName].map(renderShoppingListItem)}
+            </ul>
+          </div>
+        ))}
 
       {!loadingShoppingList &&
         showCompletedShoppingItems &&

@@ -1857,6 +1857,42 @@ h4 {
   color: #075985 !important;
 }
 
+/* Einkaufsliste – Gruppierung */
+
+.shopping-list-category-group {
+  display: grid;
+  gap: 10px;
+}
+
+.shopping-list-category-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+}
+
+.shopping-list-category-header h3 {
+  margin-bottom: 0;
+  color: #1e3a8a;
+}
+
+.shopping-list-category-header span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 @media print {
   @page {
     size: A4;
