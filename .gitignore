@@ -40,3 +40,6 @@ server/uploads/*
 !server/uploads/.gitkeep
 server/uploads/products/*
 !server/uploads/products/.gitkeep
+
+# Local database backups
+backups/
