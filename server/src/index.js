@@ -12,6 +12,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const productPhotoRoutes = require('./routes/productPhotoRoutes');
 const labelRoutes = require('./routes/labelRoutes');
+const shoppingListRoutes = require('./routes/shoppingListRoutes');
 
 runMigrations();
 
@@ -41,6 +42,7 @@ app.use('/api/labels', labelRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/shopping-list', shoppingListRoutes);
 
 
 
