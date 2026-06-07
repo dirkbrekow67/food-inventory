@@ -309,6 +309,28 @@ brew install sqlite
 ls -lh backups
 ```
 
+### Backup-Aufbewahrung
+
+Das Backup-Skript behält automatisch nur die letzten 12 Datenbank-Backups im Ordner `backups/`.
+
+Ältere Sicherungen mit diesem Muster werden nach einem neuen Backup automatisch gelöscht:
+
+```text
+food_inventory_*.db
+```
+
+Die Anzahl der aufzubewahrenden Backups ist im Skript festgelegt:
+
+```bash
+BACKUP_RETENTION_COUNT=12
+```
+
+Das Skript liegt unter:
+
+```text
+scripts/backup-database.sh
+```
+
 ### Empfehlung für den Raspberry Pi
 
 Auf dem Raspberry Pi sollte die Datenbank zusätzlich automatisch gesichert werden, mindestens einmal wöchentlich.
