@@ -555,6 +555,81 @@ npm run build
 npm run lint
 ```
 
+## Projektstand als ZIP weitergeben
+
+Für Chat-Neustart, Übergabe oder externe Prüfung kann ein Projektstand als ZIP-Datei erstellt werden.
+
+Dabei sollen nur Projektdateien, Quellcode, Skripte und Dokumentation enthalten sein.
+
+Nicht in die ZIP-Datei gehören:
+
+```text
+.git
+node_modules
+client/node_modules
+server/node_modules
+client/dist
+server/database/food_inventory.db
+backups
+server/uploads
+.env.local
+client/.env.local
+server/.env.local
+```
+
+Wichtig:
+
+```text
+Die ZIP-Datei enthält keine aktuelle Datenbank, keine Backups und keine hochgeladenen Produktbilder.
+```
+
+Das ist bewusst so, damit keine privaten Inventardaten, Produktbilder oder lokalen Zugangsdaten versehentlich weitergegeben werden.
+
+### ZIP-Datei erstellen
+
+Aus dem Projekt-Hauptordner ausführen:
+
+```bash
+zip -r food-inventory-projektstand.zip . \
+  -x ".git/*" \
+  -x "node_modules/*" \
+  -x "client/node_modules/*" \
+  -x "server/node_modules/*" \
+  -x "client/dist/*" \
+  -x "server/database/food_inventory.db" \
+  -x "backups/*" \
+  -x "server/uploads/*" \
+  -x ".env.local" \
+  -x "client/.env.local" \
+  -x "server/.env.local"
+```
+
+### ZIP-Datei prüfen
+
+```bash
+unzip -l food-inventory-projektstand.zip | head -50
+```
+
+Zusätzlich prüfen, ob sensible Inhalte ausgeschlossen sind:
+
+```bash
+unzip -l food-inventory-projektstand.zip | grep -E "node_modules|food_inventory.db|backups|server/uploads|\.env.local"
+```
+
+Wenn dieser Befehl keine Treffer ausgibt, sind die wichtigsten auszuschließenden Inhalte nicht in der ZIP-Datei enthalten.
+
+### Projektstand für spätere Fortsetzung
+
+Für eine spätere Fortsetzung reichen in der Regel:
+
+```text
+food-inventory-projektstand.zip
+docs/PROJEKTSTAND.md
+git log --oneline -20
+```
+
+Die eigentlichen Inventardaten bleiben lokal in der SQLite-Datenbank und werden separat über das Backup-Verfahren gesichert.
+
 ## Hinweise
 
 Die IP-Adresse `192.168.176.82` ist die aktuelle lokale Mac-IP. Sie kann sich durch DHCP oder Netzwerkwechsel ändern.
