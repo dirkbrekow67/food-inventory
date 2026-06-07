@@ -16,9 +16,16 @@ if [ ! -f "$DATABASE_FILE" ]; then
   exit 1
 fi
 
+if ! command -v sqlite3 >/dev/null 2>&1; then
+  echo "Fehler: sqlite3 ist nicht installiert."
+  echo "Installation auf Debian/Raspberry Pi z. B.:"
+  echo "sudo apt install sqlite3"
+  exit 1
+fi
+
 mkdir -p "$BACKUP_DIR"
 
-cp "$DATABASE_FILE" "$BACKUP_FILE"
+sqlite3 "$DATABASE_FILE" ".backup '$BACKUP_FILE'"
 
 echo "Datenbank-Backup erstellt:"
 echo "$BACKUP_FILE"
