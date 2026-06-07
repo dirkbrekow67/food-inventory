@@ -77,6 +77,138 @@ API-Test mit Mac-IP:
 curl http://192.168.176.82:3101/api/health
 ```
 
+## Start auf dem Raspberry Pi
+
+Geplanter Projektpfad auf dem Raspberry Pi:
+
+```text
+~/projekte/food-inventory
+```
+
+### Projekt aktualisieren
+
+```bash
+cd ~/projekte/food-inventory
+git pull
+```
+
+### Abhängigkeiten installieren oder aktualisieren
+
+Nach dem ersten Klonen oder nach Änderungen an `package.json` aus dem Projekt-Hauptordner ausführen:
+
+```bash
+npm install
+npm install --prefix client
+npm install --prefix server
+```
+
+### Server starten
+
+```bash
+npm run dev:server
+```
+
+Der Server läuft auf Port `3101`.
+
+API-Test direkt auf dem Raspberry Pi:
+
+```bash
+curl http://localhost:3101/api/health
+```
+
+Erwartete Antwort:
+
+```json
+{ "status": "ok", "service": "food-inventory-server" }
+```
+
+API-Test aus dem lokalen Netzwerk, Beispiel:
+
+```bash
+curl http://192.168.176.89:3101/api/health
+```
+
+### Client starten
+
+In einem zweiten Terminal:
+
+```bash
+cd ~/projekte/food-inventory
+npm run dev:client
+```
+
+Der Client läuft auf Port `5174`.
+
+Vite zeigt z. B.:
+
+```text
+Local:   http://localhost:5174/
+Network: http://192.168.176.89:5174/
+```
+
+Auf einem Handy oder Mac im selben Netzwerk öffnen:
+
+```text
+http://192.168.176.89:5174
+```
+
+### QR-Code-Basisadresse auf dem Raspberry Pi
+
+Für QR-Codes muss die lokale Raspberry-Pi-Adresse in `client/.env.local` stehen, nicht `localhost`.
+
+Beispiel:
+
+```env
+VITE_APP_BASE_URL=http://192.168.176.89:5174
+```
+
+Die Vorlage liegt in:
+
+```text
+client/.env.example
+```
+
+Falls die Datei `client/.env.local` noch nicht existiert:
+
+```bash
+cp client/.env.example client/.env.local
+```
+
+Danach `client/.env.local` prüfen und die passende Raspberry-Pi-IP eintragen.
+
+### IP-Adresse des Raspberry Pi prüfen
+
+```bash
+hostname -I
+```
+
+Die IP-Adresse kann sich durch DHCP oder Netzwerkwechsel ändern. Wenn sich die IP ändert, muss auch `client/.env.local` angepasst werden, damit neue QR-Codes auf die richtige Adresse zeigen.
+
+### Datenbank auf dem Raspberry Pi
+
+Die SQLite-Datenbank liegt unter:
+
+```text
+server/database/food_inventory.db
+```
+
+Vor größeren Änderungen sollte die Datenbank gesichert werden.
+
+### Qualitätssicherung auf dem Raspberry Pi
+
+Vor Commits mit Client-Änderungen:
+
+```bash
+npm run check:client
+```
+
+Dieser Befehl führt im Client nacheinander aus:
+
+```bash
+npm run build
+npm run lint
+```
+
 ## Entwicklungsanzeige der API-Adresse und Serverstatus
 
 Im Entwicklungsmodus zeigt die App oben im Kopfbereich die aktuell verwendete API-Adresse und den Serverstatus an.
