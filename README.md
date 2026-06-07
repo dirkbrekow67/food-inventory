@@ -404,6 +404,80 @@ Logs des Backup-Laufs anzeigen:
 journalctl -u food-inventory-backup.service
 ```
 
+### Backup aus einer Sicherung wiederherstellen
+
+Ein Datenbank-Backup sollte nur wiederhergestellt werden, wenn klar ist, welche Sicherung verwendet werden soll.
+
+Vor dem Wiederherstellen wird die aktuelle Datenbank zusätzlich gesichert, damit sie bei Bedarf wieder zurückkopiert werden kann.
+
+#### 1. Server stoppen
+
+Falls der Server im Terminal läuft, den Server mit `CTRL + C` beenden.
+
+Falls später ein systemd-Service für den Server verwendet wird, muss dieser vor der Wiederherstellung gestoppt werden.
+
+#### 2. Vorhandene Backups anzeigen
+
+Aus dem Projekt-Hauptordner ausführen:
+
+```bash
+ls -lh backups
+```
+
+Beispiel:
+
+```text
+food_inventory_2026-06-07_09-47-28.db
+```
+
+#### 3. Aktuelle Datenbank vorsichtshalber zusätzlich sichern
+
+```bash
+cp server/database/food_inventory.db "server/database/food_inventory_before_restore_$(date +"%Y-%m-%d_%H-%M-%S").db"
+```
+
+#### 4. Gewünschtes Backup zurückkopieren
+
+Den Dateinamen im folgenden Befehl an das gewünschte Backup anpassen:
+
+```bash
+cp backups/food_inventory_YYYY-MM-DD_HH-MM-SS.db server/database/food_inventory.db
+```
+
+Beispiel:
+
+```bash
+cp backups/food_inventory_2026-06-07_09-47-28.db server/database/food_inventory.db
+```
+
+#### 5. Server neu starten
+
+```bash
+npm run dev:server
+```
+
+#### 6. Funktion prüfen
+
+In einem zweiten Terminal prüfen:
+
+```bash
+curl http://localhost:3101/api/health
+```
+
+Erwartete Antwort:
+
+```json
+{ "status": "ok", "service": "food-inventory-server" }
+```
+
+Danach die App im Browser öffnen und Bestand, Produkte und Historie prüfen.
+
+#### Hinweis
+
+Die Wiederherstellung ersetzt nur die SQLite-Datenbank.
+
+Produktbilder im Ordner `server/uploads/products/` werden dadurch nicht wiederhergestellt. Dafür ist später eine separate Sicherung der Upload-Dateien erforderlich.
+
 ### Backup manuell über systemd starten
 
 ```bash
