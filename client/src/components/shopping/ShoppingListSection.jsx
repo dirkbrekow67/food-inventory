@@ -17,6 +17,17 @@ function formatShoppingListQuantity(item) {
   return `${quantity} ${unit}`.trim();
 }
 
+function createEditStateFromItem(item) {
+  return {
+    customName: item.custom_name || "",
+    quantity: item.quantity ?? "",
+    unit: item.unit || "",
+    category: item.category || "",
+    priority: item.priority || "normal",
+    note: item.note || "",
+  };
+}
+
 export function ShoppingListSection({
   shoppingListItems,
   loadingShoppingList,
@@ -24,6 +35,7 @@ export function ShoppingListSection({
   savingShoppingListItem,
   onShowCompletedShoppingItemsChange,
   onCreateShoppingListItem,
+  onUpdateShoppingListItem,
   onCompleteShoppingListItem,
   onReopenShoppingListItem,
   onDeleteShoppingListItem,
@@ -33,6 +45,11 @@ export function ShoppingListSection({
   const [unit, setUnit] = useState("");
   const [category, setCategory] = useState("");
   const [priority, setPriority] = useState("normal");
+  const [note, setNote] = useState("");
+
+  const [editingShoppingListItemId, setEditingShoppingListItemId] =
+    useState(null);
+  const [editState, setEditState] = useState(createEditStateFromItem({}));
 
   const openItems = shoppingListItems.filter((item) => item.status === "open");
   const completedItems = shoppingListItems.filter(
@@ -48,6 +65,7 @@ export function ShoppingListSection({
       unit,
       category,
       priority,
+      note,
     });
 
     if (!wasSaved) {
@@ -59,9 +77,166 @@ export function ShoppingListSection({
     setUnit("");
     setCategory("");
     setPriority("normal");
+    setNote("");
+  }
+
+  function startEditShoppingListItem(item) {
+    setEditingShoppingListItemId(item.id);
+    setEditState(createEditStateFromItem(item));
+  }
+
+  function cancelEditShoppingListItem() {
+    setEditingShoppingListItemId(null);
+    setEditState(createEditStateFromItem({}));
+  }
+
+  function updateEditState(field, value) {
+    setEditState((currentEditState) => ({
+      ...currentEditState,
+      [field]: value,
+    }));
+  }
+
+  async function saveEditShoppingListItem(item) {
+    const wasSaved = await onUpdateShoppingListItem(item.id, {
+      productId: item.product_id,
+      customName: editState.customName,
+      quantity: editState.quantity,
+      unit: editState.unit,
+      category: editState.category,
+      priority: editState.priority,
+      note: editState.note,
+      isForeignPurchase: item.is_foreign_purchase === 1,
+      status: item.status,
+    });
+
+    if (!wasSaved) {
+      return;
+    }
+
+    cancelEditShoppingListItem();
+  }
+
+  function renderShoppingListEditForm(item) {
+    const title = getShoppingListItemTitle(item);
+
+    return (
+      <li key={item.id} className="shopping-list-item shopping-list-item-edit">
+        <div className="shopping-list-edit-form">
+          <h3>{title} bearbeiten</h3>
+
+          {!item.product_id && (
+            <label>
+              Artikelname
+              <input
+                type="text"
+                value={editState.customName}
+                onChange={(event) =>
+                  updateEditState("customName", event.target.value)
+                }
+              />
+            </label>
+          )}
+
+          {item.product_id && (
+            <p className="muted">
+              Produktbezogene Einträge behalten den Produktnamen. Menge,
+              Einheit, Kategorie, Priorität und Notiz können geändert werden.
+            </p>
+          )}
+
+          <div className="shopping-list-form-grid">
+            <label>
+              Menge
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={editState.quantity}
+                onChange={(event) =>
+                  updateEditState("quantity", event.target.value)
+                }
+              />
+            </label>
+
+            <label>
+              Einheit
+              <input
+                type="text"
+                value={editState.unit}
+                onChange={(event) =>
+                  updateEditState("unit", event.target.value)
+                }
+              />
+            </label>
+          </div>
+
+          <div className="shopping-list-form-grid">
+            <label>
+              Kategorie
+              <input
+                type="text"
+                value={editState.category}
+                onChange={(event) =>
+                  updateEditState("category", event.target.value)
+                }
+              />
+            </label>
+
+            <label>
+              Priorität
+              <select
+                value={editState.priority}
+                onChange={(event) =>
+                  updateEditState("priority", event.target.value)
+                }
+              >
+                <option value="niedrig">niedrig</option>
+                <option value="normal">normal</option>
+                <option value="hoch">hoch</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Notiz
+            <textarea
+              rows="3"
+              value={editState.note}
+              onChange={(event) => updateEditState("note", event.target.value)}
+              placeholder="z. B. nur wenn im Angebot"
+            />
+          </label>
+
+          <div className="shopping-list-item-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => saveEditShoppingListItem(item)}
+              disabled={savingShoppingListItem}
+            >
+              Speichern
+            </button>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={cancelEditShoppingListItem}
+              disabled={savingShoppingListItem}
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      </li>
+    );
   }
 
   function renderShoppingListItem(item) {
+    if (editingShoppingListItemId === item.id) {
+      return renderShoppingListEditForm(item);
+    }
+
     const title = getShoppingListItemTitle(item);
     const quantityText = formatShoppingListQuantity(item);
 
@@ -85,10 +260,19 @@ export function ShoppingListSection({
             {item.priority && <span>Priorität: {item.priority}</span>}
           </p>
 
-          {item.note && <p>{item.note}</p>}
+          {item.note && <p className="shopping-list-note">{item.note}</p>}
         </div>
 
         <div className="shopping-list-item-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => startEditShoppingListItem(item)}
+            disabled={savingShoppingListItem}
+          >
+            Bearbeiten
+          </button>
+
           {item.status === "open" ? (
             <button
               type="button"
@@ -192,6 +376,16 @@ export function ShoppingListSection({
             </select>
           </label>
         </div>
+
+        <label>
+          Notiz
+          <textarea
+            rows="3"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="z. B. nur wenn im Angebot"
+          />
+        </label>
 
         <div className="form-actions">
           <button

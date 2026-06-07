@@ -20,6 +20,7 @@ import {
   updateInventoryItemById,
   loadShoppingListItems,
   createShoppingListItem,
+  updateShoppingListItemById,
   completeShoppingListItemById,
   reopenShoppingListItemById,
   deleteShoppingListItemById,
@@ -1255,6 +1256,32 @@ function App() {
     }
   }
 
+  async function handleUpdateShoppingListItem(itemId, payload) {
+    if (!payload.productId && !payload.customName.trim()) {
+      setErrorMessage("Bitte einen Artikelnamen eingeben.");
+      return false;
+    }
+
+    try {
+      setSavingShoppingListItem(true);
+      setErrorMessage("");
+
+      const updatedItem = await updateShoppingListItemById(itemId, payload);
+
+      setShoppingListItems((currentItems) =>
+        currentItems.map((item) => (item.id === itemId ? updatedItem : item)),
+      );
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Einkaufslisteneintrag konnte nicht gespeichert werden.");
+      return false;
+    } finally {
+      setSavingShoppingListItem(false);
+    }
+  }
+
   async function handleCompleteShoppingListItem(itemId) {
     try {
       setErrorMessage("");
@@ -1354,6 +1381,7 @@ function App() {
           savingShoppingListItem={savingShoppingListItem}
           onShowCompletedShoppingItemsChange={setShowCompletedShoppingItems}
           onCreateShoppingListItem={handleCreateShoppingListItem}
+          onUpdateShoppingListItem={handleUpdateShoppingListItem}
           onCompleteShoppingListItem={handleCompleteShoppingListItem}
           onReopenShoppingListItem={handleReopenShoppingListItem}
           onDeleteShoppingListItem={handleDeleteShoppingListItem}

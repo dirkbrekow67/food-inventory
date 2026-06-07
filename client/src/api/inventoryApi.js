@@ -280,6 +280,14 @@ export function createShoppingListItem(payload) {
   );
 }
 
+export function updateShoppingListItemById(itemId, payload) {
+  return fetchJson(
+    `/shopping-list/${itemId}`,
+    "Einkaufslisteneintrag konnte nicht aktualisiert werden.",
+    createJsonRequest("PUT", payload),
+  );
+}
+
 export function completeShoppingListItemById(itemId) {
   return fetchJson(
     `/shopping-list/${itemId}/complete`,
