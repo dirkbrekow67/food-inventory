@@ -287,6 +287,22 @@ backups/food_inventory_2026-06-07_09-47-28.db
 
 Der Ordner `backups/` ist in `.gitignore` eingetragen. Lokale Backups werden daher nicht in Git übernommen.
 
+### Voraussetzung für das Backup-Skript
+
+Das Backup-Skript verwendet die SQLite-eigene Backup-Funktion. Dafür muss auf dem jeweiligen System `sqlite3` installiert sein.
+
+Installation auf Debian/Raspberry Pi:
+
+```bash
+sudo apt install sqlite3
+```
+
+Installation auf macOS mit Homebrew:
+
+```bash
+brew install sqlite
+```
+
 ### Backup prüfen
 
 ```bash
