@@ -323,20 +323,81 @@ Empfohlene Strategie:
 
 Ein lokales Backup auf dem Raspberry Pi schützt vor versehentlichem Löschen oder fehlerhaften Änderungen. Gegen Defekte der SD-Karte, SSD oder des Raspberry Pi selbst schützt es nur, wenn die Sicherung zusätzlich auf ein anderes Gerät kopiert wird.
 
-### Geplanter nächster Schritt
+### Automatisches wöchentliches Backup auf dem Raspberry Pi
 
-Für den Raspberry Pi soll später ein automatischer `systemd`-Timer eingerichtet werden, der das Backup-Skript regelmäßig ausführt.
+Für den Raspberry Pi sind vorbereitete `systemd`-Dateien im Projekt enthalten:
 
-Geplante Prüfung des Timers:
+```text
+scripts/raspi/food-inventory-backup.service
+scripts/raspi/food-inventory-backup.timer
+```
+
+Der Timer führt das Backup-Skript einmal wöchentlich aus.
+
+Geplanter Zeitpunkt:
+
+```text
+Sonntag, 03:30 Uhr
+```
+
+Die Einstellung steht in:
+
+```text
+scripts/raspi/food-inventory-backup.timer
+```
+
+### systemd-Timer installieren
+
+Auf dem Raspberry Pi aus dem Projekt-Hauptordner ausführen:
+
+```bash
+cd ~/projekte/food-inventory
+sudo cp scripts/raspi/food-inventory-backup.service /etc/systemd/system/
+sudo cp scripts/raspi/food-inventory-backup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now food-inventory-backup.timer
+```
+
+### Timer prüfen
 
 ```bash
 systemctl list-timers | grep food-inventory
 ```
 
-Geplante Log-Prüfung:
+Status des Timers anzeigen:
+
+```bash
+systemctl status food-inventory-backup.timer
+```
+
+Status des letzten Backup-Laufs anzeigen:
+
+```bash
+systemctl status food-inventory-backup.service
+```
+
+Logs des Backup-Laufs anzeigen:
 
 ```bash
 journalctl -u food-inventory-backup.service
+```
+
+### Backup manuell über systemd starten
+
+```bash
+sudo systemctl start food-inventory-backup.service
+```
+
+Danach prüfen:
+
+```bash
+ls -lh ~/projekte/food-inventory/backups
+```
+
+### systemd-Timer deaktivieren
+
+```bash
+sudo systemctl disable --now food-inventory-backup.timer
 ```
 
 ## Qualitätssicherung
