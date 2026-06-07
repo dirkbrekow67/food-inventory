@@ -247,18 +247,26 @@ export function ShoppingListSection({
           item.status === "completed" ? "shopping-list-item-completed" : ""
         }`}
       >
-        <div>
+        <div className="shopping-list-item-main">
           <h3>{title}</h3>
 
-          <p className="muted">
+          <div className="shopping-list-item-meta">
             {quantityText && <span>{quantityText}</span>}
-            {quantityText && item.category && <span> · </span>}
             {item.category && <span>{item.category}</span>}
-            {(quantityText || item.category) && item.priority && (
-              <span> · </span>
+            {item.priority && (
+              <span
+                className={
+                  item.priority === "hoch"
+                    ? "shopping-list-item-priority-high"
+                    : item.priority === "niedrig"
+                      ? "shopping-list-item-priority-low"
+                      : ""
+                }
+              >
+                Priorität: {item.priority}
+              </span>
             )}
-            {item.priority && <span>Priorität: {item.priority}</span>}
-          </p>
+          </div>
 
           {item.note && <p className="shopping-list-note">{item.note}</p>}
         </div>
@@ -276,7 +284,7 @@ export function ShoppingListSection({
           {item.status === "open" ? (
             <button
               type="button"
-              className="secondary-button"
+              className="secondary-button shopping-list-primary-action"
               onClick={() => onCompleteShoppingListItem(item.id)}
             >
               Erledigt
@@ -293,7 +301,7 @@ export function ShoppingListSection({
 
           <button
             type="button"
-            className="secondary-button danger-button"
+            className="secondary-button shopping-list-secondary-danger"
             onClick={() => onDeleteShoppingListItem(item.id)}
           >
             Löschen

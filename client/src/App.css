@@ -1788,6 +1788,75 @@ h4 {
   margin-top: 8px;
 }
 
+/* client/src/App.css */
+/* Mobile Optimierung Einkaufsliste */
+
+.shopping-list-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shopping-list-item-actions button {
+  min-height: 42px;
+}
+
+.shopping-list-primary-action {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.shopping-list-primary-action:hover {
+  background: #dcfce7;
+}
+
+.shopping-list-secondary-danger {
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.shopping-list-secondary-danger:hover {
+  background: #fee2e2;
+}
+
+.shopping-list-item-main {
+  min-width: 0;
+}
+
+.shopping-list-item-main h3 {
+  overflow-wrap: anywhere;
+}
+
+.shopping-list-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.shopping-list-item-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.shopping-list-item-priority-high {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.shopping-list-item-priority-low {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+}
+
 @media print {
   @page {
     size: A4;
