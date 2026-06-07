@@ -1,0 +1,11 @@
+# scripts/raspi/food-inventory-backup.service
+
+[Unit]
+Description=Food Inventory database backup
+Documentation=README.md
+
+[Service]
+Type=oneshot
+User=dirk
+WorkingDirectory=/home/dirk/projekte/food-inventory
+ExecStart=/home/dirk/projekte/food-inventory/scripts/backup-database.sh

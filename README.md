@@ -1,3 +1,5 @@
+<!-- README.md -->
+
 # Food Inventory
 
 Lebensmittel-Inventar-App für Gefrierschrank, Kühlschrank, Vorratskammer und Auslandseinkäufe.
@@ -255,6 +257,70 @@ Die SQLite-Datenbank liegt unter:
 
 ```text
 server/database/food_inventory.db
+```
+
+## Datensicherung
+
+Die SQLite-Datenbank enthält die eigentlichen Inventardaten und sollte vor größeren Änderungen sowie regelmäßig auf dem Raspberry Pi gesichert werden.
+
+Die Datenbank liegt unter:
+
+```text
+server/database/food_inventory.db
+```
+
+### Manuelles Datenbank-Backup
+
+Aus dem Projekt-Hauptordner ausführen:
+
+```bash
+./scripts/backup-database.sh
+```
+
+Das Backup wird im Ordner `backups/` abgelegt.
+
+Beispiel:
+
+```text
+backups/food_inventory_2026-06-07_09-47-28.db
+```
+
+Der Ordner `backups/` ist in `.gitignore` eingetragen. Lokale Backups werden daher nicht in Git übernommen.
+
+### Backup prüfen
+
+```bash
+ls -lh backups
+```
+
+### Empfehlung für den Raspberry Pi
+
+Auf dem Raspberry Pi sollte die Datenbank zusätzlich automatisch gesichert werden, mindestens einmal wöchentlich.
+
+Empfohlene Strategie:
+
+```text
+1× wöchentlich automatisches Backup
++ manuelles Backup vor größeren Änderungen
++ regelmäßiges Kopieren wichtiger Backups auf Mac, NAS, externe Festplatte oder Cloud
+```
+
+Ein lokales Backup auf dem Raspberry Pi schützt vor versehentlichem Löschen oder fehlerhaften Änderungen. Gegen Defekte der SD-Karte, SSD oder des Raspberry Pi selbst schützt es nur, wenn die Sicherung zusätzlich auf ein anderes Gerät kopiert wird.
+
+### Geplanter nächster Schritt
+
+Für den Raspberry Pi soll später ein automatischer `systemd`-Timer eingerichtet werden, der das Backup-Skript regelmäßig ausführt.
+
+Geplante Prüfung des Timers:
+
+```bash
+systemctl list-timers | grep food-inventory
+```
+
+Geplante Log-Prüfung:
+
+```bash
+journalctl -u food-inventory-backup.service
 ```
 
 ## Qualitätssicherung

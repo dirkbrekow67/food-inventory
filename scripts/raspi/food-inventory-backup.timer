@@ -1,0 +1,12 @@
+# scripts/raspi/food-inventory-backup.timer
+
+[Unit]
+Description=Run Food Inventory database backup weekly
+
+[Timer]
+OnCalendar=Sun *-*-* 03:30:00
+Persistent=true
+Unit=food-inventory-backup.service
+
+[Install]
+WantedBy=timers.target
