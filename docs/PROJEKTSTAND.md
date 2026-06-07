@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-07 – nach Block 199
+Stand: 2026-06-07 – nach Block 210
 
 ## Ziel des Projekts
 
@@ -180,11 +180,11 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
-48f6d41 Document project zip handoff
-5a69836 Document product image storage
-519b2a8 Add database restore script
-31b811e Document database restore workflow
-10044e1 Add project roadmap
+1e4efe6 Sort and group shopping list items
+f58dac5 Improve mobile shopping list layout
+880f22a Add editable shopping list details
+9690f9e Add product buy again filter
+e21e817 Add products to shopping list
 ```
 
 ## Abgeschlossene Blöcke seit letzter Projektstand-Aktualisierung
@@ -270,6 +270,40 @@ food-inventory-projektstand.zip
 docs/PROJEKTSTAND.md
 git log --oneline -20
 ```
+
+## Einkaufsliste
+
+Die Einkaufsliste ist als eigener Hauptbereich in der Anwendung vorhanden.
+
+Aktueller Stand:
+
+- freie Einkaufslisteneinträge können angelegt werden
+- Produkte können aus der Produktansicht direkt zur Einkaufsliste übernommen werden
+- Produkte mit der Bewertung „wieder kaufen“ können über einen Produktfilter gezielt angezeigt werden
+- aus der Produktansicht übernommene Produkte werden mit Produktbezug gespeichert
+- bei Produkten mit „wieder kaufen“ wird die Priorität automatisch auf „hoch“ gesetzt
+- Einkaufslisteneinträge können bearbeitet werden
+- Menge, Einheit, Kategorie, Priorität und Notiz können geändert werden
+- Einträge können als erledigt markiert und wieder geöffnet werden
+- Einträge können gelöscht werden
+- offene Einträge werden nach Priorität, Kategorie und Name sortiert
+- offene Einträge werden nach Kategorie gruppiert
+- erledigte Einträge werden getrennt angezeigt
+- die mobile Darstellung der Einkaufsliste wurde verbessert
+
+Technischer Stand:
+
+- Tabelle `shopping_list_items` ist vorhanden
+- API-Routen für Laden, Anlegen, Bearbeiten, Erledigen, Wiederöffnen und Löschen sind vorhanden
+- Frontend-Komponente `ShoppingListSection` ist vorhanden
+- die Einkaufsliste ist über die Hauptnavigation erreichbar
+
+Offene nächste Schritte:
+
+- Einkaufsliste für Auslandseinkäufe filtern oder kennzeichnen
+- Mehrfachauswahl oder Sammelaktionen prüfen
+- erledigte Einkäufe optional in die Historie übernehmen
+- spätere Druck- oder Exportansicht prüfen
 
 ## Aktueller Sicherungsstand
 
@@ -380,6 +414,18 @@ Festgehalten wurden:
 - offene Sicherungsthemen
 - nächste Phase: Einkaufsliste ab Block 201
 
+### Abgeschlossene Blöcke Einkaufsliste
+
+- Block 201: Datenmodell Einkaufsliste geplant
+- Block 202: Datenbanktabelle `shopping_list_items` angelegt
+- Block 203: API-Routen für Einkaufsliste erstellt
+- Block 204: Frontend-Grundansicht der Einkaufsliste erstellt
+- Block 205: Produkte können zur Einkaufsliste hinzugefügt werden
+- Block 206: Produktfilter für „wieder kaufen“ ergänzt
+- Block 207: Mengen, Einheit, Kategorie, Priorität und Notiz bearbeitbar gemacht
+- Block 208: mobile Darstellung der Einkaufsliste verbessert
+- Block 209: Einkaufsliste nach Priorität und Kategorie sortiert und gruppiert
+
 ## Phase 2 – Einkaufsliste als Hauptfunktion aufbauen
 
 ### Block 201 – Datenmodell Einkaufsliste planen
@@ -460,26 +506,33 @@ Einkaufsliste um Mengen, Einheiten und Notizen ergänzen.
 
 Ziel: Einkaufseinträge sollen praktisch im Laden nutzbar sein.
 
-### Block 208 – Artikel abhaken und erledigen
+### Block 208 – Mobile Ansicht Einkaufsliste optimieren
 
-Einträge als erledigt markieren.
+Status: abgeschlossen.
 
-Geplante Funktionen:
+Die mobile Darstellung der Einkaufsliste wurde verbessert.
 
-- abhaken
-- wieder öffnen
-- erledigte Einträge ausblenden
-- erledigte Einträge anzeigen
+Umgesetzt wurden:
 
-### Block 209 – Erledigte Einkäufe in Historie übernehmen
+- kompaktere Eintragsdarstellung
+- größere Touchflächen
+- klarere Prioritätsanzeige
+- optisch hervorgehobene Erledigt-Aktion
+- weniger dominante Löschaktion
 
-Prüfen, ob erledigte Einkaufseinträge in die Historie übernommen werden sollen.
+### Block 209 – Einkaufsliste sortieren und gruppieren
 
-Mögliche Historieninformation:
+Status: abgeschlossen.
 
-```text
-Artikel gekauft
-```
+Die Einkaufsliste wurde für die praktische Nutzung im Laden sortiert und gruppiert.
+
+Umgesetzt wurden:
+
+- offene Einträge werden nach Priorität sortiert
+- danach nach Kategorie und Name
+- offene Einträge werden nach Kategorie gruppiert
+- Kategoriegruppen zeigen die Anzahl der Einträge
+- erledigte Einträge bleiben separat
 
 ### Block 210 – Projektstand aktualisieren
 
