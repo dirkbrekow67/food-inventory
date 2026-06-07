@@ -1225,6 +1225,36 @@ function App() {
     }
   }
 
+  async function handleAddProductToShoppingList(product) {
+    try {
+      setSavingShoppingListItem(true);
+      setErrorMessage("");
+
+      const createdItem = await createShoppingListItem({
+        productId: product.id,
+        customName: "",
+        quantity: "",
+        unit: "",
+        category: product.category || "",
+        priority:
+          product.buy_again_status === "wieder_kaufen" ? "hoch" : "normal",
+      });
+
+      setShoppingListItems((currentItems) => [createdItem, ...currentItems]);
+      setActiveSection(saveActiveSection("shopping"));
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      setErrorMessage(
+        "Produkt konnte nicht zur Einkaufsliste hinzugefügt werden.",
+      );
+      return false;
+    } finally {
+      setSavingShoppingListItem(false);
+    }
+  }
+
   async function handleCompleteShoppingListItem(itemId) {
     try {
       setErrorMessage("");
@@ -1309,6 +1339,8 @@ function App() {
           onEditProduct={startEditProduct}
           onShowProductHistory={showProductHistory}
           onDeactivateProduct={deactivateProduct}
+          onAddProductToShoppingList={handleAddProductToShoppingList}
+          savingShoppingListItem={savingShoppingListItem}
         />
       );
     }
@@ -1403,6 +1435,8 @@ function App() {
             onEditProduct={startEditProduct}
             onShowProductHistory={showProductHistory}
             onDeactivateProduct={deactivateProduct}
+            onAddProductToShoppingList={handleAddProductToShoppingList}
+            savingShoppingListItem={savingShoppingListItem}
           />
         )}
 

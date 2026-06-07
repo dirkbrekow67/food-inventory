@@ -9,6 +9,8 @@ export function ProductGrid({
   onEditProduct,
   onShowProductHistory,
   onDeactivateProduct,
+  onAddProductToShoppingList,
+  savingShoppingListItem,
 }) {
   return (
     <div className="product-grid">
@@ -26,6 +28,8 @@ export function ProductGrid({
             onEditProduct={onEditProduct}
             onShowProductHistory={onShowProductHistory}
             onDeactivateProduct={onDeactivateProduct}
+            onAddProductToShoppingList={onAddProductToShoppingList}
+            savingShoppingListItem={savingShoppingListItem}
           />
         );
       })}

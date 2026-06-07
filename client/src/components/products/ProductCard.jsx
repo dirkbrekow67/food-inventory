@@ -16,6 +16,8 @@ export function ProductCard({
   onEditProduct,
   onShowProductHistory,
   onDeactivateProduct,
+  onAddProductToShoppingList,
+  savingShoppingListItem,
 }) {
   return (
     <article className="product-card">
@@ -60,6 +62,14 @@ export function ProductCard({
       <div className="product-actions">
         <button type="button" onClick={() => onEditProduct(product)}>
           Bearbeiten
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onAddProductToShoppingList(product)}
+          disabled={savingShoppingListItem}
+        >
+          Zur Einkaufsliste
         </button>
 
         {productHistorySummary.count > 0 && (

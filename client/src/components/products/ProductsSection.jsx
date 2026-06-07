@@ -164,6 +164,8 @@ export function ProductsSection({
   onEditProduct,
   onShowProductHistory,
   onDeactivateProduct,
+  onAddProductToShoppingList,
+  savingShoppingListItem,
 }) {
   const [productFilterState, setProductFilterState] = useState(() =>
     loadProductFilterState(),
@@ -413,6 +415,8 @@ export function ProductsSection({
         onEditProduct={onEditProduct}
         onShowProductHistory={onShowProductHistory}
         onDeactivateProduct={onDeactivateProduct}
+        onAddProductToShoppingList={onAddProductToShoppingList}
+        savingShoppingListItem={savingShoppingListItem}
       />
     </section>
   );
