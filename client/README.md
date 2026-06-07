@@ -1,3 +1,5 @@
+<!-- client/README.md -->
+
 # Food Inventory – Client
 
 React/Vite-Frontend für die Lebensmittel-Inventar-App.
