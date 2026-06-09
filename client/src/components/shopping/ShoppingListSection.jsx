@@ -82,6 +82,7 @@ function createEditStateFromItem(item) {
     category: item.category || "",
     priority: item.priority || "normal",
     note: item.note || "",
+    isForeignPurchase: item.is_foreign_purchase === 1,
   };
 }
 
@@ -103,6 +104,8 @@ export function ShoppingListSection({
   const [category, setCategory] = useState("");
   const [priority, setPriority] = useState("normal");
   const [note, setNote] = useState("");
+
+  const [isForeignPurchase, setIsForeignPurchase] = useState(false);
 
   const [editingShoppingListItemId, setEditingShoppingListItemId] =
     useState(null);
@@ -129,6 +132,7 @@ export function ShoppingListSection({
       category,
       priority,
       note,
+      isForeignPurchase,
     });
 
     if (!wasSaved) {
@@ -141,6 +145,7 @@ export function ShoppingListSection({
     setCategory("");
     setPriority("normal");
     setNote("");
+    setIsForeignPurchase(false);
   }
 
   function startEditShoppingListItem(item) {
@@ -169,7 +174,7 @@ export function ShoppingListSection({
       category: editState.category,
       priority: editState.priority,
       note: editState.note,
-      isForeignPurchase: item.is_foreign_purchase === 1,
+      isForeignPurchase: editState.isForeignPurchase,
       status: item.status,
     });
 
@@ -271,6 +276,17 @@ export function ShoppingListSection({
             />
           </label>
 
+          <label className="shopping-list-checkbox-label">
+            <input
+              type="checkbox"
+              checked={editState.isForeignPurchase}
+              onChange={(event) =>
+                updateEditState("isForeignPurchase", event.target.checked)
+              }
+            />
+            Auslandseinkauf
+          </label>
+
           <div className="shopping-list-item-actions">
             <button
               type="button"
@@ -316,6 +332,9 @@ export function ShoppingListSection({
           <div className="shopping-list-item-meta">
             {quantityText && <span>{quantityText}</span>}
             {item.category && <span>{item.category}</span>}
+            {item.is_foreign_purchase === 1 && (
+              <span className="shopping-list-foreign-purchase">Ausland</span>
+            )}
             {item.priority && (
               <span
                 className={
@@ -456,6 +475,15 @@ export function ShoppingListSection({
             onChange={(event) => setNote(event.target.value)}
             placeholder="z. B. nur wenn im Angebot"
           />
+        </label>
+
+        <label className="shopping-list-checkbox-label">
+          <input
+            type="checkbox"
+            checked={isForeignPurchase}
+            onChange={(event) => setIsForeignPurchase(event.target.checked)}
+          />
+          Auslandseinkauf
         </label>
 
         <div className="form-actions">
