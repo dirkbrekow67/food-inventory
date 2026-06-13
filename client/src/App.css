@@ -1915,6 +1915,56 @@ h4 {
   color: #5b21b6 !important;
 }
 
+/* Einkaufsliste – Filter */
+
+.shopping-list-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shopping-list-filter-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.shopping-list-filter-bar button:hover {
+  background: #f1f5f9;
+}
+
+.shopping-list-filter-bar button.active {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.shopping-list-filter-bar span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.8rem;
+}
+
+.shopping-list-filter-bar button.active span {
+  background: #ffffff;
+  color: #1d4ed8;
+}
+
 @media print {
   @page {
     size: A4;

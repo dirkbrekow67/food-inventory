@@ -74,6 +74,21 @@ function groupShoppingListItemsByCategory(items) {
   }, {});
 }
 
+function filterShoppingListItemsByForeignPurchase(
+  items,
+  foreignPurchaseFilter,
+) {
+  if (foreignPurchaseFilter === "foreign") {
+    return items.filter((item) => item.is_foreign_purchase === 1);
+  }
+
+  if (foreignPurchaseFilter === "domestic") {
+    return items.filter((item) => item.is_foreign_purchase !== 1);
+  }
+
+  return items;
+}
+
 function createEditStateFromItem(item) {
   return {
     customName: item.custom_name || "",
@@ -107,20 +122,39 @@ export function ShoppingListSection({
 
   const [isForeignPurchase, setIsForeignPurchase] = useState(false);
 
+  const [foreignPurchaseFilter, setForeignPurchaseFilter] = useState("all");
+
   const [editingShoppingListItemId, setEditingShoppingListItemId] =
     useState(null);
   const [editState, setEditState] = useState(createEditStateFromItem({}));
 
+  const filteredShoppingListItems = filterShoppingListItemsByForeignPurchase(
+    shoppingListItems,
+    foreignPurchaseFilter,
+  );
+
   const openItems = sortShoppingListItems(
-    shoppingListItems.filter((item) => item.status === "open"),
+    filteredShoppingListItems.filter((item) => item.status === "open"),
   );
 
   const completedItems = sortShoppingListItems(
-    shoppingListItems.filter((item) => item.status === "completed"),
+    filteredShoppingListItems.filter((item) => item.status === "completed"),
   );
 
   const openItemsByCategory = groupShoppingListItemsByCategory(openItems);
   const openCategoryNames = Object.keys(openItemsByCategory).sort(compareText);
+
+  const allOpenItemsCount = shoppingListItems.filter(
+    (item) => item.status === "open",
+  ).length;
+
+  const allForeignOpenItemsCount = shoppingListItems.filter(
+    (item) => item.status === "open" && item.is_foreign_purchase === 1,
+  ).length;
+
+  const allDomesticOpenItemsCount = shoppingListItems.filter(
+    (item) => item.status === "open" && item.is_foreign_purchase !== 1,
+  ).length;
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -517,6 +551,35 @@ export function ShoppingListSection({
         </button>
       </div>
 
+      <div className="shopping-list-filter-bar">
+        <button
+          type="button"
+          className={foreignPurchaseFilter === "all" ? "active" : ""}
+          onClick={() => setForeignPurchaseFilter("all")}
+        >
+          Alle
+          <span>{allOpenItemsCount}</span>
+        </button>
+
+        <button
+          type="button"
+          className={foreignPurchaseFilter === "foreign" ? "active" : ""}
+          onClick={() => setForeignPurchaseFilter("foreign")}
+        >
+          Ausland
+          <span>{allForeignOpenItemsCount}</span>
+        </button>
+
+        <button
+          type="button"
+          className={foreignPurchaseFilter === "domestic" ? "active" : ""}
+          onClick={() => setForeignPurchaseFilter("domestic")}
+        >
+          Normal
+          <span>{allDomesticOpenItemsCount}</span>
+        </button>
+      </div>
+
       {loadingShoppingList && (
         <p className="muted">Einkaufsliste wird geladen...</p>
       )}
@@ -524,6 +587,14 @@ export function ShoppingListSection({
       {!loadingShoppingList && shoppingListItems.length === 0 && (
         <p className="muted">Noch keine Einkaufslisteneinträge vorhanden.</p>
       )}
+
+      {!loadingShoppingList &&
+        shoppingListItems.length > 0 &&
+        openItems.length === 0 && (
+          <p className="muted">
+            Für den ausgewählten Filter sind keine offenen Einträge vorhanden.
+          </p>
+        )}
 
       {!loadingShoppingList &&
         openCategoryNames.map((categoryName) => (
