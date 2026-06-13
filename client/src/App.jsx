@@ -345,6 +345,7 @@ function App() {
   const [storageTree, setStorageTree] = useState([]);
   const [products, setProducts] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
+  const [productFilterResetSignal, setProductFilterResetSignal] = useState(0);
   const [activeSection, setActiveSection] = useState(() => loadActiveSection());
   const [showProductsInInventoryView, setShowProductsInInventoryView] =
     useState(() => loadShowProductsInInventoryView());
@@ -1198,6 +1199,7 @@ function App() {
     setInventoryFilterState(initialInventoryFilterState);
     setHistoryFilterState(initialHistoryFilterState);
     setShowProductsInInventoryView(true);
+    setProductFilterResetSignal((currentSignal) => currentSignal + 1);
   }
 
   function resetFormDraftStateAfterLocalStorageClear() {
@@ -1367,6 +1369,7 @@ function App() {
     if (activeSection === "products") {
       return (
         <ProductsSection
+          key={productFilterResetSignal}
           productForm={productForm}
           editingProductId={editingProductId}
           hasProductFormDraft={hasProductFormDraft}
@@ -1476,6 +1479,7 @@ function App() {
 
         {showProductsInInventoryView && (
           <ProductsSection
+            key={productFilterResetSignal}
             productForm={productForm}
             editingProductId={editingProductId}
             hasProductFormDraft={hasProductFormDraft}
