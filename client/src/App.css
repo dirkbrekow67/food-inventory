@@ -1915,6 +1915,25 @@ h4 {
   color: #5b21b6 !important;
 }
 
+/* Einkaufsliste – Textkopie */
+
+.shopping-list-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.shopping-list-copy-message {
+  margin: -6px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 800;
+}
+
 /* Einkaufsliste – Filter */
 
 .shopping-list-filter-bar {
@@ -2465,6 +2484,14 @@ h4 {
   .shopping-list-item {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .shopping-list-toolbar-actions {
+    justify-content: stretch;
+  }
+
+  .shopping-list-toolbar-actions button {
+    flex: 1;
   }
 
   .shopping-list-item-actions {

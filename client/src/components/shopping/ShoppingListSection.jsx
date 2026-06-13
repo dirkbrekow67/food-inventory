@@ -17,6 +17,48 @@ function formatShoppingListQuantity(item) {
   return `${quantity} ${unit}`.trim();
 }
 
+function getShoppingListItemExportLine(item) {
+  const title = getShoppingListItemTitle(item);
+  const quantityText = formatShoppingListQuantity(item);
+
+  const parts = [
+    title,
+    quantityText,
+    item.category,
+    item.is_foreign_purchase === 1 ? "Ausland" : "",
+    item.priority && item.priority !== "normal"
+      ? `Priorität: ${item.priority}`
+      : "",
+    item.note ? `Notiz: ${item.note}` : "",
+  ].filter(Boolean);
+
+  return `- ${parts.join(" · ")}`;
+}
+
+function createShoppingListExportText(items, foreignPurchaseFilter) {
+  const filterLabel =
+    foreignPurchaseFilter === "foreign"
+      ? "Auslandseinkauf"
+      : foreignPurchaseFilter === "domestic"
+        ? "Normaler Einkauf"
+        : "Alle offenen Einträge";
+
+  if (items.length === 0) {
+    return `Einkaufsliste – ${filterLabel}\n\nKeine offenen Einträge vorhanden.`;
+  }
+
+  const groupedItems = groupShoppingListItemsByCategory(items);
+  const categoryNames = Object.keys(groupedItems).sort(compareText);
+
+  const categoryBlocks = categoryNames.map((categoryName) => {
+    const lines = groupedItems[categoryName].map(getShoppingListItemExportLine);
+
+    return [`${categoryName}:`, ...lines].join("\n");
+  });
+
+  return [`Einkaufsliste – ${filterLabel}`, ...categoryBlocks].join("\n\n");
+}
+
 function compareText(firstValue, secondValue) {
   return String(firstValue || "").localeCompare(
     String(secondValue || ""),
@@ -123,6 +165,7 @@ export function ShoppingListSection({
   const [isForeignPurchase, setIsForeignPurchase] = useState(false);
 
   const [foreignPurchaseFilter, setForeignPurchaseFilter] = useState("all");
+  const [shoppingListCopyMessage, setShoppingListCopyMessage] = useState("");
 
   const [editingShoppingListItemId, setEditingShoppingListItemId] =
     useState(null);
@@ -143,6 +186,11 @@ export function ShoppingListSection({
 
   const openItemsByCategory = groupShoppingListItemsByCategory(openItems);
   const openCategoryNames = Object.keys(openItemsByCategory).sort(compareText);
+
+  const shoppingListExportText = createShoppingListExportText(
+    openItems,
+    foreignPurchaseFilter,
+  );
 
   const allOpenItemsCount = shoppingListItems.filter(
     (item) => item.status === "open",
@@ -217,6 +265,44 @@ export function ShoppingListSection({
     }
 
     cancelEditShoppingListItem();
+  }
+
+  async function copyShoppingListToClipboard() {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shoppingListExportText);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = shoppingListExportText;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.top = "-9999px";
+        textArea.style.left = "-9999px";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const wasCopied = document.execCommand("copy");
+
+        document.body.removeChild(textArea);
+
+        if (!wasCopied) {
+          throw new Error("Fallback-Kopiervorgang fehlgeschlagen.");
+        }
+      }
+
+      setShoppingListCopyMessage("Einkaufsliste wurde kopiert.");
+
+      window.setTimeout(() => {
+        setShoppingListCopyMessage("");
+      }, 2500);
+    } catch (error) {
+      console.error(error);
+      setShoppingListCopyMessage(
+        "Einkaufsliste konnte nicht automatisch kopiert werden.",
+      );
+    }
   }
 
   function renderShoppingListEditForm(item) {
@@ -538,18 +624,33 @@ export function ShoppingListSection({
           </p>
         </div>
 
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() =>
-            onShowCompletedShoppingItemsChange(!showCompletedShoppingItems)
-          }
-        >
-          {showCompletedShoppingItems
-            ? "Erledigte ausblenden"
-            : "Erledigte anzeigen"}
-        </button>
+        <div className="shopping-list-toolbar-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={copyShoppingListToClipboard}
+            disabled={loadingShoppingList}
+          >
+            Liste kopieren
+          </button>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() =>
+              onShowCompletedShoppingItemsChange(!showCompletedShoppingItems)
+            }
+          >
+            {showCompletedShoppingItems
+              ? "Erledigte ausblenden"
+              : "Erledigte anzeigen"}
+          </button>
+        </div>
       </div>
+
+      {shoppingListCopyMessage && (
+        <p className="shopping-list-copy-message">{shoppingListCopyMessage}</p>
+      )}
 
       <div className="shopping-list-filter-bar">
         <button
