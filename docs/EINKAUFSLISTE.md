@@ -1,16 +1,16 @@
 <!-- docs/EINKAUFSLISTE.md -->
 
-# Einkaufsliste – Planung
+# Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-07 – Block 201
+Stand: 2026-06-13 – Block 214
 
 ## Ziel der Einkaufsliste
 
-Die Einkaufsliste soll Produkte und freie Artikel erfassen, die später eingekauft werden sollen.
+Die Einkaufsliste erfasst Produkte und freie Artikel, die später eingekauft werden sollen.
 
 Sie soll im Alltag schnell nutzbar sein, insbesondere auf dem Handy im Laden.
 
-Die Einkaufsliste soll später auch für Auslandseinkäufe genutzt werden können.
+Die Einkaufsliste wird zusätzlich für Auslandseinkäufe genutzt. Dafür können einzelne Einträge als Auslandseinkauf markiert und gefiltert werden.
 
 ## Grundidee
 
@@ -26,15 +26,15 @@ Produktbezug: Sokołów Kiełbasa biała
 Freier Artikel: Spülmittel
 ```
 
-## Geplante Tabelle
+## Datenbanktabelle
 
-Geplante SQLite-Tabelle:
+Die Einkaufsliste wird in folgender SQLite-Tabelle gespeichert:
 
 ```text
 shopping_list_items
 ```
 
-## Geplante Felder
+## Felder
 
 ### Technische Felder
 
@@ -78,7 +78,6 @@ custom_name
 Bedeutung:
 
 - Name für Artikel ohne Produktbezug
-- kann auch als zusätzlicher Anzeigetext genutzt werden
 - erforderlich, wenn kein `product_id` vorhanden ist
 
 Beispiele:
@@ -142,13 +141,13 @@ category
 Bedeutung:
 
 - optionale Gruppierung für bessere Übersicht im Laden
-- zunächst als einfacher Text geplant
+- aktuell als einfacher Text umgesetzt
 
 Beispiele:
 
 ```text
 Kühlung
-Tiefkühl
+Tiefkühlware
 Vorrat
 Drogerie
 Ausland
@@ -182,7 +181,7 @@ Bedeutung:
 
 - einfache Priorisierung für wichtige Einträge
 
-Geplante Werte:
+Werte:
 
 ```text
 normal
@@ -206,7 +205,7 @@ Bedeutung:
 
 - aktueller Zustand des Einkaufslisteneintrags
 
-Geplante Werte:
+Werte:
 
 ```text
 open
@@ -229,9 +228,7 @@ custom_name
 
 Es muss also entweder ein Produktbezug oder ein freier Artikelname vorhanden sein.
 
-## Erste geplante Datenbankstruktur
-
-Voraussichtliche Struktur für Block 202:
+## Aktuelle Datenbankstruktur
 
 ```sql
 CREATE TABLE IF NOT EXISTS shopping_list_items (
@@ -248,13 +245,13 @@ CREATE TABLE IF NOT EXISTS shopping_list_items (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   completed_at TEXT,
-  FOREIGN KEY (product_id) REFERENCES products(id)
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
 );
 ```
 
-## Erste API-Funktionen
+## API-Funktionen
 
-Geplante Serverfunktionen ab Block 203:
+Folgende API-Endpunkte sind umgesetzt:
 
 ```text
 GET    /api/shopping-list
@@ -265,54 +262,161 @@ PATCH  /api/shopping-list/:id/reopen
 DELETE /api/shopping-list/:id
 ```
 
-## Erste Client-Funktionen
+Zusätzlich unterstützt `GET /api/shopping-list` den Parameter:
 
-Geplante Client-Funktionen ab Block 204:
+```text
+includeCompleted=1
+```
 
-- Einkaufsliste anzeigen
-- freien Artikel hinzufügen
-- Produkt zur Einkaufsliste hinzufügen
-- Menge und Einheit erfassen
-- Notiz erfassen
-- Artikel abhaken
-- erledigte Artikel anzeigen oder ausblenden
-- Artikel löschen
+Damit können erledigte Einträge mitgeladen werden.
+
+## Aktuelle Client-Funktionen
+
+Umgesetzt sind:
+
+- Einkaufsliste als eigener Bereich in der App
+- freie Einkaufslisteneinträge anlegen
+- Produkte direkt aus der Produktübersicht zur Einkaufsliste hinzufügen
+- Menge, Einheit, Kategorie, Priorität und Notiz pflegen
+- Einträge bearbeiten
+- Einträge als erledigt markieren
+- erledigte Einträge wieder öffnen
+- Einträge löschen
+- erledigte Einträge anzeigen oder ausblenden
+- offene Einträge nach Priorität, Kategorie und Name sortieren
+- offene Einträge nach Kategorie gruppieren
+- Einkauf als Auslandseinkauf markieren
+- Einkaufsliste nach `Alle`, `Ausland` und `Normal` filtern
+- aktuell gefilterte offene Einkaufsliste als Text kopieren
+
+## Textkopie / Export
+
+Die aktuell gefilterte offene Einkaufsliste kann als Text kopiert werden.
+
+Der Export berücksichtigt den gewählten Filter:
+
+```text
+Alle
+Ausland
+Normal
+```
+
+Beispiel:
+
+```text
+Einkaufsliste – Alle offenen Einträge
+
+Kühlung:
+- Sahne · 2 Becher · Kühlung · Ausland
+
+Tiefkühlware:
+- Bratwurst · Tiefkühlware · Priorität: niedrig
+```
+
+Beispiel Auslandseinkauf:
+
+```text
+Einkaufsliste – Auslandseinkauf
+
+Kühlung:
+- Sahne · 2 Becher · Kühlung · Ausland
+```
+
+Die Kopierfunktion nutzt die Clipboard-API des Browsers. Für Browser oder Umgebungen ohne direkte Clipboard-Unterstützung ist ein Fallback über ein temporäres Textfeld umgesetzt.
 
 ## Mobile Nutzung
 
-Die Einkaufsliste soll auf dem Handy besonders einfach nutzbar sein.
+Die Einkaufsliste ist für die Nutzung auf dem Handy vorbereitet.
 
-Wichtig:
+Wichtig umgesetzt:
 
 - große Schaltflächen
 - schnelles Abhaken
 - gute Lesbarkeit
 - offene Artikel zuerst
-- erledigte Artikel einklappbar oder ausblendbar
+- erledigte Artikel optional einblendbar
+- mobile Darstellung mit einspaltigem Layout
+- Filterbuttons für `Alle`, `Ausland` und `Normal`
+- Textkopie für Notizen, TextEdit oder Messenger
+
+## Abgeschlossene Blöcke
+
+### Block 201 – Einkaufsliste planen
+
+Abgeschlossen. Grundidee, Datenmodell, Felder und erste API-/Client-Funktionen geplant.
+
+### Block 202 – Datenbanktabelle Einkaufsliste anlegen
+
+Abgeschlossen. Tabelle `shopping_list_items` wurde angelegt.
+
+### Block 203 – API-Routen Einkaufsliste ergänzen
+
+Abgeschlossen. API-Endpunkte für Laden, Anlegen, Bearbeiten, Erledigen, Wiederöffnen und Löschen wurden umgesetzt.
+
+### Block 204 – Einkaufsliste im Frontend anzeigen
+
+Abgeschlossen. Erste React-Komponente für die Einkaufsliste wurde eingebunden.
+
+### Block 205 – Produkte zur Einkaufsliste hinzufügen
+
+Abgeschlossen. Produkte können direkt aus der Produktübersicht auf die Einkaufsliste übernommen werden.
+
+### Block 206 – Produktfilter nach Wiederkaufen ergänzen
+
+Abgeschlossen. Produkte können nach Wiederkaufen-Status gefiltert werden.
+
+### Block 207 – Einkaufslistendetails bearbeiten
+
+Abgeschlossen. Menge, Einheit, Kategorie, Priorität und Notiz können bearbeitet werden.
+
+### Block 208 – Mobile Ansicht Einkaufsliste optimieren
+
+Abgeschlossen. Darstellung und Bedienung der Einkaufsliste wurden für mobile Nutzung verbessert.
+
+### Block 209 – Einkaufsliste sortieren und gruppieren
+
+Abgeschlossen. Offene Einträge werden nach Priorität, Kategorie und Name sortiert und nach Kategorie gruppiert.
+
+### Block 210 – Projektstand Einkaufsliste aktualisieren
+
+Abgeschlossen. Projektstand wurde dokumentiert.
+
+### Block 211 – Einkaufsliste für Auslandseinkäufe vorbereiten
+
+Abgeschlossen. Einkaufslisteneinträge können als Auslandseinkauf markiert werden. Die Markierung wird gespeichert und als Chip `Ausland` angezeigt.
+
+### Block 212 – Einkaufsliste nach Auslandseinkauf filtern
+
+Abgeschlossen. Die Einkaufsliste kann nach `Alle`, `Ausland` und `Normal` gefiltert werden. Die Zähler zeigen die offenen Einträge je Filter an.
+
+### Block 213 – Einkaufsliste als Text kopieren/exportieren
+
+Abgeschlossen. Die aktuell gefilterte offene Einkaufsliste kann als Text in die Zwischenablage kopiert werden. Für Browser ohne direkte Clipboard-Unterstützung ist ein Fallback vorhanden.
+
+### Block 214 – Dokumentation Einkaufsliste aktualisieren
+
+Abgeschlossen. Die Datei `docs/EINKAUFSLISTE.md` wurde von der ursprünglichen Planung auf den aktuellen Umsetzungsstand gebracht.
 
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
 
-- Sortierung nach Kategorie
-- Gruppierung nach Geschäft
-- Export als Text
-- Teilen über Messenger
+- Exporttext weiter anpassen
+- Teilen über Messenger, soweit vom Browser unterstützt
 - Offline-Kopie im Browser
-- automatische Vorschläge aus Produkten mit Bewertung „wieder kaufen“
+- automatische Vorschläge aus Produkten mit Bewertung `wieder_kaufen`
 - Einkauf aus Historie oder Verbrauch ableiten
-- Filter für Auslandseinkäufe
+- Gruppierung nach Geschäft
+- Standardkategorien verwalten
+- Mengen aus Beständen oder Verbrauch ableiten
 
-## Nicht Bestandteil von Block 201
+## Nicht Bestandteil des aktuellen Stands
 
-Noch nicht umgesetzt werden:
+Noch nicht umgesetzt sind:
 
-- Datenbankmigration
-- API-Routen
-- React-Komponente
-- Produktkarten-Button
 - Offline-Funktion
 - Benutzerkonto
 - externe Nutzung außerhalb des WLANs
-
-Diese Punkte folgen in späteren Blöcken.
+- automatische Bedarfsermittlung
+- automatische Vorschlagsliste aus Verbrauch oder Historie
+- direkte Messenger-Teilen-Funktion
