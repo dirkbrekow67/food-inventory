@@ -1934,6 +1934,34 @@ h4 {
   font-weight: 800;
 }
 
+.shopping-list-export-preview {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #eff6ff;
+}
+
+.shopping-list-export-preview label {
+  display: grid;
+  gap: 6px;
+  color: #1e3a8a;
+  font-weight: 800;
+}
+
+.shopping-list-export-preview textarea {
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: Arial, system-ui, sans-serif;
+  resize: vertical;
+}
+
 /* Einkaufsliste – Filter */
 
 .shopping-list-filter-bar {

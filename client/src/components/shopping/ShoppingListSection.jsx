@@ -166,6 +166,8 @@ export function ShoppingListSection({
 
   const [foreignPurchaseFilter, setForeignPurchaseFilter] = useState("all");
   const [shoppingListCopyMessage, setShoppingListCopyMessage] = useState("");
+  const [showShoppingListExportText, setShowShoppingListExportText] =
+    useState(false);
 
   const [editingShoppingListItemId, setEditingShoppingListItemId] =
     useState(null);
@@ -638,6 +640,17 @@ export function ShoppingListSection({
             type="button"
             className="secondary-button"
             onClick={() =>
+              setShowShoppingListExportText(!showShoppingListExportText)
+            }
+            disabled={loadingShoppingList}
+          >
+            {showShoppingListExportText ? "Text ausblenden" : "Text anzeigen"}
+          </button>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() =>
               onShowCompletedShoppingItemsChange(!showCompletedShoppingItems)
             }
           >
@@ -650,6 +663,25 @@ export function ShoppingListSection({
 
       {shoppingListCopyMessage && (
         <p className="shopping-list-copy-message">{shoppingListCopyMessage}</p>
+      )}
+
+      {showShoppingListExportText && (
+        <div className="shopping-list-export-preview">
+          <label>
+            Exporttext
+            <textarea
+              readOnly
+              rows="8"
+              value={shoppingListExportText}
+              onFocus={(event) => event.target.select()}
+            />
+          </label>
+
+          <p className="muted">
+            Der Text entspricht dem aktuell gewählten Filter und kann bei Bedarf
+            manuell markiert und kopiert werden.
+          </p>
+        </div>
       )}
 
       <div className="shopping-list-filter-bar">
