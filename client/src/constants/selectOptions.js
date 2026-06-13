@@ -50,6 +50,12 @@ export const quantityUnitOptions = [
   { value: "l", label: "l" },
   { value: "Stück", label: "Stück" },
   { value: "Packung", label: "Packung" },
+  { value: "Becher", label: "Becher" },
+  { value: "Dose", label: "Dose" },
+  { value: "Glas", label: "Glas" },
+  { value: "Flasche", label: "Flasche" },
+  { value: "Beutel", label: "Beutel" },
+  { value: "Bund", label: "Bund" },
   { value: "Portion", label: "Portion" },
 ];
 

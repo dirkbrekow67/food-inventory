@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 
-import { shoppingListCategorySuggestionOptions } from "../../constants/selectOptions";
+import {
+  quantityUnitOptions,
+  shoppingListCategorySuggestionOptions,
+} from "../../constants/selectOptions";
 
 function getShoppingListItemTitle(item) {
   return item.product_name || item.custom_name || "Unbenannter Artikel";
@@ -355,6 +358,7 @@ export function ShoppingListSection({
               Einheit
               <input
                 type="text"
+                list="shopping-list-unit-suggestions"
                 value={editState.unit}
                 onChange={(event) =>
                   updateEditState("unit", event.target.value)
@@ -528,6 +532,11 @@ export function ShoppingListSection({
           />
         ))}
       </datalist>
+      <datalist id="shopping-list-unit-suggestions">
+        {quantityUnitOptions.map((unitOption) => (
+          <option key={unitOption.value} value={unitOption.value} />
+        ))}
+      </datalist>
       <div className="section-header">
         <div>
           <h2>Einkaufsliste</h2>
@@ -569,9 +578,10 @@ export function ShoppingListSection({
             Einheit
             <input
               type="text"
+              list="shopping-list-unit-suggestions"
               value={unit}
               onChange={(event) => setUnit(event.target.value)}
-              placeholder="z. B. Packungen"
+              placeholder="z. B. Packung"
             />
           </label>
         </div>
