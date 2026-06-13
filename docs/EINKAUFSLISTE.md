@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-13 – Block 214
+Stand: 2026-06-13 – Block 216
 
 ## Ziel der Einkaufsliste
 
@@ -288,6 +288,7 @@ Umgesetzt sind:
 - Einkauf als Auslandseinkauf markieren
 - Einkaufsliste nach `Alle`, `Ausland` und `Normal` filtern
 - aktuell gefilterte offene Einkaufsliste als Text kopieren
+- Exporttext anzeigen und manuell kopieren
 
 ## Textkopie / Export
 
@@ -324,6 +325,10 @@ Kühlung:
 
 Die Kopierfunktion nutzt die Clipboard-API des Browsers. Für Browser oder Umgebungen ohne direkte Clipboard-Unterstützung ist ein Fallback über ein temporäres Textfeld umgesetzt.
 
+Zusätzlich kann der Exporttext über die Schaltfläche `Text anzeigen` direkt in der Anwendung angezeigt werden. Der Text erscheint in einem schreibgeschützten Textfeld und kann dort bei Bedarf manuell markiert und kopiert werden.
+
+Diese Funktion dient als zusätzliche Absicherung, falls das automatische Kopieren auf einem Gerät, Browser oder im lokalen Netzwerk nicht zuverlässig funktioniert.
+
 ## Mobile Nutzung
 
 Die Einkaufsliste ist für die Nutzung auf dem Handy vorbereitet.
@@ -338,6 +343,7 @@ Wichtig umgesetzt:
 - mobile Darstellung mit einspaltigem Layout
 - Filterbuttons für `Alle`, `Ausland` und `Normal`
 - Textkopie für Notizen, TextEdit oder Messenger
+- manuelle Textanzeige als Alternative zur Zwischenablage
 
 ## Abgeschlossene Blöcke
 
@@ -397,11 +403,19 @@ Abgeschlossen. Die aktuell gefilterte offene Einkaufsliste kann als Text in die 
 
 Abgeschlossen. Die Datei `docs/EINKAUFSLISTE.md` wurde von der ursprünglichen Planung auf den aktuellen Umsetzungsstand gebracht.
 
+### Block 215 – Exporttext anzeigen und manuell kopieren
+
+Abgeschlossen. Der aktuell gefilterte Exporttext kann zusätzlich in der Anwendung angezeigt werden. Der Text wird in einem schreibgeschützten Textfeld dargestellt und kann dort manuell markiert und kopiert werden.
+
+### Block 216 – Dokumentation Exporttext-Anzeige aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um die Funktion `Text anzeigen` und die manuelle Kopiermöglichkeit ergänzt.
+
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
 
-- Exporttext weiter anpassen
+- Exporttext weiter anpassen oder formatieren
 - Teilen über Messenger, soweit vom Browser unterstützt
 - Offline-Kopie im Browser
 - automatische Vorschläge aus Produkten mit Bewertung `wieder_kaufen`
