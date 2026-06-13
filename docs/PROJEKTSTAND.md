@@ -2,13 +2,13 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-07 – nach Block 210
+Stand: 2026-06-13 – nach Block 222
 
 ## Ziel des Projekts
 
 Food Inventory ist eine lokale Lebensmittel-Inventar-App für Gefrierschrank, Kühlschrank, Vorratskammer und Auslandseinkäufe.
 
-Ziel ist die strukturierte Verwaltung von Produkten, Beständen, Lagerorten, Haltbarkeiten, Historie, QR-Etiketten und später der Betrieb auf einem Raspberry Pi im lokalen Netzwerk.
+Ziel ist die strukturierte Verwaltung von Produkten, Beständen, Lagerorten, Haltbarkeiten, Historie, QR-Etiketten, Einkaufsliste und später der Betrieb auf einem Raspberry Pi im lokalen Netzwerk.
 
 ## Projektstruktur
 
@@ -180,11 +180,11 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
-1e4efe6 Sort and group shopping list items
-f58dac5 Improve mobile shopping list layout
-880f22a Add editable shopping list details
-9690f9e Add product buy again filter
-e21e817 Add products to shopping list
+716b03e Use shopping list priority options
+dfc42fb Document shopping list unit suggestions
+c194a11 Add shopping list unit suggestions
+f29da60 Document shopping list category suggestions
+3e2ac9b Add shopping list category suggestions
 ```
 
 ## Abgeschlossene Blöcke seit letzter Projektstand-Aktualisierung
@@ -271,6 +271,54 @@ docs/PROJEKTSTAND.md
 git log --oneline -20
 ```
 
+### Block 211 – Einkaufsliste für Auslandseinkäufe vorbereiten
+
+Abgeschlossen. Einkaufslisteneinträge können als Auslandseinkauf markiert werden. Die Markierung wird gespeichert und als Chip `Ausland` angezeigt.
+
+### Block 212 – Einkaufsliste nach Auslandseinkauf filtern
+
+Abgeschlossen. Die Einkaufsliste kann nach `Alle`, `Ausland` und `Normal` gefiltert werden. Die Zähler zeigen die offenen Einträge je Filter an.
+
+### Block 213 – Einkaufsliste als Text kopieren/exportieren
+
+Abgeschlossen. Die aktuell gefilterte offene Einkaufsliste kann als Text in die Zwischenablage kopiert werden. Für Browser ohne direkte Clipboard-Unterstützung ist ein Fallback über ein temporäres Textfeld vorhanden.
+
+### Block 214 – Dokumentation Einkaufsliste aktualisieren
+
+Abgeschlossen. Die Datei `docs/EINKAUFSLISTE.md` wurde von der ursprünglichen Planung auf den aktuellen Umsetzungsstand gebracht.
+
+### Block 215 – Exporttext anzeigen und manuell kopieren
+
+Abgeschlossen. Der aktuell gefilterte Exporttext kann zusätzlich in der Anwendung angezeigt werden. Der Text wird in einem schreibgeschützten Textfeld dargestellt und kann dort manuell markiert und kopiert werden.
+
+### Block 216 – Dokumentation Exporttext-Anzeige aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um die Funktion `Text anzeigen` und die manuelle Kopiermöglichkeit ergänzt.
+
+### Block 217 – Kategorie-Vorschläge für Einkaufsliste ergänzen
+
+Abgeschlossen. Die Einkaufsliste nutzt Kategorie-Vorschläge aus den gemeinsamen Produktkategorien. Dafür wird `shoppingListCategorySuggestionOptions` aus `productCategoryOptions` abgeleitet.
+
+### Block 218 – Dokumentation Kategorie-Vorschläge aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um gemeinsame Kategorien, Kategorie-Vorschläge und die Abgrenzung zum Auslandseinkauf ergänzt.
+
+### Block 219 – Einheit-Vorschläge für Einkaufsliste ergänzen
+
+Abgeschlossen. Die Einkaufsliste nutzt Einheit-Vorschläge aus den gemeinsamen Einheiten. Dafür wird `quantityUnitOptions` in den Feldern für neue und zu bearbeitende Einkaufslisteneinträge verwendet.
+
+### Block 220 – Dokumentation Einheit-Vorschläge aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um gemeinsame Einheiten und Einheit-Vorschläge für die Einkaufsliste ergänzt.
+
+### Block 221 – Priorität-Optionen der Einkaufsliste auslagern
+
+Abgeschlossen. Die Priorität-Optionen der Einkaufsliste wurden aus der Komponente ausgelagert und werden zentral über `shoppingListPriorityOptions` in `selectOptions.js` gepflegt.
+
+### Block 222 – Dokumentation Priorität-Optionen aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um die zentrale Pflege der Priorität-Optionen und die Sortierlogik ergänzt.
+
 ## Einkaufsliste
 
 Die Einkaufsliste ist als eigener Hauptbereich in der Anwendung vorhanden.
@@ -286,9 +334,16 @@ Aktueller Stand:
 - Menge, Einheit, Kategorie, Priorität und Notiz können geändert werden
 - Einträge können als erledigt markiert und wieder geöffnet werden
 - Einträge können gelöscht werden
+- erledigte Einträge können angezeigt oder ausgeblendet werden
 - offene Einträge werden nach Priorität, Kategorie und Name sortiert
 - offene Einträge werden nach Kategorie gruppiert
-- erledigte Einträge werden getrennt angezeigt
+- Einkauf als Auslandseinkauf markieren
+- Einkaufsliste nach `Alle`, `Ausland` und `Normal` filtern
+- aktuell gefilterte offene Einkaufsliste als Text kopieren
+- Exporttext anzeigen und manuell kopieren
+- Kategorie-Vorschläge aus den gemeinsamen Produktkategorien nutzen
+- Einheit-Vorschläge aus den gemeinsamen Einheiten nutzen
+- Priorität-Optionen zentral über `shoppingListPriorityOptions` nutzen
 - die mobile Darstellung der Einkaufsliste wurde verbessert
 
 Technischer Stand:
@@ -297,13 +352,28 @@ Technischer Stand:
 - API-Routen für Laden, Anlegen, Bearbeiten, Erledigen, Wiederöffnen und Löschen sind vorhanden
 - Frontend-Komponente `ShoppingListSection` ist vorhanden
 - die Einkaufsliste ist über die Hauptnavigation erreichbar
+- Dokumentation der Einkaufsliste liegt in `docs/EINKAUFSLISTE.md`
+- Kategorie-Vorschläge werden aus `productCategoryOptions` abgeleitet
+- Einheit-Vorschläge nutzen `quantityUnitOptions`
+- Priorität-Optionen nutzen `shoppingListPriorityOptions`
+
+Aktuell wichtig für Wiederaufnahme:
+
+- Einkaufsliste ist funktionsfähig und mobil nutzbar
+- Auslandseinkäufe sind markierbar und filterbar
+- Exporttext kann kopiert oder manuell aus einem Textfeld übernommen werden
+- Kategorien und Einheiten bleiben freie Textfelder, haben aber Vorschläge
+- Prioritäten bleiben Auswahlfelder und werden zentral gepflegt
+- alte Roadmap-Punkte zur Einkaufsliste sind teilweise überholt, weil Auslandseinkauf, Exporttext, Vorschläge und Dokumentation bereits umgesetzt wurden
 
 Offene nächste Schritte:
 
-- Einkaufsliste für Auslandseinkäufe filtern oder kennzeichnen
 - Mehrfachauswahl oder Sammelaktionen prüfen
-- erledigte Einkäufe optional in die Historie übernehmen
+- erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - spätere Druck- oder Exportansicht prüfen
+- Datenbankstruktur separat dokumentieren
+- lokale Browserdaten und `localStorage` dokumentieren
+- Einkaufsliste weiter stabilisieren und Fehleranzeigen prüfen
 
 ## Aktueller Sicherungsstand
 
@@ -321,6 +391,18 @@ Noch offen:
 - automatische Sicherung des Upload-Ordners
 - vollständige Sicherung aus Datenbank und Produktbildern
 - Aufräumlogik für nicht mehr verwendete Produktbilder
+
+## Aktuelle nächste Schritte nach Block 222
+
+Sinnvolle nächste Arbeiten:
+
+- Datenbankstruktur separat dokumentieren
+- lokale Browserdaten und `localStorage` dokumentieren
+- Einkaufsliste weiter stabilisieren
+- erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
+- Mehrfachauswahl oder Sammelaktionen für Einkaufsliste prüfen
+- Produktbild-Aufräumlogik planen
+- Raspberry-Pi-Start erneut praktisch testen und dokumentieren
 
 ## Arbeitsregel für Projektstand
 
@@ -341,6 +423,12 @@ Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den S
 ## Roadmap – nächste 50 Blöcke
 
 Die folgende Roadmap ist eine Arbeitsplanung und kann angepasst werden. Die Reihenfolge ist bewusst so gewählt, dass zuerst der Bestand und die Wiederherstellung abgesichert werden. Danach folgt die Einkaufsliste. Benutzerkonto und Nutzung außerhalb des WLANs kommen später, weil diese Themen zusätzliche Sicherheits- und Betriebskonzepte benötigen.
+
+Hinweis nach Block 222:
+
+Die Roadmap bleibt als historische Arbeitsplanung erhalten. Einzelne Blöcke 211 bis 222 wurden in der tatsächlichen Umsetzung anders zugeschnitten als ursprünglich geplant. Insbesondere Auslandseinkauf, Exporttext, Kategorie-Vorschläge, Einheit-Vorschläge und Priorität-Optionen wurden bereits umgesetzt und dokumentiert.
+
+Für die weitere Arbeit gilt: Die Roadmap wird nicht rückwirkend gelöscht, sondern bei den nächsten Projektstand-Aktualisierungen fortgeschrieben. Dadurch bleibt nachvollziehbar, welche Planung ursprünglich vorgesehen war und welche Umsetzung tatsächlich erfolgt ist.
 
 ## Phase 1 – Bestand absichern und Wiederherstellung beherrschen
 
@@ -637,6 +725,12 @@ Geplante Inhalte:
 - erledigte Blöcke 211 bis 219
 - nächste Prioritäten
 
+Status nach tatsächlicher Umsetzung:
+
+- Projektstand wurde nicht bei Block 220, sondern im Anschluss an Block 222 aktualisiert.
+- Grund: Die Einkaufsliste wurde in den Blöcken 211 bis 222 weiter ausgebaut und dokumentiert.
+- Diese Datei dient vorrangig als Wiederaufnahme- und Chatverlust-Dokument; daher bleibt die historische Roadmap erhalten.
+
 ### Block 221 – Datenbankstruktur dokumentieren
 
 Datenbanktabellen dokumentieren.
@@ -662,6 +756,11 @@ Zusätzlich prüfen:
 - aktive Ansicht
 
 ### Block 223 – Produktbild-Aufräumlogik planen
+
+Status nach tatsächlicher Umsetzung:
+
+- Block 223 wurde für die Aktualisierung von `docs/PROJEKTSTAND.md` nach Block 222 genutzt.
+- Die Produktbild-Aufräumlogik bleibt weiterhin offen und wird auf einen späteren Block verschoben.
 
 Planen, wie nicht mehr verwendete Produktbilder erkannt und bereinigt werden können.
 
