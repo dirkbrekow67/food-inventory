@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-13 – Block 218
+Stand: 2026-06-13 – Block 220
 
 ## Ziel der Einkaufsliste
 
@@ -100,18 +100,51 @@ Bedeutung:
 
 - `quantity` speichert die gewünschte Menge.
 - `unit` speichert die Einheit.
+- das Einheitenfeld ist als freies Textfeld umgesetzt
+- zusätzlich werden Vorschläge aus den gemeinsamen Einheiten angeboten
+
+Die Einkaufsliste nutzt dafür die vorhandene Liste:
+
+```text
+quantityUnitOptions
+```
 
 Beispiele:
 
 ```text
 quantity = 2
-unit = Packungen
+unit = Becher
 ```
 
 ```text
 quantity = 500
 unit = g
 ```
+
+```text
+quantity = 1
+unit = Stück
+```
+
+Aktuelle Einheit-Vorschläge:
+
+```text
+g
+kg
+ml
+l
+Stück
+Packung
+Becher
+Dose
+Glas
+Flasche
+Beutel
+Bund
+Portion
+```
+
+Freie Einheiten bleiben weiterhin möglich, z. B. `Karton`, `Schale`, `Tube` oder `Rolle`.
 
 ### Notiz
 
@@ -293,6 +326,7 @@ Umgesetzt sind:
 - offene Einträge nach Kategorie gruppieren
 - Einkauf als Auslandseinkauf markieren
 - Kategorie-Vorschläge aus den gemeinsamen Produktkategorien nutzen
+- Einheit-Vorschläge aus den gemeinsamen Einheiten nutzen
 - Einkaufsliste nach `Alle`, `Ausland` und `Normal` filtern
 - aktuell gefilterte offene Einkaufsliste als Text kopieren
 - Exporttext anzeigen und manuell kopieren
@@ -379,6 +413,43 @@ Vorteil:
 
 Die Kategorie bleibt trotzdem ein freies Textfeld. Neue oder abweichende Kategorien können weiterhin manuell eingetragen werden.
 
+## Gemeinsame Einheiten
+
+Für Mengenangaben in Produkten, Beständen und Einkaufslisteneinträgen wird dieselbe Grundlage genutzt.
+
+Die Einkaufsliste verwendet dafür:
+
+```text
+quantityUnitOptions
+```
+
+Die Einheiten werden als Vorschläge im Feld `unit` angezeigt. Das Feld bleibt trotzdem frei beschreibbar.
+
+Vorteil:
+
+- keine doppelte Pflege ähnlicher Einheiten
+- einheitlichere Schreibweise bei Produkten, Beständen und Einkaufsliste
+- bessere Grundlage für spätere Übernahme von Einkaufslisteneinträgen in Produkte
+- bessere Grundlage für spätere Auswertungen und automatische Vorschläge
+
+Typische Beispiele:
+
+```text
+g
+kg
+ml
+l
+Stück
+Packung
+Becher
+Dose
+Glas
+Flasche
+Beutel
+Bund
+Portion
+```
+
 ## Abgeschlossene Blöcke
 
 ### Block 201 – Einkaufsliste planen
@@ -453,6 +524,14 @@ Abgeschlossen. Die Einkaufsliste nutzt Kategorie-Vorschläge aus den gemeinsamen
 
 Abgeschlossen. Die Dokumentation wurde um gemeinsame Kategorien, Kategorie-Vorschläge und die Abgrenzung zum Auslandseinkauf ergänzt.
 
+### Block 219 – Einheit-Vorschläge für Einkaufsliste ergänzen
+
+Abgeschlossen. Die Einkaufsliste nutzt Einheit-Vorschläge aus den gemeinsamen Einheiten. Dafür wird `quantityUnitOptions` in den Feldern für neue und zu bearbeitende Einkaufslisteneinträge verwendet.
+
+### Block 220 – Dokumentation Einheit-Vorschläge aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um gemeinsame Einheiten und Einheit-Vorschläge für die Einkaufsliste ergänzt.
+
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
@@ -464,6 +543,7 @@ Mögliche spätere Funktionen:
 - Einkauf aus Historie oder Verbrauch ableiten
 - Gruppierung nach Geschäft
 - gemeinsame Produkt- und Einkaufskategorien verwalten
+- gemeinsame Einheiten verwalten und erweitern
 - Mengen aus Beständen oder Verbrauch ableiten
 
 ## Nicht Bestandteil des aktuellen Stands
