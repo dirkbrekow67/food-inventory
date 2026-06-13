@@ -175,3 +175,9 @@ export const labelSheetModeOptions = [
 
 export const shoppingListCategorySuggestionOptions =
   productCategoryOptions.filter((option) => option.value);
+
+export const shoppingListPriorityOptions = [
+  { value: "niedrig", label: "niedrig" },
+  { value: "normal", label: "normal" },
+  { value: "hoch", label: "hoch" },
+];

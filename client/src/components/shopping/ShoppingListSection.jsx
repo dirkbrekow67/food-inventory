@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   quantityUnitOptions,
   shoppingListCategorySuggestionOptions,
+  shoppingListPriorityOptions,
 } from "../../constants/selectOptions";
 
 function getShoppingListItemTitle(item) {
@@ -388,9 +389,14 @@ export function ShoppingListSection({
                   updateEditState("priority", event.target.value)
                 }
               >
-                <option value="niedrig">niedrig</option>
-                <option value="normal">normal</option>
-                <option value="hoch">hoch</option>
+                {shoppingListPriorityOptions.map((priorityOption) => (
+                  <option
+                    key={priorityOption.value}
+                    value={priorityOption.value}
+                  >
+                    {priorityOption.label}
+                  </option>
+                ))}
               </select>
             </label>
           </div>
@@ -604,9 +610,11 @@ export function ShoppingListSection({
               value={priority}
               onChange={(event) => setPriority(event.target.value)}
             >
-              <option value="niedrig">niedrig</option>
-              <option value="normal">normal</option>
-              <option value="hoch">hoch</option>
+              {shoppingListPriorityOptions.map((priorityOption) => (
+                <option key={priorityOption.value} value={priorityOption.value}>
+                  {priorityOption.label}
+                </option>
+              ))}
             </select>
           </label>
         </div>
