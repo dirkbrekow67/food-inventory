@@ -6,7 +6,7 @@
 
 Der Reset lokaler Browserdaten ist umgesetzt.
 
-Stand nach Block 237:
+Stand nach Block 240:
 
 - zentrale localStorage-Keys in `client/src/constants/localStorageKeys.js`
 - Reset-Hilfsfunktionen in `client/src/utils/localStorageResetUtils.js`
@@ -14,7 +14,7 @@ Stand nach Block 237:
 - Hauptnavigationseintrag `Wartung` in `client/src/App.jsx`
 - Sicherheitsabfragen vor jedem Reset per Browser-Dialog
 - Statusmeldung nach dem Löschen lokaler Browserdaten
-- direkte App-State-Synchronisierung für Bestandsfilter, Historienfilter, Anzeigeoptionen, Formularentwürfe, Etikettenscan und Produktfilter nach dem Reset
+- direkte App-State-Synchronisierung für Bestandsfilter, Historienfilter, Anzeigeoptionen, Anzeige erledigter Einkaufslisteneinträge, Formularentwürfe, Etikettenscan und Produktfilter nach dem Reset
 
 Umgesetzte Reset-Gruppen:
 
@@ -261,6 +261,15 @@ Technische Umsetzung:
 - `ProductsSection` wird über einen geänderten React-`key` neu gemountet.
 - Dadurch wird der Produktfilter-Initialzustand neu geladen.
 - Es wird kein direkter State-Reset innerhalb eines `useEffect` verwendet.
+
+### Ergänzung nach Block 239 – Einkaufsliste-Erledigt-Anzeige zurücksetzen
+
+Die Anzeige erledigter Einkaufslisteneinträge wird nach dem Wartungsreset direkt zurückgesetzt.
+
+Technische Umsetzung:
+
+- `App.jsx` setzt `showCompletedShoppingItems` beim Reset von Filter und Anzeige auf `false`.
+- Dadurch ist die Einkaufsliste nach dem Reset wieder im Standardzustand mit ausgeblendeten erledigten Einträgen.
 
 ## Offene Prüfpunkte
 

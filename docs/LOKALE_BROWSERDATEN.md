@@ -2,7 +2,7 @@
 
 # Lokale Browserdaten – Food Inventory
 
-Stand: 2026-06-13 – nach Block 237
+Stand: 2026-06-13 – nach Block 240
 
 ## Zweck dieses Dokuments
 
@@ -287,6 +287,6 @@ Wichtig:
 - Die SQLite-Datenbank bleibt unverändert.
 - Gespeicherte Produkte, Bestände, Lagerorte, Historie und Einkaufslisteneinträge bleiben erhalten.
 - Nicht gespeicherte Formularentwürfe können gelöscht werden.
-- Bestandsfilter, Historienfilter, Anzeigeoptionen, Formularentwürfe, Etikettenscan und Produktfilter werden nach dem Reset direkt im laufenden UI synchronisiert.
+- Bestandsfilter, Historienfilter, Anzeigeoptionen, Anzeige erledigter Einkaufslisteneinträge, Formularentwürfe, Etikettenscan und Produktfilter werden nach dem Reset direkt im laufenden UI synchronisiert.
 - Einzelne spätere Komponentenzustände außerhalb der bisherigen Reset-Gruppen können bei Bedarf noch ergänzt werden.
 

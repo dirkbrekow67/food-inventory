@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 237
+Stand: 2026-06-13 – nach Block 240
 
 ## Ziel des Projekts
 
@@ -524,7 +524,7 @@ Erledigt:
 - Sicherheitsabfragen vor jedem Reset eingebaut
 - Statusmeldung nach Reset eingebaut
 - Wartungsbereich optisch nachgeschärft
-- App-State nach Reset direkt für Bestandsfilter, Historienfilter, Anzeigeoptionen, Formularentwürfe, Etikettenscan und Produktfilter synchronisiert
+- App-State nach Reset direkt für Bestandsfilter, Historienfilter, Anzeigeoptionen, Anzeige erledigter Einkaufslisteneinträge, Formularentwürfe, Etikettenscan und Produktfilter synchronisiert
 
 Commits:
 
@@ -554,7 +554,21 @@ Commit:
 
 - `c15c013` – Reset product filters after maintenance reset
 
-## Aktuelle nächste Schritte nach Block 237
+### Block 239 – Anzeige erledigter Einkaufslisteneinträge nach Wartungsreset zurückgesetzt
+
+Die Anzeigeoption der Einkaufsliste für erledigte Einträge wird nach dem Wartungsreset ebenfalls direkt zurückgesetzt.
+
+Umsetzung:
+
+- `App.jsx` setzt `showCompletedShoppingItems` beim Reset von Filter und Anzeige auf `false`.
+- Dadurch werden erledigte Einkaufslisteneinträge nach dem Wartungsreset wieder ausgeblendet.
+- Der Reset wirkt auch beim vollständigen lokalen Browserdaten-Reset, da dieser dieselbe Reset-Funktion nutzt.
+
+Commit:
+
+- `b1507c0` – Reset completed shopping item visibility
+
+## Aktuelle nächste Schritte nach Block 240
 
 Sinnvolle nächste Arbeiten:
 
