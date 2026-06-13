@@ -6,7 +6,7 @@
 
 Der Reset lokaler Browserdaten ist umgesetzt.
 
-Stand nach Block 235:
+Stand nach Block 237:
 
 - zentrale localStorage-Keys in `client/src/constants/localStorageKeys.js`
 - Reset-Hilfsfunktionen in `client/src/utils/localStorageResetUtils.js`
@@ -14,7 +14,7 @@ Stand nach Block 235:
 - Hauptnavigationseintrag `Wartung` in `client/src/App.jsx`
 - Sicherheitsabfragen vor jedem Reset per Browser-Dialog
 - Statusmeldung nach dem Löschen lokaler Browserdaten
-- direkte App-State-Synchronisierung für ausgewählte Zustände nach dem Reset
+- direkte App-State-Synchronisierung für Bestandsfilter, Historienfilter, Anzeigeoptionen, Formularentwürfe, Etikettenscan und Produktfilter nach dem Reset
 
 Umgesetzte Reset-Gruppen:
 
@@ -251,6 +251,17 @@ Vor Umsetzung sollten folgende Fälle geprüft werden:
 - vollständigen lokalen Reset ausführen, App neu laden, Standardzustand prüfen
 - prüfen, dass SQLite-Daten unverändert bleiben
 
+### Ergänzung nach Block 237 – Produktfilter-Live-Reset
+
+Produktfilter werden nach dem Wartungsreset direkt im laufenden UI zurückgesetzt.
+
+Technische Umsetzung:
+
+- `App.jsx` erhöht ein internes Reset-Signal.
+- `ProductsSection` wird über einen geänderten React-`key` neu gemountet.
+- Dadurch wird der Produktfilter-Initialzustand neu geladen.
+- Es wird kein direkter State-Reset innerhalb eines `useEffect` verwendet.
+
 ## Offene Prüfpunkte
 
 Spätere sinnvolle Arbeiten:
@@ -261,4 +272,4 @@ Spätere sinnvolle Arbeiten:
 - Reset-Hilfsfunktionen erstellen
 - Warntexte in einfacher Sprache formulieren
 - nach Umsetzung `docs/LOCALSTORAGE_KEYS.md` aktualisieren
-- nach Umsetzung `docs/PROJEKTSTAND.md` aktualisieren
+- nach weiteren Reset-Änderungen `docs/PROJEKTSTAND.md` aktualisieren

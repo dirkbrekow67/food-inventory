@@ -2,7 +2,7 @@
 
 # Lokale Browserdaten – Food Inventory
 
-Stand: 2026-06-13 – nach Block 235
+Stand: 2026-06-13 – nach Block 237
 
 ## Zweck dieses Dokuments
 
@@ -260,7 +260,7 @@ Spätere sinnvolle Arbeiten:
 
 - tatsächliche `localStorage`-Keys im Code systematisch erfassen
 - alte oder nicht mehr verwendete Keys identifizieren
-- optional prüfen, ob weitere lokale UI-Zustände direkt live synchronisiert werden sollen
+- optional prüfen, ob weitere lokale UI-Zustände außerhalb der bisherigen Reset-Gruppen direkt live synchronisiert werden sollen
 - lokale Daten von echten Datenbankdaten klarer in der UI abgrenzen
 - prüfen, ob Einkaufsliste-Filter dauerhaft lokal gespeichert werden sollen
 - prüfen, ob Entwürfe automatisch verfallen oder manuell gelöscht werden sollen
@@ -287,6 +287,6 @@ Wichtig:
 - Die SQLite-Datenbank bleibt unverändert.
 - Gespeicherte Produkte, Bestände, Lagerorte, Historie und Einkaufslisteneinträge bleiben erhalten.
 - Nicht gespeicherte Formularentwürfe können gelöscht werden.
-- Einzelne UI-Zustände werden nach dem Reset direkt im laufenden App-Zustand synchronisiert.
-- Einige Zustände, insbesondere Komponentenzustände außerhalb von `App.jsx`, können erst nach dem Neuladen oder erneuten Öffnen vollständig zurückgesetzt erscheinen.
+- Bestandsfilter, Historienfilter, Anzeigeoptionen, Formularentwürfe, Etikettenscan und Produktfilter werden nach dem Reset direkt im laufenden UI synchronisiert.
+- Einzelne spätere Komponentenzustände außerhalb der bisherigen Reset-Gruppen können bei Bedarf noch ergänzt werden.
 

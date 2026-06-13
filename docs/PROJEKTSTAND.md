@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 235
+Stand: 2026-06-13 – nach Block 237
 
 ## Ziel des Projekts
 
@@ -524,7 +524,7 @@ Erledigt:
 - Sicherheitsabfragen vor jedem Reset eingebaut
 - Statusmeldung nach Reset eingebaut
 - Wartungsbereich optisch nachgeschärft
-- App-State nach Reset teilweise direkt synchronisiert
+- App-State nach Reset direkt für Bestandsfilter, Historienfilter, Anzeigeoptionen, Formularentwürfe, Etikettenscan und Produktfilter synchronisiert
 
 Commits:
 
@@ -536,14 +536,28 @@ Commits:
 
 Hinweis:
 
-Der ursprüngliche Plan aus `docs/LOCALSTORAGE_RESET_PLAN.md` ist damit weitgehend umgesetzt. Produktfilter und einzelne komponenteninterne UI-Zustände können bei Bedarf später noch direkter live synchronisiert werden.
+Der ursprüngliche Plan aus `docs/LOCALSTORAGE_RESET_PLAN.md` ist damit weitgehend umgesetzt. Produktfilter werden seit Block 237 ebenfalls live nach dem Wartungsreset zurückgesetzt.
 
 
-## Aktuelle nächste Schritte nach Block 235
+### Block 237 – Produktfilter nach Wartungsreset live zurückgesetzt
+
+Nach dem Wartungsreset werden Produktfilter jetzt ebenfalls direkt im laufenden UI zurückgesetzt.
+
+Umsetzung:
+
+- `App.jsx` verwaltet ein internes Reset-Signal für Produktfilter.
+- `ProductsSection` wird über `key={productFilterResetSignal}` neu gemountet.
+- Dadurch lädt die Produktansicht den Filter-Initialzustand neu.
+- Die Lösung vermeidet einen direkten `setState`-Aufruf in einem `useEffect` und bleibt mit der aktuellen ESLint-Regel `react-hooks/set-state-in-effect` kompatibel.
+
+Commit:
+
+- `c15c013` – Reset product filters after maintenance reset
+
+## Aktuelle nächste Schritte nach Block 237
 
 Sinnvolle nächste Arbeiten:
 
-- optional prüfen, ob Produktfilter und weitere komponenteninterne UI-Zustände nach localStorage-Reset direkt live synchronisiert werden sollen
 - Einkaufsliste weiter stabilisieren
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Mehrfachauswahl oder Sammelaktionen für Einkaufsliste prüfen
