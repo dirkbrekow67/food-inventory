@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 222
+Stand: 2026-06-13 – nach Block 226
 
 ## Ziel des Projekts
 
@@ -180,12 +180,21 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
-716b03e Use shopping list priority options
-dfc42fb Document shopping list unit suggestions
-c194a11 Add shopping list unit suggestions
-f29da60 Document shopping list category suggestions
-3e2ac9b Add shopping list category suggestions
+6ca26ef Document local browser data
+068bb2f Add database documentation notes
+64d3b3c Document database schema
+af225ee Update project status after shopping list work
+4cf0451 Document shopping list priority options
 ```
+
+## Aktuelle Wiederaufnahme-Dokumente
+
+Wichtige Dokumente für die Fortsetzung nach Chatverlust oder Projektpause:
+
+- `docs/PROJEKTSTAND.md` – Gesamtstand, Roadmap, abgeschlossene Blöcke und nächste Schritte
+- `docs/EINKAUFSLISTE.md` – fachliche und technische Dokumentation der Einkaufsliste
+- `docs/DATENBANK.md` – SQLite-Tabellen, Schema, Datenbeziehungen und Sicherungshinweise
+- `docs/LOKALE_BROWSERDATEN.md` – lokale Browserdaten, `localStorage`, Entwürfe und Abgrenzung zur Datenbank
 
 ## Abgeschlossene Blöcke seit letzter Projektstand-Aktualisierung
 
@@ -319,6 +328,59 @@ Abgeschlossen. Die Priorität-Optionen der Einkaufsliste wurden aus der Komponen
 
 Abgeschlossen. Die Dokumentation wurde um die zentrale Pflege der Priorität-Optionen und die Sortierlogik ergänzt.
 
+### Block 223 – Projektstand nach Einkaufsliste aktualisiert
+
+- `docs/PROJEKTSTAND.md` auf den Stand nach Block 222 gebracht.
+- Einkaufsliste mit Auslandseinkauf, Exporttext, Kategorien, Einheiten und Prioritäten dokumentiert.
+- Abweichung zur ursprünglichen Roadmap festgehalten.
+
+Commit:
+
+```text
+af225ee Update project status after shopping list work
+```
+
+### Block 224 – Datenbankstruktur technisch dokumentiert
+
+- Neue Datei `docs/DATENBANK.md` erstellt.
+- Tabellenübersicht aus der echten SQLite-Datenbank dokumentiert.
+- Vollständiges SQLite-Schema aus `server/database/food_inventory.db` dokumentiert.
+- Enthaltene Tabellen: `storage_locations`, `storage_units`, `storage_compartments`, `products`, `inventory_items`, `label_slots`, `inventory_history`, `shopping_list_items`.
+
+Commit:
+
+```text
+64d3b3c Document database schema
+```
+
+### Block 225 – Datenbankdokumentation fachlich ergänzt
+
+- `docs/DATENBANK.md` um fachliche Tabellenzuordnung ergänzt.
+- Lagerstruktur, Bestand, Etiketten, Historie und Einkaufsliste fachlich beschrieben.
+- Wichtige Datenbeziehungen dokumentiert.
+- Sicherungshinweise zur SQLite-Datenbank und zu Produktbildern ergänzt.
+- Offene Prüfpunkte für Migrationen, Fremdschlüssel, API-Zuordnung und Bild-Aufräumlogik ergänzt.
+
+Commit:
+
+```text
+068bb2f Add database documentation notes
+```
+
+### Block 226 – Lokale Browserdaten dokumentiert
+
+- Neue Datei `docs/LOKALE_BROWSERDATEN.md` erstellt.
+- Abgrenzung zwischen SQLite-Datenbank und lokalen Browserdaten dokumentiert.
+- Lokale Komfortdaten wie aktive Ansicht, Filter, Anzeigeoptionen und Entwürfe beschrieben.
+- Risiken bei gelöschten Browserdaten und geräteabhängiger Speicherung festgehalten.
+- Regel ergänzt, dass neue `localStorage`-Keys künftig dokumentiert werden sollen.
+
+Commit:
+
+```text
+6ca26ef Document local browser data
+```
+
 ## Einkaufsliste
 
 Die Einkaufsliste ist als eigener Hauptbereich in der Anwendung vorhanden.
@@ -392,16 +454,17 @@ Noch offen:
 - vollständige Sicherung aus Datenbank und Produktbildern
 - Aufräumlogik für nicht mehr verwendete Produktbilder
 
-## Aktuelle nächste Schritte nach Block 222
+## Aktuelle nächste Schritte nach Block 226
 
 Sinnvolle nächste Arbeiten:
 
-- Datenbankstruktur separat dokumentieren
-- lokale Browserdaten und `localStorage` dokumentieren
+- tatsächliche `localStorage`-Keys im Code systematisch erfassen
 - Einkaufsliste weiter stabilisieren
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Mehrfachauswahl oder Sammelaktionen für Einkaufsliste prüfen
 - Produktbild-Aufräumlogik planen
+- vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
+- API-Routen je Datenbereich dokumentieren
 - Raspberry-Pi-Start erneut praktisch testen und dokumentieren
 
 ## Arbeitsregel für Projektstand
