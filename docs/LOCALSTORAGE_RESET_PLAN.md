@@ -2,6 +2,31 @@
 
 # Reset-Funktion für lokale Browserdaten – Planung
 
+## Umsetzungsstand
+
+Der Reset lokaler Browserdaten ist umgesetzt.
+
+Stand nach Block 235:
+
+- zentrale localStorage-Keys in `client/src/constants/localStorageKeys.js`
+- Reset-Hilfsfunktionen in `client/src/utils/localStorageResetUtils.js`
+- Wartungsbereich in `client/src/components/maintenance/MaintenanceSection.jsx`
+- Hauptnavigationseintrag `Wartung` in `client/src/App.jsx`
+- Sicherheitsabfragen vor jedem Reset per Browser-Dialog
+- Statusmeldung nach dem Löschen lokaler Browserdaten
+- direkte App-State-Synchronisierung für ausgewählte Zustände nach dem Reset
+
+Umgesetzte Reset-Gruppen:
+
+- Filter und Anzeige
+- Formularentwürfe
+- lokale Etiketten-Druckmarkierungen
+- alle bekannten lokalen Browserdaten dieser App
+
+Die SQLite-Datenbank wird durch diese Wartungsfunktion nicht verändert.
+
+Hinweis: Die ursprüngliche Planung ist historisch erhalten. Die technische Umsetzung erfolgte in den Blöcken 231 bis 235.
+
 Stand: 2026-06-13 – nach Block 228
 
 ## Zweck dieses Dokuments

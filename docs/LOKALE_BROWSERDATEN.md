@@ -2,7 +2,7 @@
 
 # Lokale Browserdaten – Food Inventory
 
-Stand: 2026-06-13 – nach Block 225
+Stand: 2026-06-13 – nach Block 235
 
 ## Zweck dieses Dokuments
 
@@ -260,7 +260,33 @@ Spätere sinnvolle Arbeiten:
 
 - tatsächliche `localStorage`-Keys im Code systematisch erfassen
 - alte oder nicht mehr verwendete Keys identifizieren
-- Lösch- oder Reset-Funktion für lokale Entwürfe planen
+- optional prüfen, ob weitere lokale UI-Zustände direkt live synchronisiert werden sollen
 - lokale Daten von echten Datenbankdaten klarer in der UI abgrenzen
 - prüfen, ob Einkaufsliste-Filter dauerhaft lokal gespeichert werden sollen
 - prüfen, ob Entwürfe automatisch verfallen oder manuell gelöscht werden sollen
+
+## Wartungsbereich / Zurücksetzen lokaler Browserdaten
+
+Die App besitzt seit Block 233 einen eigenen Wartungsbereich in der Hauptnavigation.
+
+Navigation: Wartung
+
+Im Wartungsbereich können lokale Browserdaten dieser App gezielt zurückgesetzt werden.
+
+Verfügbare Aktionen:
+
+- Filter und Anzeige zurücksetzen
+- Formularentwürfe löschen
+- lokale Druckmarkierungen löschen
+- alle lokalen Browserdaten löschen
+
+Vor jeder Aktion erscheint eine Sicherheitsabfrage. Nach bestätigtem Reset zeigt die App eine Statusmeldung an.
+
+Wichtig:
+
+- Die SQLite-Datenbank bleibt unverändert.
+- Gespeicherte Produkte, Bestände, Lagerorte, Historie und Einkaufslisteneinträge bleiben erhalten.
+- Nicht gespeicherte Formularentwürfe können gelöscht werden.
+- Einzelne UI-Zustände werden nach dem Reset direkt im laufenden App-Zustand synchronisiert.
+- Einige Zustände, insbesondere Komponentenzustände außerhalb von `App.jsx`, können erst nach dem Neuladen oder erneuten Öffnen vollständig zurückgesetzt erscheinen.
+

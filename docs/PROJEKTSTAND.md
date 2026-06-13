@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 229
+Stand: 2026-06-13 – nach Block 235
 
 ## Ziel des Projekts
 
@@ -99,7 +99,7 @@ Die Speicherung erfolgt lokal im Browser über `localStorage`.
 
 Die tatsächlich verwendeten lokalen Speicher-Keys sind in `docs/LOCALSTORAGE_KEYS.md` dokumentiert.
 
-Eine spätere Reset-Funktion für lokale Browserdaten ist in `docs/LOCALSTORAGE_RESET_PLAN.md` geplant.
+Die Reset-Funktion für lokale Browserdaten ist umgesetzt und im Wartungsbereich der App erreichbar.
 
 ### QR- und Etikettenfunktionen
 
@@ -201,7 +201,7 @@ Wichtige Dokumente für die Fortsetzung nach Chatverlust oder Projektpause:
 - `docs/DATENBANK.md` – SQLite-Tabellen, Schema, Datenbeziehungen und Sicherungshinweise
 - `docs/LOKALE_BROWSERDATEN.md` – lokale Browserdaten, `localStorage`, Entwürfe und Abgrenzung zur Datenbank
 - `docs/LOCALSTORAGE_KEYS.md` – tatsächlich im Code verwendete `localStorage`-Keys
-- `docs/LOCALSTORAGE_RESET_PLAN.md` – Planung für eine spätere Reset-Funktion lokaler Browserdaten
+- `docs/LOCALSTORAGE_RESET_PLAN.md` – Planung und Umsetzungsstand der Reset-Funktion lokaler Browserdaten
 
 ## Abgeschlossene Blöcke seit letzter Projektstand-Aktualisierung
 
@@ -506,12 +506,44 @@ Noch offen:
 - vollständige Sicherung aus Datenbank und Produktbildern
 - Aufräumlogik für nicht mehr verwendete Produktbilder
 
-## Aktuelle nächste Schritte nach Block 229
+
+### Block 231 bis 235 – localStorage-Reset und Wartungsbereich umgesetzt
+
+Umgesetzt wurde die technische Grundlage und UI für das Zurücksetzen lokaler Browserdaten.
+
+Erledigt:
+
+- localStorage-Keys zentralisiert
+- Reset-Hilfsfunktionen für lokale Browserdaten erstellt
+- Wartungsbereich in der Hauptnavigation ergänzt
+- vier Reset-Aktionen eingebaut:
+  - Filter und Anzeige zurücksetzen
+  - Formularentwürfe löschen
+  - lokale Druckmarkierungen löschen
+  - alle lokalen Browserdaten löschen
+- Sicherheitsabfragen vor jedem Reset eingebaut
+- Statusmeldung nach Reset eingebaut
+- Wartungsbereich optisch nachgeschärft
+- App-State nach Reset teilweise direkt synchronisiert
+
+Commits:
+
+- `9e2fb66` – Centralize localStorage keys
+- `3e900cd` – Add localStorage reset helpers
+- `13771d4` – Add maintenance section for localStorage reset
+- `8ee2de6` – Improve maintenance reset styling
+- `ea86809` – Sync app state after localStorage reset
+
+Hinweis:
+
+Der ursprüngliche Plan aus `docs/LOCALSTORAGE_RESET_PLAN.md` ist damit weitgehend umgesetzt. Produktfilter und einzelne komponenteninterne UI-Zustände können bei Bedarf später noch direkter live synchronisiert werden.
+
+
+## Aktuelle nächste Schritte nach Block 235
 
 Sinnvolle nächste Arbeiten:
 
-- lokale Speicher-Keys im Code zentralisieren
-- Reset-Funktion für lokale Browserdaten später umsetzen
+- optional prüfen, ob Produktfilter und weitere komponenteninterne UI-Zustände nach localStorage-Reset direkt live synchronisiert werden sollen
 - Einkaufsliste weiter stabilisieren
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Mehrfachauswahl oder Sammelaktionen für Einkaufsliste prüfen
