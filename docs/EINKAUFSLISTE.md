@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-13 – Block 220
+Stand: 2026-06-13 – Block 222
 
 ## Ziel der Einkaufsliste
 
@@ -219,13 +219,15 @@ priority
 Bedeutung:
 
 - einfache Priorisierung für wichtige Einträge
+- wird für die Sortierung der offenen Einkaufslisteneinträge genutzt
+- Prioritäten werden zentral über `shoppingListPriorityOptions` gepflegt
 
 Werte:
 
 ```text
+niedrig
 normal
 hoch
-niedrig
 ```
 
 Startwert:
@@ -233,6 +235,16 @@ Startwert:
 ```text
 normal
 ```
+
+Sortierlogik:
+
+```text
+hoch
+normal
+niedrig
+```
+
+Dadurch erscheinen wichtige Einträge innerhalb der Einkaufsliste vor normalen und niedrig priorisierten Einträgen.
 
 ### Status
 
@@ -327,6 +339,7 @@ Umgesetzt sind:
 - Einkauf als Auslandseinkauf markieren
 - Kategorie-Vorschläge aus den gemeinsamen Produktkategorien nutzen
 - Einheit-Vorschläge aus den gemeinsamen Einheiten nutzen
+- Priorität-Optionen aus zentralen Auswahlwerten nutzen
 - Einkaufsliste nach `Alle`, `Ausland` und `Normal` filtern
 - aktuell gefilterte offene Einkaufsliste als Text kopieren
 - Exporttext anzeigen und manuell kopieren
@@ -450,6 +463,39 @@ Bund
 Portion
 ```
 
+## Gemeinsame Prioritäten
+
+Die Prioritäten der Einkaufsliste werden zentral in der Auswahlwert-Datei gepflegt.
+
+Die Einkaufsliste verwendet dafür:
+
+```text
+shoppingListPriorityOptions
+```
+
+Aktuelle Werte:
+
+```text
+niedrig
+normal
+hoch
+```
+
+Die Priorität wird in neuen und zu bearbeitenden Einkaufslisteneinträgen über dieselbe Optionsliste angezeigt.
+
+Vorteil:
+
+- keine doppelte Pflege der Prioritätswerte im Formular
+- einheitliche Auswahlwerte für neue und bestehende Einträge
+- bessere Wartbarkeit bei späteren Änderungen
+- klare Grundlage für Sortierung und Anzeige
+
+Die Sortierung der offenen Einträge erfolgt weiterhin nach fachlicher Gewichtung:
+
+```text
+hoch vor normal vor niedrig
+```
+
 ## Abgeschlossene Blöcke
 
 ### Block 201 – Einkaufsliste planen
@@ -532,6 +578,14 @@ Abgeschlossen. Die Einkaufsliste nutzt Einheit-Vorschläge aus den gemeinsamen E
 
 Abgeschlossen. Die Dokumentation wurde um gemeinsame Einheiten und Einheit-Vorschläge für die Einkaufsliste ergänzt.
 
+### Block 221 – Priorität-Optionen der Einkaufsliste auslagern
+
+Abgeschlossen. Die Priorität-Optionen der Einkaufsliste wurden aus der Komponente ausgelagert und werden zentral über `shoppingListPriorityOptions` in `selectOptions.js` gepflegt.
+
+### Block 222 – Dokumentation Priorität-Optionen aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um die zentrale Pflege der Priorität-Optionen und die Sortierlogik ergänzt.
+
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
@@ -544,6 +598,7 @@ Mögliche spätere Funktionen:
 - Gruppierung nach Geschäft
 - gemeinsame Produkt- und Einkaufskategorien verwalten
 - gemeinsame Einheiten verwalten und erweitern
+- Prioritäten bei Bedarf erweitern oder umbenennen
 - Mengen aus Beständen oder Verbrauch ableiten
 
 ## Nicht Bestandteil des aktuellen Stands
