@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 226
+Stand: 2026-06-13 – nach Block 229
 
 ## Ziel des Projekts
 
@@ -97,6 +97,10 @@ Aktuell vorhanden:
 
 Die Speicherung erfolgt lokal im Browser über `localStorage`.
 
+Die tatsächlich verwendeten lokalen Speicher-Keys sind in `docs/LOCALSTORAGE_KEYS.md` dokumentiert.
+
+Eine spätere Reset-Funktion für lokale Browserdaten ist in `docs/LOCALSTORAGE_RESET_PLAN.md` geplant.
+
 ### QR- und Etikettenfunktionen
 
 Aktuell vorhanden:
@@ -180,11 +184,12 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
+bc7a2c0 Plan localStorage reset feature
+df5de16 Document localStorage keys
+7f31e8b Update project status after documentation work
 6ca26ef Document local browser data
 068bb2f Add database documentation notes
 64d3b3c Document database schema
-af225ee Update project status after shopping list work
-4cf0451 Document shopping list priority options
 ```
 
 ## Aktuelle Wiederaufnahme-Dokumente
@@ -195,6 +200,8 @@ Wichtige Dokumente für die Fortsetzung nach Chatverlust oder Projektpause:
 - `docs/EINKAUFSLISTE.md` – fachliche und technische Dokumentation der Einkaufsliste
 - `docs/DATENBANK.md` – SQLite-Tabellen, Schema, Datenbeziehungen und Sicherungshinweise
 - `docs/LOKALE_BROWSERDATEN.md` – lokale Browserdaten, `localStorage`, Entwürfe und Abgrenzung zur Datenbank
+- `docs/LOCALSTORAGE_KEYS.md` – tatsächlich im Code verwendete `localStorage`-Keys
+- `docs/LOCALSTORAGE_RESET_PLAN.md` – Planung für eine spätere Reset-Funktion lokaler Browserdaten
 
 ## Abgeschlossene Blöcke seit letzter Projektstand-Aktualisierung
 
@@ -381,6 +388,51 @@ Commit:
 6ca26ef Document local browser data
 ```
 
+### Block 227 – Projektstand nach Dokumentationsarbeit aktualisiert
+
+- `docs/PROJEKTSTAND.md` auf den Stand nach Block 226 gebracht.
+- Neue Wiederaufnahme-Dokumente ergänzt.
+- Letzte Commits aktualisiert.
+- Blöcke 224 bis 226 dokumentiert.
+- Markdown-Fehler in einem Commit-Codeblock korrigiert.
+
+Commit:
+
+```text
+7f31e8b Update project status after documentation work
+```
+
+### Block 228 – Tatsächliche localStorage-Keys dokumentiert
+
+- Neue Datei `docs/LOCALSTORAGE_KEYS.md` erstellt.
+- Tatsächliche `localStorage`-Fundstellen im Code per `grep` geprüft.
+- Folgende Dateien als Fundstellen dokumentiert:
+  - `client/src/utils/printedLabelStorageUtils.js`
+  - `client/src/components/products/ProductsSection.jsx`
+  - `client/src/App.jsx`
+- Alle aktuell verwendeten `food-inventory.*`-Keys mit Zweck, Inhalt und Löschbarkeit dokumentiert.
+- Festgehalten, dass im Server keine `localStorage`-Nutzung gefunden wurde.
+
+Commit:
+
+```text
+df5de16 Document localStorage keys
+```
+
+### Block 229 – Reset-Funktion für lokale Browserdaten geplant
+
+- Neue Datei `docs/LOCALSTORAGE_RESET_PLAN.md` erstellt.
+- Reset-Gruppen für Filter, Anzeigeoptionen, Formularentwürfe, lokale Etiketten-Druckmarkierungen und vollständigen lokalen Reset geplant.
+- Abgrenzung zur SQLite-Datenbank dokumentiert.
+- Sicherheitsabfragen und Warntexte fachlich vorgeplant.
+- Technische Richtung mit zentralen Keys und späteren Reset-Hilfsfunktionen beschrieben.
+
+Commit:
+
+```text
+bc7a2c0 Plan localStorage reset feature
+```
+
 ## Einkaufsliste
 
 Die Einkaufsliste ist als eigener Hauptbereich in der Anwendung vorhanden.
@@ -454,11 +506,12 @@ Noch offen:
 - vollständige Sicherung aus Datenbank und Produktbildern
 - Aufräumlogik für nicht mehr verwendete Produktbilder
 
-## Aktuelle nächste Schritte nach Block 226
+## Aktuelle nächste Schritte nach Block 229
 
 Sinnvolle nächste Arbeiten:
 
-- tatsächliche `localStorage`-Keys im Code systematisch erfassen
+- lokale Speicher-Keys im Code zentralisieren
+- Reset-Funktion für lokale Browserdaten später umsetzen
 - Einkaufsliste weiter stabilisieren
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Mehrfachauswahl oder Sammelaktionen für Einkaufsliste prüfen
