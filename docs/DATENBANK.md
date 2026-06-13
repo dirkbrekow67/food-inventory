@@ -7,8 +7,8 @@ Stand: 2026-06-13 – nach Block 223
 ## Tabellenübersicht
 
 ```text
-inventory_history     products              storage_locations   
-inventory_items       shopping_list_items   storage_units       
+inventory_history     products              storage_locations
+inventory_items       shopping_list_items   storage_units
 label_slots           storage_compartments
 ```
 
@@ -150,3 +150,295 @@ CREATE TABLE shopping_list_items (
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
     );
 ```
+
+## Fachliche Zuordnung der Tabellen
+
+### storage_locations
+
+Speichert die Lagerorte.
+
+Beispiele:
+
+- Wohnung
+- Küche
+- Wohnzimmer
+- Vorratskammer
+
+Wichtige Bedeutung:
+
+- oberste Ebene der Lagerstruktur
+- enthält mehrere Lagergeräte oder Lagerbereiche über `storage_units`
+
+### storage_units
+
+Speichert Lagergeräte oder Lagerbereiche innerhalb eines Lagerortes.
+
+Beispiele:
+
+- Gefrierschrank
+- Kühlschrank
+- Regal
+- Vorratsbereich
+
+Wichtige Bedeutung:
+
+- gehört über `location_id` zu `storage_locations`
+- kann mehrere Lagerfächer über `storage_compartments` enthalten
+- enthält technische Zusatzinformationen wie Typ, Hersteller, Modell, Temperaturzone und QR-Druckfreigabe
+
+### storage_compartments
+
+Speichert Fächer oder Unterteilungen eines Lagergeräts.
+
+Beispiele:
+
+- Schublade 1
+- Schublade 2
+- Fach oben
+- Regalboden 3
+
+Wichtige Bedeutung:
+
+- gehört über `unit_id` zu `storage_units`
+- Kombination aus `unit_id` und `name` ist eindeutig
+- wird von Bestandseinträgen optional genutzt
+
+### products
+
+Speichert die Produktstammdaten.
+
+Typische Inhalte:
+
+- Produktname
+- Marke
+- Kategorie
+- Land
+- Geschäft
+- Barcode
+- Wieder-kaufen-Bewertung
+- Bewertung
+- Notizen
+- Produktbilder für Vorder- und Rückseite
+- Favoritenkennzeichen
+
+Wichtige Bedeutung:
+
+- Grundlage für Bestandseinträge
+- Grundlage für die Einkaufsliste mit Produktbezug
+- Produkte können deaktiviert werden, bleiben aber als Stammdaten erhalten
+
+### inventory_items
+
+Speichert konkrete vorhandene Bestände.
+
+Typische Inhalte:
+
+- Produktbezug
+- Lagergerät
+- Lagerfach
+- ursprüngliche Menge
+- Restmenge
+- Einheit
+- Packungszustand
+- Mindesthaltbarkeitsdatum
+- Einfrierdatum
+- Öffnungsdatum
+- interne Verbrauchsfrist
+- QR-Code
+- Etikettenbezug
+- Chargeninformationen
+
+Wichtige Beziehungen:
+
+- `product_id` verweist auf `products`
+- `storage_unit_id` verweist auf `storage_units`
+- `storage_compartment_id` verweist optional auf `storage_compartments`
+- `label_slot_id` verknüpft Bestandseinträge fachlich mit Etikettenplätzen
+
+### label_slots
+
+Speichert QR-Etikettenplätze und deren Druck- oder Nutzungsstatus.
+
+Typische Inhalte:
+
+- Etikettencode
+- Status frei oder belegt
+- aktueller Bestandseintrag
+- Druckstatus
+- letzter Nutzungszeitpunkt
+- Notizen
+
+Wichtige Bedeutung:
+
+- Grundlage für Etikettenpool und Nachdrucklogik
+- Etiketten können wieder freigegeben und erneut verwendet werden
+- `current_inventory_item_id` verweist fachlich auf einen aktuellen Bestandseintrag
+
+### inventory_history
+
+Speichert Historieneinträge zu entfernten oder verbrauchten Beständen.
+
+Typische Inhalte:
+
+- Produktdaten zum Zeitpunkt der Entfernung
+- Etikettencode
+- Entfernungsdatum
+- Entfernungsgrund
+- Wieder-kaufen-Bewertung nach Entfernung
+- Erfahrungsgrund
+- Erfahrungsnotiz
+
+Wichtige Bedeutung:
+
+- dokumentiert Verbrauch, Entsorgung, Ablauf oder sonstige Entfernung
+- enthält Snapshot-Daten zum Produkt, damit die Historie auch später nachvollziehbar bleibt
+- kann für spätere Auswertungen und Einkaufsvorschläge genutzt werden
+
+### shopping_list_items
+
+Speichert offene und erledigte Einkaufslisteneinträge.
+
+Typische Inhalte:
+
+- Produktbezug oder freier Artikelname
+- Menge
+- Einheit
+- Notiz
+- Kategorie
+- Auslandseinkauf-Kennzeichen
+- Priorität
+- Status offen oder erledigt
+- Erstellungs-, Änderungs- und Erledigungsdatum
+
+Wichtige Beziehungen:
+
+- `product_id` verweist optional auf `products`
+- bei gelöschtem Produkt wird der Produktbezug auf `NULL` gesetzt
+- freie Einkaufslisteneinträge nutzen `custom_name`
+
+## Wichtige Datenbeziehungen
+
+### Lagerstruktur
+
+```text
+storage_locations
+└─ storage_units
+   └─ storage_compartments
+```
+
+### Bestand
+
+```text
+products
+└─ inventory_items
+```
+
+Zusätzlich wird jeder Bestandseintrag einem Lagergerät und optional einem Lagerfach zugeordnet.
+
+```text
+storage_units
+└─ inventory_items
+
+storage_compartments
+└─ inventory_items
+```
+
+### Etiketten
+
+```text
+label_slots
+└─ inventory_items
+```
+
+Die Beziehung ist fachlich vorhanden. In der aktuellen Datenbankstruktur ist `label_slot_id` in `inventory_items` vorhanden. Für `label_slots.current_inventory_item_id` sollte später geprüft werden, ob ein expliziter Fremdschlüssel sinnvoll ergänzt wird.
+
+### Historie
+
+```text
+inventory_items
+└─ inventory_history
+```
+
+Die Historie speichert entfernte Bestände nicht nur als technische Referenz, sondern zusätzlich mit Produkt-Snapshot-Daten. Dadurch bleibt die Historie auch dann verständlich, wenn sich Produktstammdaten später ändern.
+
+### Einkaufsliste
+
+```text
+products
+└─ shopping_list_items
+```
+
+Ein Einkaufslisteneintrag kann einen Produktbezug haben oder als freier Artikel ohne Produktbezug angelegt werden.
+
+## Wichtige technische Regeln
+
+### Datenbankpfad
+
+SQLite-Befehle aus dem Projektroot sollen diesen Pfad verwenden:
+
+```text
+server/database/food_inventory.db
+```
+
+Beispiel:
+
+```bash
+sqlite3 server/database/food_inventory.db ".tables"
+```
+
+### Datenbank ist nicht in Git
+
+Die Datei:
+
+```text
+server/database/food_inventory.db
+```
+
+wird nicht in Git versioniert.
+
+### Backups
+
+Die Datenbank wird über folgendes Skript gesichert:
+
+```text
+scripts/backup-database.sh
+```
+
+### Restore
+
+Eine Datenbank-Wiederherstellung erfolgt über:
+
+```text
+scripts/restore-database.sh
+```
+
+Das Restore-Skript sichert die aktuelle Datenbank vor dem Zurückspielen eines Backups zusätzlich ab.
+
+### Produktbilder
+
+Produktbilder sind nicht Bestandteil der SQLite-Datenbank.
+
+Sie liegen separat unter:
+
+```text
+server/uploads/products/
+```
+
+Für eine vollständige Sicherung werden daher benötigt:
+
+```text
+server/database/food_inventory.db
+server/uploads/products/
+```
+
+## Offene Prüfpunkte
+
+Spätere sinnvolle Ergänzungen:
+
+- Migrationslogik zusätzlich dokumentieren
+- API-Routen je Tabelle zuordnen
+- Fremdschlüssel fachlich genauer beschreiben
+- vollständige Sicherung aus Datenbank und Upload-Ordner planen
+- Aufräumlogik für nicht mehr verwendete Produktbilder planen
+- prüfen, ob für `label_slots.current_inventory_item_id` später ein expliziter Fremdschlüssel ergänzt werden soll
+- prüfen, ob Historieneinträge langfristig zusätzliche Snapshot-Felder benötigen
