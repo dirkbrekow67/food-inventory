@@ -1194,6 +1194,23 @@ function App() {
     setActiveSection(saveActiveSection(nextActiveSection));
   }
 
+  function resetFilterAndViewStateAfterLocalStorageClear() {
+    setInventoryFilterState(initialInventoryFilterState);
+    setHistoryFilterState(initialHistoryFilterState);
+    setShowProductsInInventoryView(true);
+  }
+
+  function resetFormDraftStateAfterLocalStorageClear() {
+    discardProductFormDraft();
+    discardInventoryFormDraft();
+  }
+
+  function resetAllLocalStateAfterLocalStorageClear() {
+    resetFilterAndViewStateAfterLocalStorageClear();
+    resetFormDraftStateAfterLocalStorageClear();
+    resetLabelScan();
+  }
+
   function toggleProductsInInventoryView() {
     setShowProductsInInventoryView((currentShowProductsInInventoryView) =>
       saveShowProductsInInventoryView(!currentShowProductsInInventoryView),
@@ -1426,7 +1443,15 @@ function App() {
     }
 
     if (activeSection === "maintenance") {
-      return <MaintenanceSection />;
+      return (
+        <MaintenanceSection
+          onResetFilterAndViewState={
+            resetFilterAndViewStateAfterLocalStorageClear
+          }
+          onResetFormDraftState={resetFormDraftStateAfterLocalStorageClear}
+          onResetAllLocalState={resetAllLocalStateAfterLocalStorageClear}
+        />
+      );
     }
 
     return (

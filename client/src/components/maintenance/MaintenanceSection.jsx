@@ -17,10 +17,14 @@ function createResetMessage(removedKeys) {
   return `${removedKeys.length} lokale Speicherwerte wurden gelöscht. Einige Änderungen werden erst nach dem Neuladen der App sichtbar.`;
 }
 
-export function MaintenanceSection() {
+export function MaintenanceSection({
+  onResetFilterAndViewState,
+  onResetFormDraftState,
+  onResetAllLocalState,
+}) {
   const [resetMessage, setResetMessage] = useState("");
 
-  function confirmAndReset(confirmMessage, resetFunction) {
+  function confirmAndReset(confirmMessage, resetFunction, afterReset) {
     const confirmed = window.confirm(confirmMessage);
 
     if (!confirmed) {
@@ -28,6 +32,11 @@ export function MaintenanceSection() {
     }
 
     const removedKeys = resetFunction();
+
+    if (afterReset) {
+      afterReset();
+    }
+
     setResetMessage(createResetMessage(removedKeys));
   }
 
@@ -35,6 +44,7 @@ export function MaintenanceSection() {
     confirmAndReset(
       "Filter und Anzeigeoptionen werden zurückgesetzt. Gespeicherte Daten bleiben erhalten.",
       clearFilterAndViewStorage,
+      onResetFilterAndViewState,
     );
   }
 
@@ -42,6 +52,7 @@ export function MaintenanceSection() {
     confirmAndReset(
       "Nicht gespeicherte Produkt- und Bestandsentwürfe werden gelöscht. Gespeicherte Daten bleiben erhalten.",
       clearFormDraftStorage,
+      onResetFormDraftState,
     );
   }
 
@@ -56,6 +67,7 @@ export function MaintenanceSection() {
     confirmAndReset(
       "Alle lokalen Browserdaten dieser App werden gelöscht. Die SQLite-Datenbank bleibt erhalten. Nicht gespeicherte Entwürfe gehen verloren.",
       clearAllFoodInventoryLocalStorage,
+      onResetAllLocalState,
     );
   }
 
