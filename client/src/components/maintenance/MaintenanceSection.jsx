@@ -74,8 +74,8 @@ export function MaintenanceSection() {
 
       {resetMessage && <p className="success">{resetMessage}</p>}
 
-      <div className="form-grid">
-        <div className="form-card">
+      <div className="form-grid maintenance-reset-grid">
+        <div className="maintenance-reset-card">
           <h3>Filter und Anzeige</h3>
           <p>
             Setzt Produktfilter, Bestandsfilter, Historienfilter,
@@ -90,7 +90,7 @@ export function MaintenanceSection() {
           </button>
         </div>
 
-        <div className="form-card">
+        <div className="maintenance-reset-card">
           <h3>Formularentwürfe</h3>
           <p>
             Löscht lokale, noch nicht gespeicherte Entwürfe für Produkte und
@@ -105,7 +105,7 @@ export function MaintenanceSection() {
           </button>
         </div>
 
-        <div className="form-card">
+        <div className="maintenance-reset-card">
           <h3>Etiketten-Druckmarkierungen</h3>
           <p>
             Löscht lokal gemerkte Druckmarkierungen. Die Etikettenplätze in der
@@ -120,7 +120,7 @@ export function MaintenanceSection() {
           </button>
         </div>
 
-        <div className="form-card">
+        <div className="maintenance-reset-card">
           <h3>Alle lokalen Browserdaten</h3>
           <p>
             Löscht alle bekannten lokalen Browserdaten dieser App. Gespeicherte
