@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { shoppingListCategorySuggestionOptions } from "../../constants/selectOptions";
+
 function getShoppingListItemTitle(item) {
   return item.product_name || item.custom_name || "Unbenannter Artikel";
 }
@@ -366,6 +368,7 @@ export function ShoppingListSection({
               Kategorie
               <input
                 type="text"
+                list="shopping-list-category-suggestions"
                 value={editState.category}
                 onChange={(event) =>
                   updateEditState("category", event.target.value)
@@ -517,6 +520,14 @@ export function ShoppingListSection({
 
   return (
     <section className="card shopping-list-section">
+      <datalist id="shopping-list-category-suggestions">
+        {shoppingListCategorySuggestionOptions.map((categorySuggestion) => (
+          <option
+            key={categorySuggestion.value}
+            value={categorySuggestion.value}
+          />
+        ))}
+      </datalist>
       <div className="section-header">
         <div>
           <h2>Einkaufsliste</h2>
@@ -570,9 +581,10 @@ export function ShoppingListSection({
             Kategorie
             <input
               type="text"
+              list="shopping-list-category-suggestions"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              placeholder="z. B. Kühlung"
+              placeholder="z. B. Kühlware"
             />
           </label>
 

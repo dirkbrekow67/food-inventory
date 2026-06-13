@@ -8,6 +8,7 @@ export const productCategoryOptions = [
   { value: "Konserve", label: "Konserve" },
   { value: "Trockenware", label: "Trockenware" },
   { value: "Getränk", label: "Getränk" },
+  { value: "Obst und Gemüse", label: "Obst und Gemüse" },
   { value: "Gewürz", label: "Gewürz" },
   { value: "Backware", label: "Backware" },
   { value: "Süßware", label: "Süßware" },
@@ -165,3 +166,6 @@ export const labelSheetModeOptions = [
     label: "Manueller Bogen",
   },
 ];
+
+export const shoppingListCategorySuggestionOptions =
+  productCategoryOptions.filter((option) => option.value);
