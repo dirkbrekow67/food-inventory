@@ -91,6 +91,8 @@ import { LabelSheetSection } from "./components/labels/LabelSheetSection";
 
 import { ShoppingListSection } from "./components/shopping/ShoppingListSection";
 
+import { MaintenanceSection } from "./components/maintenance/MaintenanceSection";
+
 import { RemovalDialog } from "./components/dialogs/RemovalDialog";
 
 import { HistoryDeleteDialog } from "./components/dialogs/HistoryDeleteDialog";
@@ -1423,6 +1425,10 @@ function App() {
       );
     }
 
+    if (activeSection === "maintenance") {
+      return <MaintenanceSection />;
+    }
+
     return (
       <>
         <div className="inventory-subnav">
@@ -1578,6 +1584,13 @@ function App() {
           onClick={() => changeActiveSection("storage")}
         >
           Lagerorte
+        </button>
+        <button
+          type="button"
+          className={activeSection === "maintenance" ? "active" : ""}
+          onClick={() => changeActiveSection("maintenance")}
+        >
+          Wartung
         </button>
       </nav>
 
