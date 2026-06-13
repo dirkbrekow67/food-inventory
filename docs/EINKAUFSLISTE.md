@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-13 – Block 216
+Stand: 2026-06-13 – Block 218
 
 ## Ziel der Einkaufsliste
 
@@ -146,11 +146,17 @@ Bedeutung:
 Beispiele:
 
 ```text
-Kühlung
 Tiefkühlware
+Kühlware
 Vorrat
-Drogerie
-Ausland
+Konserve
+Trockenware
+Getränk
+Obst und Gemüse
+Gewürz
+Backware
+Süßware
+Haushalt
 Sonstiges
 ```
 
@@ -286,6 +292,7 @@ Umgesetzt sind:
 - offene Einträge nach Priorität, Kategorie und Name sortieren
 - offene Einträge nach Kategorie gruppieren
 - Einkauf als Auslandseinkauf markieren
+- Kategorie-Vorschläge aus den gemeinsamen Produktkategorien nutzen
 - Einkaufsliste nach `Alle`, `Ausland` und `Normal` filtern
 - aktuell gefilterte offene Einkaufsliste als Text kopieren
 - Exporttext anzeigen und manuell kopieren
@@ -344,6 +351,33 @@ Wichtig umgesetzt:
 - Filterbuttons für `Alle`, `Ausland` und `Normal`
 - Textkopie für Notizen, TextEdit oder Messenger
 - manuelle Textanzeige als Alternative zur Zwischenablage
+
+## Gemeinsame Kategorien
+
+Für Produktkategorien und Einkaufslisten-Kategorien wird dieselbe Grundlage genutzt.
+
+Die Einkaufsliste verwendet dafür:
+
+```text
+shoppingListCategorySuggestionOptions
+```
+
+Diese Liste wird aus den Produktkategorien abgeleitet:
+
+```text
+productCategoryOptions
+```
+
+Der Platzhalter `Kategorie auswählen` wird für die Einkaufsliste herausgefiltert. Dadurch stehen nur echte Kategorien als Vorschlag zur Verfügung.
+
+Vorteil:
+
+- keine doppelte Pflege fast gleicher Kategorien
+- weniger Abweichungen zwischen Produkt- und Einkaufskategorien
+- bessere Grundlage für spätere Übernahme von Einkaufslisteneinträgen in Produkte
+- bessere Grundlage für spätere automatische Einkaufsvorschläge aus Produkten
+
+Die Kategorie bleibt trotzdem ein freies Textfeld. Neue oder abweichende Kategorien können weiterhin manuell eingetragen werden.
 
 ## Abgeschlossene Blöcke
 
@@ -411,6 +445,14 @@ Abgeschlossen. Der aktuell gefilterte Exporttext kann zusätzlich in der Anwendu
 
 Abgeschlossen. Die Dokumentation wurde um die Funktion `Text anzeigen` und die manuelle Kopiermöglichkeit ergänzt.
 
+### Block 217 – Kategorie-Vorschläge für Einkaufsliste ergänzen
+
+Abgeschlossen. Die Einkaufsliste nutzt Kategorie-Vorschläge aus den gemeinsamen Produktkategorien. Dafür wird `shoppingListCategorySuggestionOptions` aus `productCategoryOptions` abgeleitet.
+
+### Block 218 – Dokumentation Kategorie-Vorschläge aktualisieren
+
+Abgeschlossen. Die Dokumentation wurde um gemeinsame Kategorien, Kategorie-Vorschläge und die Abgrenzung zum Auslandseinkauf ergänzt.
+
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
@@ -421,7 +463,7 @@ Mögliche spätere Funktionen:
 - automatische Vorschläge aus Produkten mit Bewertung `wieder_kaufen`
 - Einkauf aus Historie oder Verbrauch ableiten
 - Gruppierung nach Geschäft
-- Standardkategorien verwalten
+- gemeinsame Produkt- und Einkaufskategorien verwalten
 - Mengen aus Beständen oder Verbrauch ableiten
 
 ## Nicht Bestandteil des aktuellen Stands
