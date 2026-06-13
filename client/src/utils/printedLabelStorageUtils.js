@@ -5,7 +5,7 @@ import {
   parseLabelNumber,
 } from "./labelPoolUtils";
 
-const PRINTED_LABEL_CODES_STORAGE_KEY = "food-inventory.printedLabelCodes";
+import { PRINTED_LABEL_CODES_STORAGE_KEY } from "../constants/localStorageKeys";
 
 export function loadPrintedLabelCodes() {
   try {

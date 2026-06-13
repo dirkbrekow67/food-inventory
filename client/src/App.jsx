@@ -5,6 +5,15 @@ import "./App.css";
 import { emptyInventoryForm, emptyProductForm } from "./constants/formDefaults";
 
 import {
+  ACTIVE_SECTION_STORAGE_KEY,
+  HISTORY_FILTER_STORAGE_KEY,
+  INVENTORY_FILTER_STORAGE_KEY,
+  INVENTORY_FORM_DRAFT_STORAGE_KEY,
+  INVENTORY_PRODUCTS_VISIBILITY_STORAGE_KEY,
+  PRODUCT_FORM_DRAFT_STORAGE_KEY,
+} from "./constants/localStorageKeys";
+
+import {
   createInventoryItem,
   deactivateProductById,
   deleteHistoryItemById,
@@ -99,19 +108,6 @@ const initialRemovalState = createInitialRemovalState();
 
 const initialInventoryFilterState = createInitialInventoryFilterState();
 const initialHistoryFilterState = createInitialHistoryFilterState();
-
-const INVENTORY_PRODUCTS_VISIBILITY_STORAGE_KEY =
-  "food-inventory.showProductsInInventoryView";
-
-const PRODUCT_FORM_DRAFT_STORAGE_KEY = "food-inventory.productFormDraft";
-
-const INVENTORY_FORM_DRAFT_STORAGE_KEY = "food-inventory.inventoryFormDraft";
-
-const INVENTORY_FILTER_STORAGE_KEY = "food-inventory.inventoryFilters";
-
-const HISTORY_FILTER_STORAGE_KEY = "food-inventory.historyFilters";
-
-const ACTIVE_SECTION_STORAGE_KEY = "food-inventory.activeSection";
 
 function loadShowProductsInInventoryView() {
   try {

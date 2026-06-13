@@ -7,12 +7,12 @@ import {
   productSortOptions,
 } from "../../constants/selectOptions";
 
+import { PRODUCT_FILTER_STORAGE_KEY } from "../../constants/localStorageKeys";
+
 import { renderSelectOptions } from "../form/FormSelectOptions";
 
 import { ProductForm } from "./ProductForm";
 import { ProductGrid } from "./ProductGrid";
-
-const PRODUCT_FILTER_STORAGE_KEY = "food-inventory.productFilters";
 
 const initialProductFilterState = {
   productSearchTerm: "",
