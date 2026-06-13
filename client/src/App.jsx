@@ -1199,6 +1199,7 @@ function App() {
     setInventoryFilterState(initialInventoryFilterState);
     setHistoryFilterState(initialHistoryFilterState);
     setShowProductsInInventoryView(true);
+    setShowCompletedShoppingItems(false);
     setProductFilterResetSignal((currentSignal) => currentSignal + 1);
   }
 
