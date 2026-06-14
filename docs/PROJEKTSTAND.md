@@ -199,6 +199,7 @@ Wichtige Dokumente für die Fortsetzung nach Chatverlust oder Projektpause:
 - `docs/PROJEKTSTAND.md` – Gesamtstand, Roadmap, abgeschlossene Blöcke und nächste Schritte
 - `docs/EINKAUFSLISTE.md` – fachliche und technische Dokumentation der Einkaufsliste
 - `docs/DATENBANK.md` – SQLite-Tabellen, Schema, Datenbeziehungen und Sicherungshinweise
+- `docs/API_ROUTES.md` – Übersicht der aktuell genutzten API-Routen und Datenbereiche
 - `docs/LOKALE_BROWSERDATEN.md` – lokale Browserdaten, `localStorage`, Entwürfe und Abgrenzung zur Datenbank
 - `docs/LOCALSTORAGE_KEYS.md` – tatsächlich im Code verwendete `localStorage`-Keys
 - `docs/LOCALSTORAGE_RESET_PLAN.md` – Planung und Umsetzungsstand der Reset-Funktion lokaler Browserdaten
@@ -568,6 +569,26 @@ Commit:
 
 - `b1507c0` – Reset completed shopping item visibility
 
+### Block 241 – API-Routen dokumentiert
+
+Die aktuell genutzten API-Routen wurden als eigenes Wiederaufnahme-Dokument ergänzt.
+
+Neue Datei:
+
+- `docs/API_ROUTES.md`
+
+Dokumentiert wurden:
+
+- Basis-Pfad `/api`
+- lokale Serveradresse `http://localhost:3101`
+- Routen für Diagnose, Lagerstruktur, Produkte, Bestand, Historie, Etiketten und Einkaufsliste
+- Zuordnung der Routen zu Datenbereichen und Datenbanktabellen
+- offene Ergänzungen für Request-Bodies, Response-Formate, Fehlerfälle und Upload-Routen
+
+Commit:
+
+- `cc60e50` – Document API routes
+
 ## Aktuelle nächste Schritte nach Block 240
 
 Sinnvolle nächste Arbeiten:
@@ -577,7 +598,6 @@ Sinnvolle nächste Arbeiten:
 - Mehrfachauswahl oder Sammelaktionen für Einkaufsliste prüfen
 - Produktbild-Aufräumlogik planen
 - vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
-- API-Routen je Datenbereich dokumentieren
 - Raspberry-Pi-Start erneut praktisch testen und dokumentieren
 
 ## Arbeitsregel für Projektstand
