@@ -36,12 +36,20 @@ const API_QUERY_VALUE = Object.freeze({
 });
 
 const API_PATH = Object.freeze({
+  LABELS: "/labels",
   SHOPPING_LIST: "/shopping-list",
 });
 
 const SHOPPING_LIST_ACTION = Object.freeze({
   COMPLETE: "complete",
   REOPEN: "reopen",
+});
+
+const LABEL_PATH_SEGMENT = Object.freeze({
+  ALL: "all",
+  FREE: "free",
+  MARK_PRINTED: "mark-printed",
+  PRINT_STATUS: "print-status",
 });
 
 function createHeaders(extraHeaders = {}) {
@@ -105,6 +113,34 @@ function createShoppingListQuery(includeCompleted) {
 
 function createPathWithId(basePath, id) {
   return `${basePath}/${id}`;
+}
+
+function createPathWithSegments(basePath, ...segments) {
+  return [basePath, ...segments].join("/");
+}
+
+function createLabelMarkPrintedPath() {
+  return createPathWithSegments(API_PATH.LABELS, LABEL_PATH_SEGMENT.MARK_PRINTED);
+}
+
+function createLabelPrintStatusPath(labelCode) {
+  return createPathWithSegments(
+    API_PATH.LABELS,
+    labelCode,
+    LABEL_PATH_SEGMENT.PRINT_STATUS,
+  );
+}
+
+function createFreeLabelsPath() {
+  return createPathWithSegments(API_PATH.LABELS, LABEL_PATH_SEGMENT.FREE);
+}
+
+function createResetFreeLabelsPath() {
+  return createPathWithSegments(
+    API_PATH.LABELS,
+    LABEL_PATH_SEGMENT.FREE,
+    LABEL_PATH_SEGMENT.ALL,
+  );
 }
 
 function createShoppingListPath(includeCompleted) {
@@ -279,12 +315,12 @@ export function loadProducts() {
 }
 
 export function loadLabelSlots() {
-  return fetchJson("/labels", "Etikettenpool konnte nicht geladen werden.");
+  return fetchJson(API_PATH.LABELS, "Etikettenpool konnte nicht geladen werden.");
 }
 
 export function markLabelCodesAsPrinted(labelCodes) {
   return fetchJson(
-    "/labels/mark-printed",
+    createLabelMarkPrintedPath(),
     "Etikettenbogen konnte nicht als gedruckt markiert werden.",
     createJsonRequest(API_METHOD.POST, { labelCodes }),
   );
@@ -292,7 +328,7 @@ export function markLabelCodesAsPrinted(labelCodes) {
 
 export function updateLabelPrintStatus(labelCode, printStatus) {
   return fetchJson(
-    `/labels/${labelCode}/print-status`,
+    createLabelPrintStatusPath(labelCode),
     "Druckstatus konnte nicht aktualisiert werden.",
     createJsonRequest(API_METHOD.PATCH, { printStatus }),
   );
@@ -300,7 +336,7 @@ export function updateLabelPrintStatus(labelCode, printStatus) {
 
 export function releaseFreeLabelCodes(labelCodes) {
   return fetchJson(
-    "/labels/free",
+    createFreeLabelsPath(),
     "Freie Etiketten konnten nicht entfernt werden.",
     createJsonRequest(API_METHOD.DELETE, { labelCodes }),
   );
@@ -308,7 +344,7 @@ export function releaseFreeLabelCodes(labelCodes) {
 
 export function resetFreeLabelCodes() {
   return fetchJson(
-    "/labels/free/all",
+    createResetFreeLabelsPath(),
     "Freie Etiketten konnten nicht zurückgesetzt werden.",
     createRequest(API_METHOD.DELETE),
   );
