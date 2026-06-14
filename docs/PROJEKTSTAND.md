@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 270
+Stand: 2026-06-13 – nach Block 272
 
 ## Ziel des Projekts
 
@@ -842,7 +842,32 @@ Commit:
 
 - `0324480` – Refine API header creation helpers
 
-## Aktuelle nächste Schritte nach Block 270
+### Block 271 – API-Status- und Fehler-Helper weiter gekapselt
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei Status- und Fehlerbehandlung weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- HTTP-Status `204` wird jetzt zentral in `API_STATUS.NO_CONTENT` definiert.
+- Mit `isNoContentResponse(response)` wird die No-Content-Prüfung gekapselt.
+- Mit `hasEmptyResponseText(responseText)` wird die Prüfung auf leere Antworttexte gekapselt.
+- `isEmptyResponse(response, responseText)` nutzt jetzt die gekapselten Prüfungen.
+- Mit `createNetworkError(errorMessage, error)` wird die Erzeugung von Netzwerkfehlern gekapselt.
+- Mit `createApiHttpError(responseData, errorMessage)` wird die Erzeugung von HTTP-Fehlern gekapselt.
+- `fetchJson` ist dadurch weiter entlastet und lesbarer.
+- Die Fehlerbehandlung bleibt einheitlich.
+- Das fachliche Verhalten der bestehenden API-Aufrufe bleibt unverändert.
+- Der Client-Check war erfolgreich.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `478ca8b` – Refine API status and error helpers
+
+## Aktuelle nächste Schritte nach Block 272
 
 Sinnvolle nächste Arbeiten:
 
