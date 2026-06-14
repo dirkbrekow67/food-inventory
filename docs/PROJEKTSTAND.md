@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 260
+Stand: 2026-06-13 – nach Block 262
 
 ## Ziel des Projekts
 
@@ -742,7 +742,27 @@ Commit:
 
 - `3cf4ee0` – Refine API response helpers
 
-## Aktuelle nächste Schritte nach Block 260
+### Block 261 – HTTP-Methoden zentralisiert
+
+Die API-Hilfsdatei `client/src/api/inventoryApi.js` wurde weiter vereinheitlicht.
+
+Produktiv geändert wurde:
+
+- HTTP-Methoden werden jetzt zentral in `API_METHOD` definiert.
+- Standard-GET nutzt `API_METHOD.GET`.
+- POST-, PUT-, PATCH- und DELETE-Aufrufe nutzen keine freien Methoden-Strings mehr.
+- Die bestehenden API-Pfade und das fachliche Verhalten bleiben unverändert.
+- Der Code ist dadurch weniger fehleranfällig bei späteren Anpassungen.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `93ea932` – Centralize API method constants
+
+## Aktuelle nächste Schritte nach Block 262
 
 Sinnvolle nächste Arbeiten:
 
