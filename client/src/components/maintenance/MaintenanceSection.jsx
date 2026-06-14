@@ -14,7 +14,7 @@ function createResetMessage(removedKeys) {
     return "Es wurden keine lokalen Browserdaten gelöscht.";
   }
 
-  return `${removedKeys.length} lokale Speicherwerte wurden gelöscht. Einige Änderungen werden erst nach dem Neuladen der App sichtbar.`;
+  return `${removedKeys.length} lokale Speicherwerte wurden gelöscht. Gespeicherte Daten in der SQLite-Datenbank bleiben unverändert.`;
 }
 
 export function MaintenanceSection({
