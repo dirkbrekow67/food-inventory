@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 256
+Stand: 2026-06-13 – nach Block 258
 
 ## Ziel des Projekts
 
@@ -702,7 +702,27 @@ Commit:
 
 - `0e6a2ac` – Standardize API request helpers
 
-## Aktuelle nächste Schritte nach Block 256
+### Block 257 – API-Hilfslogik refactored
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde weiter aufgeräumt.
+
+Produktiv geändert wurde:
+
+- Die API-URL-Erzeugung wurde in `createApiUrl(path)` ausgelagert.
+- Das Parsen von Antworttexten wurde in `parseJsonText(responseText)` ausgelagert.
+- Die Ermittlung der API-Fehlermeldung wurde in `createApiErrorMessage(responseData, fallbackMessage)` gekapselt.
+- `fetchJson` ist dadurch kürzer, lesbarer und leichter erweiterbar.
+- Das funktionale Verhalten der API-Aufrufe bleibt unverändert.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `25304aa` – Refactor API helper utilities
+
+## Aktuelle nächste Schritte nach Block 258
 
 Sinnvolle nächste Arbeiten:
 
