@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 247
+Stand: 2026-06-13 – nach Block 250
 
 ## Ziel des Projekts
 
@@ -624,7 +624,23 @@ Commit:
 
 - `3810a4d` – Clarify local storage reset message
 
-## Aktuelle nächste Schritte nach Block 247
+### Block 248 bis 249 – API-Hilfsfunktionen formatiert
+
+Die API-Hilfsdatei `client/src/api/inventoryApi.js` wurde an zwei Stellen bereinigt.
+
+Geändert wurde:
+
+- `deactivateProductById(productId)` wurde sauber eingerückt und mit konsistenter Kommasetzung formatiert.
+- `uploadProductPhoto({ productId, side, imageDataUrl })` wurde mehrzeilig formatiert.
+- Es wurden keine fachlichen API-Pfade geändert.
+- Der Client-Check war jeweils erfolgreich.
+
+Commits:
+
+- `d175440` – Clean up product deactivation API formatting
+- `58017b4` – Format product photo API helper
+
+## Aktuelle nächste Schritte nach Block 250
 
 Sinnvolle nächste Arbeiten:
 
@@ -649,6 +665,7 @@ Block 220
 Block 230
 Block 240
 Block 250
+Block 260
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
