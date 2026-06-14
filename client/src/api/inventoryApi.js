@@ -27,6 +27,14 @@ const API_STATUS = Object.freeze({
   NO_CONTENT: 204,
 });
 
+const API_QUERY_PARAM = Object.freeze({
+  INCLUDE_COMPLETED: "includeCompleted",
+});
+
+const API_QUERY_VALUE = Object.freeze({
+  TRUE: "1",
+});
+
 function createHeaders(extraHeaders = {}) {
   return {
     [API_HEADER.ACCEPT]: API_CONTENT_TYPE.JSON,
@@ -61,6 +69,33 @@ function createJsonRequest(method, payload) {
 
 function createApiUrl(path) {
   return `${API_BASE_URL}${path}`;
+}
+
+function createQueryString(queryParams) {
+  const searchParams = new URLSearchParams(queryParams);
+
+  return `?${searchParams.toString()}`;
+}
+
+function createBooleanQueryString(paramName, enabled) {
+  if (!enabled) {
+    return "";
+  }
+
+  return createQueryString({
+    [paramName]: API_QUERY_VALUE.TRUE,
+  });
+}
+
+function createShoppingListQuery(includeCompleted) {
+  return createBooleanQueryString(
+    API_QUERY_PARAM.INCLUDE_COMPLETED,
+    includeCompleted,
+  );
+}
+
+function createShoppingListPath(includeCompleted) {
+  return `/shopping-list${createShoppingListQuery(includeCompleted)}`;
 }
 
 function parseJsonText(responseText) {
@@ -366,10 +401,8 @@ export function uploadProductPhoto({
 }
 
 export function loadShoppingListItems(includeCompleted = false) {
-  const query = includeCompleted ? "?includeCompleted=1" : "";
-
   return fetchJson(
-    `/shopping-list${query}`,
+    createShoppingListPath(includeCompleted),
     "Einkaufsliste konnte nicht geladen werden.",
   );
 }
