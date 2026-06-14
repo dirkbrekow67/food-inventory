@@ -58,8 +58,23 @@ function parseJsonText(responseText) {
   }
 }
 
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function getFirstNonEmptyString(...values) {
+  return values.find(isNonEmptyString);
+}
+
 function createApiErrorMessage(responseData, fallbackMessage) {
-  return responseData?.error || fallbackMessage;
+  return (
+    getFirstNonEmptyString(
+      responseData?.error,
+      responseData?.message,
+      responseData?.detail,
+      fallbackMessage,
+    ) || "API-Anfrage fehlgeschlagen."
+  );
 }
 
 async function readResponseText(response) {
