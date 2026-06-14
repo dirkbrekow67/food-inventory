@@ -2,10 +2,22 @@
 
 import { API_BASE_URL } from "../config/apiConfig";
 
-function createJsonRequest(method, payload) {
+function createRequest(method) {
   return {
     method,
     headers: {
+      Accept: "application/json",
+    },
+  };
+}
+
+function createJsonRequest(method, payload) {
+  const request = createRequest(method);
+
+  return {
+    ...request,
+    headers: {
+      ...request.headers,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
@@ -67,9 +79,7 @@ export function deactivateStorageLocationById(locationId) {
   return fetchJson(
     `/storage/locations/${locationId}`,
     "Standort konnte nicht deaktiviert werden.",
-    {
-      method: "DELETE",
-    },
+    createRequest("DELETE"),
   );
 }
 
@@ -77,9 +87,7 @@ export function reactivateStorageLocationById(locationId) {
   return fetchJson(
     `/storage/locations/${locationId}/reactivate`,
     "Standort konnte nicht reaktiviert werden.",
-    {
-      method: "PATCH",
-    },
+    createRequest("PATCH"),
   );
 }
 
@@ -143,9 +151,7 @@ export function resetFreeLabelCodes() {
   return fetchJson(
     "/labels/free/all",
     "Freie Etiketten konnten nicht zurückgesetzt werden.",
-    {
-      method: "DELETE",
-    },
+    createRequest("DELETE"),
   );
 }
 
@@ -172,9 +178,7 @@ export function deactivateProductById(productId) {
   return fetchJson(
     `/products/${productId}`,
     "Produkt konnte nicht deaktiviert werden.",
-    {
-      method: "DELETE",
-    },
+    createRequest("DELETE"),
   );
 }
 
@@ -198,9 +202,7 @@ export function deactivateStorageUnitById(unitId) {
   return fetchJson(
     `/storage/units/${unitId}`,
     "Lagergerät konnte nicht deaktiviert werden.",
-    {
-      method: "DELETE",
-    },
+    createRequest("DELETE"),
   );
 }
 
@@ -208,9 +210,7 @@ export function reactivateStorageUnitById(unitId) {
   return fetchJson(
     `/storage/units/${unitId}/reactivate`,
     "Lagergerät konnte nicht reaktiviert werden.",
-    {
-      method: "PATCH",
-    },
+    createRequest("PATCH"),
   );
 }
 
@@ -218,9 +218,7 @@ export function deactivateStorageCompartmentById(compartmentId) {
   return fetchJson(
     `/storage/compartments/${compartmentId}`,
     "Fach konnte nicht deaktiviert werden.",
-    {
-      method: "DELETE",
-    },
+    createRequest("DELETE"),
   );
 }
 
@@ -228,9 +226,7 @@ export function reactivateStorageCompartmentById(compartmentId) {
   return fetchJson(
     `/storage/compartments/${compartmentId}/reactivate`,
     "Fach konnte nicht reaktiviert werden.",
-    {
-      method: "PATCH",
-    },
+    createRequest("PATCH"),
   );
 }
 
@@ -254,9 +250,7 @@ export function deleteHistoryItemById(historyItemId) {
   return fetchJson(
     `/history/${historyItemId}`,
     "Historieneintrag konnte nicht gelöscht werden.",
-    {
-      method: "DELETE",
-    },
+    createRequest("DELETE"),
   );
 }
 
@@ -305,9 +299,7 @@ export function completeShoppingListItemById(itemId) {
   return fetchJson(
     `/shopping-list/${itemId}/complete`,
     "Einkaufslisteneintrag konnte nicht erledigt werden.",
-    {
-      method: "PATCH",
-    },
+    createRequest("PATCH"),
   );
 }
 
@@ -315,9 +307,7 @@ export function reopenShoppingListItemById(itemId) {
   return fetchJson(
     `/shopping-list/${itemId}/reopen`,
     "Einkaufslisteneintrag konnte nicht wieder geöffnet werden.",
-    {
-      method: "PATCH",
-    },
+    createRequest("PATCH"),
   );
 }
 
@@ -325,8 +315,6 @@ export function deleteShoppingListItemById(itemId) {
   return fetchJson(
     `/shopping-list/${itemId}`,
     "Einkaufslisteneintrag konnte nicht gelöscht werden.",
-    {
-      method: "DELETE",
-    },
+    createRequest("DELETE"),
   );
 }
