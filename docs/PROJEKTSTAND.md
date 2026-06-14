@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 262
+Stand: 2026-06-13 – nach Block 264
 
 ## Ziel des Projekts
 
@@ -762,7 +762,27 @@ Commit:
 
 - `93ea932` – Centralize API method constants
 
-## Aktuelle nächste Schritte nach Block 262
+### Block 263 – API-Header zentralisiert
+
+Die API-Hilfsdatei `client/src/api/inventoryApi.js` wurde weiter vereinheitlicht.
+
+Produktiv geändert wurde:
+
+- Header-Namen werden jetzt zentral in `API_HEADER` definiert.
+- Der JSON-Content-Type wird zentral in `API_CONTENT_TYPE` definiert.
+- `createRequest(method)` nutzt die zentralen Header-Konstanten für `Accept`.
+- `createJsonRequest(method, payload)` nutzt die zentralen Header-Konstanten für `Content-Type`.
+- Die bestehenden API-Pfade und das fachliche Verhalten bleiben unverändert.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `9e381b3` – Centralize API header constants
+
+## Aktuelle nächste Schritte nach Block 264
 
 Sinnvolle nächste Arbeiten:
 
