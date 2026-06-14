@@ -37,6 +37,7 @@ const API_QUERY_VALUE = Object.freeze({
 
 const API_PATH = Object.freeze({
   LABELS: "/labels",
+  PRODUCTS: "/products",
   SHOPPING_LIST: "/shopping-list",
 });
 
@@ -50,6 +51,10 @@ const LABEL_PATH_SEGMENT = Object.freeze({
   FREE: "free",
   MARK_PRINTED: "mark-printed",
   PRINT_STATUS: "print-status",
+});
+
+const PRODUCT_PATH_SEGMENT = Object.freeze({
+  PHOTOS: "photos",
 });
 
 function createHeaders(extraHeaders = {}) {
@@ -141,6 +146,14 @@ function createResetFreeLabelsPath() {
     LABEL_PATH_SEGMENT.FREE,
     LABEL_PATH_SEGMENT.ALL,
   );
+}
+
+function createProductItemPath(productId) {
+  return createPathWithId(API_PATH.PRODUCTS, productId);
+}
+
+function createProductPhotosPath() {
+  return createPathWithSegments(API_PATH.PRODUCTS, PRODUCT_PATH_SEGMENT.PHOTOS);
 }
 
 function createShoppingListPath(includeCompleted) {
@@ -311,7 +324,7 @@ export function createStorageCompartment(unitId, payload) {
 }
 
 export function loadProducts() {
-  return fetchJson("/products", "Produkte konnten nicht geladen werden.");
+  return fetchJson(API_PATH.PRODUCTS, "Produkte konnten nicht geladen werden.");
 }
 
 export function loadLabelSlots() {
@@ -359,7 +372,7 @@ export function loadHistoryItems() {
 }
 
 export function saveProduct(productId, payload) {
-  const path = productId ? `/products/${productId}` : "/products";
+  const path = productId ? createProductItemPath(productId) : API_PATH.PRODUCTS;
   const method = productId ? API_METHOD.PUT : API_METHOD.POST;
 
   return fetchJson(
@@ -371,7 +384,7 @@ export function saveProduct(productId, payload) {
 
 export function deactivateProductById(productId) {
   return fetchJson(
-    `/products/${productId}`,
+    createProductItemPath(productId),
     "Produkt konnte nicht deaktiviert werden.",
     createRequest(API_METHOD.DELETE),
   );
@@ -455,7 +468,7 @@ export function uploadProductPhoto({
   imageDataUrl,
 }) {
   return fetchJson(
-    "/products/photos",
+    createProductPhotosPath(),
     "Produktfoto konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.POST, {
       productId,
