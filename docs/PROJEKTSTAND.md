@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 268
+Stand: 2026-06-13 – nach Block 270
 
 ## Ziel des Projekts
 
@@ -822,7 +822,27 @@ Commit:
 
 - `64a40e0` – Centralize API error field handling
 
-## Aktuelle nächste Schritte nach Block 268
+### Block 269 – API-Header-Erzeugung weiter gekapselt
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei der Request-Erzeugung weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Mit `createHeaders(extraHeaders = {})` gibt es jetzt einen zentralen Helper für API-Header.
+- Mit `createBaseHeaders()` werden Standard-Header für normale API-Requests erzeugt.
+- Mit `createJsonHeaders()` werden Header für JSON-Requests mit `Content-Type` erzeugt.
+- `createRequest(method)` nutzt jetzt die zentrale Header-Erzeugung.
+- `createJsonRequest(method, payload)` baut Header nicht mehr manuell zusammen.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `0324480` – Refine API header creation helpers
+
+## Aktuelle nächste Schritte nach Block 270
 
 Sinnvolle nächste Arbeiten:
 
@@ -849,6 +869,7 @@ Block 240
 Block 250
 Block 260
 Block 270
+Block 280
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
