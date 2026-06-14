@@ -24,29 +24,42 @@ function createJsonRequest(method, payload) {
   };
 }
 
+function createApiUrl(path) {
+  return `${API_BASE_URL}${path}`;
+}
+
+function parseJsonText(responseText) {
+  if (!responseText) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(responseText);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+function createApiErrorMessage(responseData, fallbackMessage) {
+  return responseData?.error || fallbackMessage;
+}
+
 async function fetchJson(path, errorMessage, options = {}) {
   let response;
 
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, options);
+    response = await fetch(createApiUrl(path), options);
   } catch (error) {
     console.error(error);
     throw new Error(errorMessage, { cause: error });
   }
 
   const responseText = await response.text();
-  let responseData = null;
-
-  if (responseText) {
-    try {
-      responseData = JSON.parse(responseText);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  const responseData = parseJsonText(responseText);
 
   if (!response.ok) {
-    throw new Error(responseData?.error || errorMessage);
+    throw new Error(createApiErrorMessage(responseData, errorMessage));
   }
 
   if (response.status === 204 || !responseText) {
