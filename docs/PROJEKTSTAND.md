@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 254
+Stand: 2026-06-13 – nach Block 256
 
 ## Ziel des Projekts
 
@@ -681,7 +681,28 @@ Commit:
 
 - `c969f6b` – Improve API response handling
 
-## Aktuelle nächste Schritte nach Block 254
+### Block 255 – API-Request-Helper vereinheitlicht
+
+Die API-Hilfsdatei `client/src/api/inventoryApi.js` wurde weiter vereinheitlicht.
+
+Produktiv geändert wurde:
+
+- Neuer zentraler Helper `createRequest(method)` für API-Requests ohne Body.
+- JSON-Requests nutzen intern ebenfalls `createRequest(method)`.
+- Alle Requests mit Body senden weiterhin `Content-Type: application/json`.
+- Requests senden zusätzlich `Accept: application/json`.
+- DELETE- und PATCH-Requests ohne Body nutzen jetzt den zentralen Helper statt einzelner Objektdefinitionen.
+- Die fehlende abschließende Leerzeile am Dateiende wurde korrigiert.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `0e6a2ac` – Standardize API request helpers
+
+## Aktuelle nächste Schritte nach Block 256
 
 Sinnvolle nächste Arbeiten:
 
