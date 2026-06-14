@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 282
+Stand: 2026-06-13 – nach Block 284
 
 ## Ziel des Projekts
 
@@ -992,7 +992,32 @@ Commit:
 
 - `fe82ec4` – Centralize inventory and history API paths
 
-## Aktuelle nächste Schritte nach Block 282
+### Block 283 – Storage-, Bestands- und Historien-API-Pfade weiter zentralisiert
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei den Pfaden für Lagerstruktur, Bestand und Historie weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Weitere Lagerstruktur-Pfade wurden zentral über Konstanten und Pfad-Helper abgebildet.
+- Pfade für Lagerorte, Lagergeräte und Lagerfächer werden weniger direkt im jeweiligen API-Aufruf zusammengesetzt.
+- Reaktivierungs- und Deaktivierungsrouten der Lagerstruktur wurden weiter vereinheitlicht.
+- Bestandsbezogene API-Pfade wurden weiter gekapselt.
+- Historienbezogene API-Pfade wurden weiter gekapselt.
+- Wiederkehrende Pfadsegmente werden zentraler gepflegt.
+- ID-basierte Pfade werden einheitlicher über Helper erzeugt.
+- `fetchJson`-Aufrufe bleiben dadurch fachlich lesbarer.
+- Die bestehenden API-Routen und das fachliche Verhalten bleiben unverändert.
+- Der Client-Check war erfolgreich.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `04930ce` – Centralize storage inventory and history API paths
+
+## Aktuelle nächste Schritte nach Block 284
 
 Sinnvolle nächste Arbeiten:
 
