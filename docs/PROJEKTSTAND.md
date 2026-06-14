@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 245
+Stand: 2026-06-13 – nach Block 247
 
 ## Ziel des Projekts
 
@@ -605,7 +605,26 @@ Commit:
 
 - `b464c5b` – Align API documentation with frontend calls
 
-## Aktuelle nächste Schritte nach Block 245
+### Block 246 – Wartungs-Reset-Meldung präzisiert
+
+Die Erfolgsmeldung nach dem Zurücksetzen lokaler Browserdaten wurde fachlich präzisiert.
+
+Geändert wurde:
+
+- Die frühere Aussage, dass einige Änderungen erst nach dem Neuladen sichtbar werden, wurde entfernt.
+- Die Meldung weist jetzt klar darauf hin, dass gespeicherte Daten in der SQLite-Datenbank unverändert bleiben.
+- Der Wartungsbereich bleibt damit verständlicher, weil die meisten Anzeige- und Formularzustände inzwischen direkt live zurückgesetzt werden.
+
+Browsertest:
+
+- Wartung → Filter und Anzeige zurücksetzen
+- Erfolgsmeldung wurde korrekt angezeigt.
+
+Commit:
+
+- `3810a4d` – Clarify local storage reset message
+
+## Aktuelle nächste Schritte nach Block 247
 
 Sinnvolle nächste Arbeiten:
 
