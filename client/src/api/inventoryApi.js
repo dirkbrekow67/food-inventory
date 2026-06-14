@@ -35,6 +35,15 @@ const API_QUERY_VALUE = Object.freeze({
   TRUE: "1",
 });
 
+const API_PATH = Object.freeze({
+  SHOPPING_LIST: "/shopping-list",
+});
+
+const SHOPPING_LIST_ACTION = Object.freeze({
+  COMPLETE: "complete",
+  REOPEN: "reopen",
+});
+
 function createHeaders(extraHeaders = {}) {
   return {
     [API_HEADER.ACCEPT]: API_CONTENT_TYPE.JSON,
@@ -94,8 +103,28 @@ function createShoppingListQuery(includeCompleted) {
   );
 }
 
+function createPathWithId(basePath, id) {
+  return `${basePath}/${id}`;
+}
+
 function createShoppingListPath(includeCompleted) {
-  return `/shopping-list${createShoppingListQuery(includeCompleted)}`;
+  return `${API_PATH.SHOPPING_LIST}${createShoppingListQuery(includeCompleted)}`;
+}
+
+function createShoppingListItemPath(itemId) {
+  return createPathWithId(API_PATH.SHOPPING_LIST, itemId);
+}
+
+function createShoppingListActionPath(itemId, action) {
+  return `${createShoppingListItemPath(itemId)}/${action}`;
+}
+
+function createShoppingListCompletePath(itemId) {
+  return createShoppingListActionPath(itemId, SHOPPING_LIST_ACTION.COMPLETE);
+}
+
+function createShoppingListReopenPath(itemId) {
+  return createShoppingListActionPath(itemId, SHOPPING_LIST_ACTION.REOPEN);
 }
 
 function parseJsonText(responseText) {
@@ -409,7 +438,7 @@ export function loadShoppingListItems(includeCompleted = false) {
 
 export function createShoppingListItem(payload) {
   return fetchJson(
-    "/shopping-list",
+    API_PATH.SHOPPING_LIST,
     "Einkaufslisteneintrag konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.POST, payload),
   );
@@ -417,7 +446,7 @@ export function createShoppingListItem(payload) {
 
 export function updateShoppingListItemById(itemId, payload) {
   return fetchJson(
-    `/shopping-list/${itemId}`,
+    createShoppingListItemPath(itemId),
     "Einkaufslisteneintrag konnte nicht aktualisiert werden.",
     createJsonRequest(API_METHOD.PUT, payload),
   );
@@ -425,7 +454,7 @@ export function updateShoppingListItemById(itemId, payload) {
 
 export function completeShoppingListItemById(itemId) {
   return fetchJson(
-    `/shopping-list/${itemId}/complete`,
+    createShoppingListCompletePath(itemId),
     "Einkaufslisteneintrag konnte nicht erledigt werden.",
     createRequest(API_METHOD.PATCH),
   );
@@ -433,7 +462,7 @@ export function completeShoppingListItemById(itemId) {
 
 export function reopenShoppingListItemById(itemId) {
   return fetchJson(
-    `/shopping-list/${itemId}/reopen`,
+    createShoppingListReopenPath(itemId),
     "Einkaufslisteneintrag konnte nicht wieder geöffnet werden.",
     createRequest(API_METHOD.PATCH),
   );
@@ -441,7 +470,7 @@ export function reopenShoppingListItemById(itemId) {
 
 export function deleteShoppingListItemById(itemId) {
   return fetchJson(
-    `/shopping-list/${itemId}`,
+    createShoppingListItemPath(itemId),
     "Einkaufslisteneintrag konnte nicht gelöscht werden.",
     createRequest(API_METHOD.DELETE),
   );
