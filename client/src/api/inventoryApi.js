@@ -41,6 +41,7 @@ const API_PATH = Object.freeze({
   LABELS: "/labels",
   PRODUCTS: "/products",
   SHOPPING_LIST: "/shopping-list",
+  STORAGE: "/storage",
 });
 
 const SHOPPING_LIST_ACTION = Object.freeze({
@@ -57,6 +58,16 @@ const LABEL_PATH_SEGMENT = Object.freeze({
 
 const PRODUCT_PATH_SEGMENT = Object.freeze({
   PHOTOS: "photos",
+});
+
+const STORAGE_PATH_SEGMENT = Object.freeze({
+  COMPARTMENTS: "compartments",
+  GENERATE: "generate",
+  INACTIVE: "inactive",
+  LOCATIONS: "locations",
+  REACTIVATE: "reactivate",
+  TREE: "tree",
+  UNITS: "units",
 });
 
 function createHeaders(extraHeaders = {}) {
@@ -164,6 +175,76 @@ function createInventoryItemPath(inventoryItemId) {
 
 function createHistoryItemPath(historyItemId) {
   return createPathWithId(API_PATH.HISTORY, historyItemId);
+}
+
+function createStorageTreePath() {
+  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.TREE);
+}
+
+function createInactiveStoragePath() {
+  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.INACTIVE);
+}
+
+function createStorageLocationsPath() {
+  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.LOCATIONS);
+}
+
+function createStorageLocationItemPath(locationId) {
+  return createPathWithId(createStorageLocationsPath(), locationId);
+}
+
+function createStorageLocationReactivatePath(locationId) {
+  return createPathWithSegments(
+    createStorageLocationItemPath(locationId),
+    STORAGE_PATH_SEGMENT.REACTIVATE,
+  );
+}
+
+function createStorageUnitsPath() {
+  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.UNITS);
+}
+
+function createStorageUnitItemPath(unitId) {
+  return createPathWithId(createStorageUnitsPath(), unitId);
+}
+
+function createStorageUnitReactivatePath(unitId) {
+  return createPathWithSegments(
+    createStorageUnitItemPath(unitId),
+    STORAGE_PATH_SEGMENT.REACTIVATE,
+  );
+}
+
+function createStorageUnitCompartmentsPath(unitId) {
+  return createPathWithSegments(
+    createStorageUnitItemPath(unitId),
+    STORAGE_PATH_SEGMENT.COMPARTMENTS,
+  );
+}
+
+function createStorageUnitGenerateCompartmentsPath(unitId) {
+  return createPathWithSegments(
+    createStorageUnitCompartmentsPath(unitId),
+    STORAGE_PATH_SEGMENT.GENERATE,
+  );
+}
+
+function createStorageCompartmentsPath() {
+  return createPathWithSegments(
+    API_PATH.STORAGE,
+    STORAGE_PATH_SEGMENT.COMPARTMENTS,
+  );
+}
+
+function createStorageCompartmentItemPath(compartmentId) {
+  return createPathWithId(createStorageCompartmentsPath(), compartmentId);
+}
+
+function createStorageCompartmentReactivatePath(compartmentId) {
+  return createPathWithSegments(
+    createStorageCompartmentItemPath(compartmentId),
+    STORAGE_PATH_SEGMENT.REACTIVATE,
+  );
 }
 
 function createShoppingListPath(includeCompleted) {
@@ -275,19 +356,19 @@ async function fetchJson(path, errorMessage, options = createRequest(API_METHOD.
 }
 
 export function loadStorageTree() {
-  return fetchJson("/storage/tree", "Lagerstruktur konnte nicht geladen werden.");
+  return fetchJson(createStorageTreePath(), "Lagerstruktur konnte nicht geladen werden.");
 }
 
 export function loadInactiveStorageItems() {
   return fetchJson(
-    "/storage/inactive",
+    createInactiveStoragePath(),
     "Inaktive Lagerstruktur konnte nicht geladen werden.",
   );
 }
 
 export function createStorageLocation(name) {
   return fetchJson(
-    "/storage/locations",
+    createStorageLocationsPath(),
     "Standort konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.POST, { name }),
   );
@@ -295,7 +376,7 @@ export function createStorageLocation(name) {
 
 export function deactivateStorageLocationById(locationId) {
   return fetchJson(
-    `/storage/locations/${locationId}`,
+    createStorageLocationItemPath(locationId),
     "Standort konnte nicht deaktiviert werden.",
     createRequest(API_METHOD.DELETE),
   );
@@ -303,7 +384,7 @@ export function deactivateStorageLocationById(locationId) {
 
 export function reactivateStorageLocationById(locationId) {
   return fetchJson(
-    `/storage/locations/${locationId}/reactivate`,
+    createStorageLocationReactivatePath(locationId),
     "Standort konnte nicht reaktiviert werden.",
     createRequest(API_METHOD.PATCH),
   );
@@ -311,7 +392,7 @@ export function reactivateStorageLocationById(locationId) {
 
 export function createStorageUnit(payload) {
   return fetchJson(
-    "/storage/units",
+    createStorageUnitsPath(),
     "Lagergerät konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.POST, payload),
   );
@@ -319,7 +400,7 @@ export function createStorageUnit(payload) {
 
 export function generateStorageCompartments(unitId, payload) {
   return fetchJson(
-    `/storage/units/${unitId}/compartments/generate`,
+    createStorageUnitGenerateCompartmentsPath(unitId),
     "Fächer konnten nicht gespeichert werden.",
     createJsonRequest(API_METHOD.POST, payload),
   );
@@ -327,7 +408,7 @@ export function generateStorageCompartments(unitId, payload) {
 
 export function createStorageCompartment(unitId, payload) {
   return fetchJson(
-    `/storage/units/${unitId}/compartments`,
+    createStorageUnitCompartmentsPath(unitId),
     "Fach konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.POST, payload),
   );
@@ -418,7 +499,7 @@ export function updateInventoryItemById(inventoryItemId, payload) {
 
 export function deactivateStorageUnitById(unitId) {
   return fetchJson(
-    `/storage/units/${unitId}`,
+    createStorageUnitItemPath(unitId),
     "Lagergerät konnte nicht deaktiviert werden.",
     createRequest(API_METHOD.DELETE),
   );
@@ -426,7 +507,7 @@ export function deactivateStorageUnitById(unitId) {
 
 export function reactivateStorageUnitById(unitId) {
   return fetchJson(
-    `/storage/units/${unitId}/reactivate`,
+    createStorageUnitReactivatePath(unitId),
     "Lagergerät konnte nicht reaktiviert werden.",
     createRequest(API_METHOD.PATCH),
   );
@@ -434,7 +515,7 @@ export function reactivateStorageUnitById(unitId) {
 
 export function deactivateStorageCompartmentById(compartmentId) {
   return fetchJson(
-    `/storage/compartments/${compartmentId}`,
+    createStorageCompartmentItemPath(compartmentId),
     "Fach konnte nicht deaktiviert werden.",
     createRequest(API_METHOD.DELETE),
   );
@@ -442,7 +523,7 @@ export function deactivateStorageCompartmentById(compartmentId) {
 
 export function reactivateStorageCompartmentById(compartmentId) {
   return fetchJson(
-    `/storage/compartments/${compartmentId}/reactivate`,
+    createStorageCompartmentReactivatePath(compartmentId),
     "Fach konnte nicht reaktiviert werden.",
     createRequest(API_METHOD.PATCH),
   );
