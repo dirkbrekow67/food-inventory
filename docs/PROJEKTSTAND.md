@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 280
+Stand: 2026-06-13 – nach Block 282
 
 ## Ziel des Projekts
 
@@ -967,7 +967,32 @@ Commit:
 
 - `a6b4646` – Centralize product API paths
 
-## Aktuelle nächste Schritte nach Block 280
+### Block 281 – Bestands- und Historien-API-Pfade zentralisiert
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei den Pfaden für Bestand und Historie weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Der Basis-Pfad `/inventory` wird zentral gepflegt.
+- Der Basis-Pfad `/history` wird zentral gepflegt.
+- Bestandslisten werden über den zentralen Bestandspfad geladen.
+- Neue Bestandseinträge werden über den zentralen Bestandspfad angelegt.
+- Bestandsbezogene Einzelpfade werden zentral erzeugt.
+- Entfernen und Bearbeiten von Bestandseinträgen nutzen zentrale Pfad-Helper.
+- Historienlisten werden über den zentralen Historienpfad geladen.
+- Historienbezogene Einzelpfade werden zentral erzeugt.
+- Bearbeiten und Löschen von Historieneinträgen nutzen zentrale Pfad-Helper.
+- Das fachliche Verhalten der bestehenden API-Aufrufe bleibt unverändert.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `fe82ec4` – Centralize inventory and history API paths
+
+## Aktuelle nächste Schritte nach Block 282
 
 Sinnvolle nächste Arbeiten:
 
