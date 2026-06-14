@@ -36,6 +36,8 @@ const API_QUERY_VALUE = Object.freeze({
 });
 
 const API_PATH = Object.freeze({
+  HISTORY: "/history",
+  INVENTORY: "/inventory",
   LABELS: "/labels",
   PRODUCTS: "/products",
   SHOPPING_LIST: "/shopping-list",
@@ -154,6 +156,14 @@ function createProductItemPath(productId) {
 
 function createProductPhotosPath() {
   return createPathWithSegments(API_PATH.PRODUCTS, PRODUCT_PATH_SEGMENT.PHOTOS);
+}
+
+function createInventoryItemPath(inventoryItemId) {
+  return createPathWithId(API_PATH.INVENTORY, inventoryItemId);
+}
+
+function createHistoryItemPath(historyItemId) {
+  return createPathWithId(API_PATH.HISTORY, historyItemId);
 }
 
 function createShoppingListPath(includeCompleted) {
@@ -364,11 +374,11 @@ export function resetFreeLabelCodes() {
 }
 
 export function loadInventoryItems() {
-  return fetchJson("/inventory", "Bestand konnte nicht geladen werden.");
+  return fetchJson(API_PATH.INVENTORY, "Bestand konnte nicht geladen werden.");
 }
 
 export function loadHistoryItems() {
-  return fetchJson("/history", "Produkthistorie konnte nicht geladen werden.");
+  return fetchJson(API_PATH.HISTORY, "Produkthistorie konnte nicht geladen werden.");
 }
 
 export function saveProduct(productId, payload) {
@@ -392,7 +402,7 @@ export function deactivateProductById(productId) {
 
 export function createInventoryItem(payload) {
   return fetchJson(
-    "/inventory",
+    API_PATH.INVENTORY,
     "Bestand konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.POST, payload),
   );
@@ -400,7 +410,7 @@ export function createInventoryItem(payload) {
 
 export function updateInventoryItemById(inventoryItemId, payload) {
   return fetchJson(
-    `/inventory/${inventoryItemId}`,
+    createInventoryItemPath(inventoryItemId),
     "Bestandseintrag konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.PUT, payload),
   );
@@ -440,7 +450,7 @@ export function reactivateStorageCompartmentById(compartmentId) {
 
 export function removeInventoryItemById(inventoryItemId, payload) {
   return fetchJson(
-    `/inventory/${inventoryItemId}`,
+    createInventoryItemPath(inventoryItemId),
     "Bestand konnte nicht entfernt werden.",
     createJsonRequest(API_METHOD.DELETE, payload),
   );
@@ -448,7 +458,7 @@ export function removeInventoryItemById(inventoryItemId, payload) {
 
 export function updateHistoryItemById(historyItemId, payload) {
   return fetchJson(
-    `/history/${historyItemId}`,
+    createHistoryItemPath(historyItemId),
     "Historieneintrag konnte nicht gespeichert werden.",
     createJsonRequest(API_METHOD.PUT, payload),
   );
@@ -456,7 +466,7 @@ export function updateHistoryItemById(historyItemId, payload) {
 
 export function deleteHistoryItemById(historyItemId) {
   return fetchJson(
-    `/history/${historyItemId}`,
+    createHistoryItemPath(historyItemId),
     "Historieneintrag konnte nicht gelöscht werden.",
     createRequest(API_METHOD.DELETE),
   );
