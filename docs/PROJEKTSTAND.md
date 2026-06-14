@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 250
+Stand: 2026-06-13 – nach Block 252
 
 ## Ziel des Projekts
 
@@ -200,6 +200,7 @@ Wichtige Dokumente für die Fortsetzung nach Chatverlust oder Projektpause:
 - `docs/EINKAUFSLISTE.md` – fachliche und technische Dokumentation der Einkaufsliste
 - `docs/DATENBANK.md` – SQLite-Tabellen, Schema, Datenbeziehungen und Sicherungshinweise
 - `docs/API_ROUTES.md` – Übersicht der aktuell genutzten API-Routen und Datenbereiche
+- `docs/COMMIT_CHECKLIST.md` – Commit-, Prüf- und Übergabe-Checkliste für Arbeitsblöcke
 - `docs/LOKALE_BROWSERDATEN.md` – lokale Browserdaten, `localStorage`, Entwürfe und Abgrenzung zur Datenbank
 - `docs/LOCALSTORAGE_KEYS.md` – tatsächlich im Code verwendete `localStorage`-Keys
 - `docs/LOCALSTORAGE_RESET_PLAN.md` – Planung und Umsetzungsstand der Reset-Funktion lokaler Browserdaten
@@ -640,7 +641,27 @@ Commits:
 - `d175440` – Clean up product deactivation API formatting
 - `58017b4` – Format product photo API helper
 
-## Aktuelle nächste Schritte nach Block 250
+### Block 251 – Commit- und Prüf-Checkliste ergänzt
+
+Eine kurze Commit- und Prüf-Checkliste wurde als eigenes Wiederaufnahme-Dokument ergänzt.
+
+Neue Datei:
+
+- `docs/COMMIT_CHECKLIST.md`
+
+Dokumentiert wurden:
+
+- Standardablauf bei Code-Änderungen
+- Standardablauf bei reinen Dokumentationsänderungen
+- Prüfung vor längerer Pause oder Chatwechsel
+- Dateien und Ordner, die nicht committen werden sollen
+- Dokumentationsregel für dauerhafte Funktionen
+
+Commit:
+
+- `7b57f17` – Add commit checklist documentation
+
+## Aktuelle nächste Schritte nach Block 252
 
 Sinnvolle nächste Arbeiten:
 
