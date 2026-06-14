@@ -23,6 +23,10 @@ const API_ERROR_FALLBACK_MESSAGE = "API-Anfrage fehlgeschlagen.";
 
 const API_ERROR_FIELD_NAMES = Object.freeze(["error", "message", "detail"]);
 
+const API_STATUS = Object.freeze({
+  NO_CONTENT: 204,
+});
+
 function createHeaders(extraHeaders = {}) {
   return {
     [API_HEADER.ACCEPT]: API_CONTENT_TYPE.JSON,
@@ -99,12 +103,28 @@ function createApiErrorMessage(responseData, fallbackMessage) {
   );
 }
 
+function createNetworkError(errorMessage, error) {
+  return new Error(errorMessage, { cause: error });
+}
+
+function createApiHttpError(responseData, errorMessage) {
+  return new Error(createApiErrorMessage(responseData, errorMessage));
+}
+
 async function readResponseText(response) {
   return response.text();
 }
 
+function isNoContentResponse(response) {
+  return response.status === API_STATUS.NO_CONTENT;
+}
+
+function hasEmptyResponseText(responseText) {
+  return !responseText;
+}
+
 function isEmptyResponse(response, responseText) {
-  return response.status === 204 || !responseText;
+  return isNoContentResponse(response) || hasEmptyResponseText(responseText);
 }
 
 async function fetchJson(path, errorMessage, options = createRequest(API_METHOD.GET)) {
@@ -114,14 +134,14 @@ async function fetchJson(path, errorMessage, options = createRequest(API_METHOD.
     response = await fetch(createApiUrl(path), options);
   } catch (error) {
     console.error(error);
-    throw new Error(errorMessage, { cause: error });
+    throw createNetworkError(errorMessage, error);
   }
 
   const responseText = await readResponseText(response);
   const responseData = parseJsonText(responseText);
 
   if (!response.ok) {
-    throw new Error(createApiErrorMessage(responseData, errorMessage));
+    throw createApiHttpError(responseData, errorMessage);
   }
 
   if (isEmptyResponse(response, responseText)) {
