@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 264
+Stand: 2026-06-13 – nach Block 266
 
 ## Ziel des Projekts
 
@@ -782,7 +782,27 @@ Commit:
 
 - `9e381b3` – Centralize API header constants
 
-## Aktuelle nächste Schritte nach Block 264
+### Block 265 – API-Fehlermeldungen robuster ausgewertet
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei der Fehlerauswertung verbessert.
+
+Produktiv geändert wurde:
+
+- Mit `isNonEmptyString(value)` werden verwertbare Fehlertexte geprüft.
+- Mit `getFirstNonEmptyString(...values)` wird eine Fallback-Kette für Fehlertexte genutzt.
+- `createApiErrorMessage(responseData, fallbackMessage)` berücksichtigt jetzt `error`, `message` und `detail`.
+- Leere oder nur aus Leerzeichen bestehende Fehlertexte werden nicht mehr als sinnvolle Meldung übernommen.
+- Falls kein verwertbarer Fehlertext vorhanden ist, bleibt eine allgemeine Fallback-Meldung erhalten.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `538a666` – Improve API error message fallback
+
+## Aktuelle nächste Schritte nach Block 266
 
 Sinnvolle nächste Arbeiten:
 
