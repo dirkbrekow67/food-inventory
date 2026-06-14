@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 272
+Stand: 2026-06-13 – nach Block 274
 
 ## Ziel des Projekts
 
@@ -867,7 +867,32 @@ Commit:
 
 - `478ca8b` – Refine API status and error helpers
 
-## Aktuelle nächste Schritte nach Block 272
+### Block 273 – Query-String für Einkaufsliste gekapselt
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei der Query-Erzeugung für die Einkaufsliste weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Der Query-Parameter `includeCompleted` wird jetzt zentral in `API_QUERY_PARAM.INCLUDE_COMPLETED` definiert.
+- Der Query-Wert `1` wird zentral in `API_QUERY_VALUE.TRUE` definiert.
+- Mit `createQueryString(queryParams)` gibt es jetzt einen zentralen Helper für Query-Strings.
+- Mit `createBooleanQueryString(paramName, enabled)` werden einfache Boolean-Query-Strings gekapselt.
+- Mit `createShoppingListQuery(includeCompleted)` wird die Query der Einkaufsliste zentral erzeugt.
+- Mit `createShoppingListPath(includeCompleted)` wird der vollständige Einkaufsliste-Pfad zentral erzeugt.
+- Die Query-Erzeugung erfolgt jetzt über `URLSearchParams`.
+- `loadShoppingListItems(includeCompleted)` baut den Pfad nicht mehr selbst zusammen.
+- Ohne erledigte Einträge bleibt der Einkaufsliste-Pfad weiterhin ohne Query-String.
+- Das fachliche Verhalten der bestehenden API-Aufrufe bleibt unverändert.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `15e6ff4` – Add shopping list query helpers
+
+## Aktuelle nächste Schritte nach Block 274
 
 Sinnvolle nächste Arbeiten:
 
