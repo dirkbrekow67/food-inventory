@@ -13,26 +13,35 @@ function createJsonRequest(method, payload) {
 }
 
 async function fetchJson(path, errorMessage, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, options);
+  let response;
 
-  if (!response.ok) {
-    let serverErrorMessage;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, options);
+  } catch (error) {
+    console.error(error);
+    throw new Error(errorMessage, { cause: error });
+  }
 
+  const responseText = await response.text();
+  let responseData = null;
+
+  if (responseText) {
     try {
-      const errorData = await response.json();
-      serverErrorMessage = errorData.error;
+      responseData = JSON.parse(responseText);
     } catch (error) {
       console.error(error);
     }
-
-    throw new Error(serverErrorMessage || errorMessage);
   }
 
-  if (response.status === 204) {
+  if (!response.ok) {
+    throw new Error(responseData?.error || errorMessage);
+  }
+
+  if (response.status === 204 || !responseText) {
     return null;
   }
 
-  return response.json();
+  return responseData;
 }
 
 export function loadStorageTree() {
