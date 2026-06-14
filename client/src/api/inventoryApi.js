@@ -45,7 +45,15 @@ function createApiErrorMessage(responseData, fallbackMessage) {
   return responseData?.error || fallbackMessage;
 }
 
-async function fetchJson(path, errorMessage, options = {}) {
+async function readResponseText(response) {
+  return response.text();
+}
+
+function isEmptyResponse(response, responseText) {
+  return response.status === 204 || !responseText;
+}
+
+async function fetchJson(path, errorMessage, options = createRequest("GET")) {
   let response;
 
   try {
@@ -55,14 +63,14 @@ async function fetchJson(path, errorMessage, options = {}) {
     throw new Error(errorMessage, { cause: error });
   }
 
-  const responseText = await response.text();
+  const responseText = await readResponseText(response);
   const responseData = parseJsonText(responseText);
 
   if (!response.ok) {
     throw new Error(createApiErrorMessage(responseData, errorMessage));
   }
 
-  if (response.status === 204 || !responseText) {
+  if (isEmptyResponse(response, responseText)) {
     return null;
   }
 
