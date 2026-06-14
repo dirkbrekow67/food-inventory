@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 258
+Stand: 2026-06-13 – nach Block 260
 
 ## Ziel des Projekts
 
@@ -722,7 +722,27 @@ Commit:
 
 - `25304aa` – Refactor API helper utilities
 
-## Aktuelle nächste Schritte nach Block 258
+### Block 259 – API-Response-Helper weiter verfeinert
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde weiter vereinheitlicht.
+
+Produktiv geändert wurde:
+
+- Standard-GET-Requests nutzen jetzt automatisch `createRequest("GET")`.
+- Das Lesen des Antworttexts wurde in `readResponseText(response)` ausgelagert.
+- Die Prüfung auf leere Antworten wurde in `isEmptyResponse(response, responseText)` gekapselt.
+- `fetchJson` bleibt dadurch weiter lesbarer und besser wartbar.
+- Das fachliche Verhalten der bestehenden API-Aufrufe bleibt unverändert.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `3cf4ee0` – Refine API response helpers
+
+## Aktuelle nächste Schritte nach Block 260
 
 Sinnvolle nächste Arbeiten:
 
@@ -748,6 +768,7 @@ Block 230
 Block 240
 Block 250
 Block 260
+Block 270
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
