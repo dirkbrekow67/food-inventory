@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 252
+Stand: 2026-06-13 – nach Block 254
 
 ## Ziel des Projekts
 
@@ -661,7 +661,27 @@ Commit:
 
 - `7b57f17` – Add commit checklist documentation
 
-## Aktuelle nächste Schritte nach Block 252
+### Block 253 – API-Antwortverarbeitung robuster gemacht
+
+Die zentrale API-Hilfsfunktion `fetchJson` in `client/src/api/inventoryApi.js` wurde robuster gemacht.
+
+Produktiv geändert wurde:
+
+- Netzwerkfehler beim `fetch` werden abgefangen und mit fachlicher Fehlermeldung weitergegeben.
+- Der ursprüngliche technische Fehler wird über `cause` erhalten.
+- Antworttexte werden zuerst als Text gelesen und nur bei Inhalt als JSON geparst.
+- Leere erfolgreiche Antworten liefern künftig `null` zurück.
+- Fehlerantworten können weiterhin serverseitige Fehlermeldungen aus `error` verwenden.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `c969f6b` – Improve API response handling
+
+## Aktuelle nächste Schritte nach Block 254
 
 Sinnvolle nächste Arbeiten:
 
