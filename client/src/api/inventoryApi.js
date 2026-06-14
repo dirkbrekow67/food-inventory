@@ -19,6 +19,10 @@ const API_CONTENT_TYPE = Object.freeze({
   JSON: "application/json",
 });
 
+const API_ERROR_FALLBACK_MESSAGE = "API-Anfrage fehlgeschlagen.";
+
+const API_ERROR_FIELD_NAMES = Object.freeze(["error", "message", "detail"]);
+
 function createRequest(method) {
   return {
     method,
@@ -66,14 +70,22 @@ function getFirstNonEmptyString(...values) {
   return values.find(isNonEmptyString);
 }
 
+function getApiErrorFieldValue(responseData, fieldName) {
+  if (!responseData || typeof responseData !== "object") {
+    return undefined;
+  }
+
+  return responseData[fieldName];
+}
+
 function createApiErrorMessage(responseData, fallbackMessage) {
+  const responseMessages = API_ERROR_FIELD_NAMES.map((fieldName) =>
+    getApiErrorFieldValue(responseData, fieldName),
+  );
+
   return (
-    getFirstNonEmptyString(
-      responseData?.error,
-      responseData?.message,
-      responseData?.detail,
-      fallbackMessage,
-    ) || "API-Anfrage fehlgeschlagen."
+    getFirstNonEmptyString(...responseMessages, fallbackMessage) ||
+    API_ERROR_FALLBACK_MESSAGE
   );
 }
 
