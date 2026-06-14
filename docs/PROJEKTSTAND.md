@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 240
+Stand: 2026-06-13 – nach Block 245
 
 ## Ziel des Projekts
 
@@ -589,7 +589,23 @@ Commit:
 
 - `cc60e50` – Document API routes
 
-## Aktuelle nächste Schritte nach Block 240
+### Block 244 – API-Dokumentation an echte Frontend-Aufrufe angepasst
+
+Die API-Dokumentation wurde mit den tatsächlichen Frontend-Aufrufen aus `client/src/api/inventoryApi.js` abgeglichen und korrigiert.
+
+Korrigiert bzw. ergänzt wurden insbesondere:
+
+- Lagerstruktur-Routen wie `/api/storage/tree`, `/api/storage/inactive`, `/api/storage/locations`, `/api/storage/units` und Reaktivierungsrouten
+- Etiketten-Routen wie `/api/labels`, `/api/labels/mark-printed`, `/api/labels/free` und `/api/labels/free/all`
+- Produkt-Deaktivierung über `DELETE /api/products/:productId`
+- Produktfoto-Upload über `POST /api/products/photos`
+- genauere Parameterbezeichnungen bei Produkten, Bestand, Historie und Einkaufsliste
+
+Commit:
+
+- `b464c5b` – Align API documentation with frontend calls
+
+## Aktuelle nächste Schritte nach Block 245
 
 Sinnvolle nächste Arbeiten:
 
@@ -599,6 +615,7 @@ Sinnvolle nächste Arbeiten:
 - Produktbild-Aufräumlogik planen
 - vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
 - Raspberry-Pi-Start erneut praktisch testen und dokumentieren
+- API-Dokumentation später um Request-Bodies und Response-Formate ergänzen
 
 ## Arbeitsregel für Projektstand
 
@@ -612,6 +629,7 @@ Block 210
 Block 220
 Block 230
 Block 240
+Block 250
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
