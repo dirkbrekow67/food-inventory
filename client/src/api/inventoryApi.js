@@ -161,11 +161,11 @@ export function saveProduct(productId, payload) {
 
 export function deactivateProductById(productId) {
   return fetchJson(
-    `/products/${productId}`, 
-    "Produkt konnte nicht deaktiviert werden.", 
+    `/products/${productId}`,
+    "Produkt konnte nicht deaktiviert werden.",
     {
-    method: "DELETE",
-    }
+      method: "DELETE",
+    },
   );
 }
 
