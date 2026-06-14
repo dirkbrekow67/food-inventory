@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 266
+Stand: 2026-06-13 – nach Block 268
 
 ## Ziel des Projekts
 
@@ -802,7 +802,27 @@ Commit:
 
 - `538a666` – Improve API error message fallback
 
-## Aktuelle nächste Schritte nach Block 266
+### Block 267 – API-Fehlerfeldlogik zentralisiert
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei der Fehlerauswertung weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Die allgemeine API-Fallback-Meldung wird jetzt zentral in `API_ERROR_FALLBACK_MESSAGE` definiert.
+- Unterstützte Server-Fehlerfelder werden zentral in `API_ERROR_FIELD_NAMES` gepflegt.
+- Mit `getApiErrorFieldValue(responseData, fieldName)` werden Fehlerfelder sicher aus `responseData` gelesen.
+- `createApiErrorMessage(responseData, fallbackMessage)` nutzt jetzt die zentrale Fehlerfeldliste statt fest codierter Einzelzugriffe.
+- Leere, fehlende oder nicht objektförmige Fehlerantworten werden weiterhin robust abgefangen.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `64a40e0` – Centralize API error field handling
+
+## Aktuelle nächste Schritte nach Block 268
 
 Sinnvolle nächste Arbeiten:
 
