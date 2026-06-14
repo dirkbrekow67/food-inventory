@@ -23,24 +23,34 @@ const API_ERROR_FALLBACK_MESSAGE = "API-Anfrage fehlgeschlagen.";
 
 const API_ERROR_FIELD_NAMES = Object.freeze(["error", "message", "detail"]);
 
+function createHeaders(extraHeaders = {}) {
+  return {
+    [API_HEADER.ACCEPT]: API_CONTENT_TYPE.JSON,
+    ...extraHeaders,
+  };
+}
+
+function createBaseHeaders() {
+  return createHeaders();
+}
+
+function createJsonHeaders() {
+  return createHeaders({
+    [API_HEADER.CONTENT_TYPE]: API_CONTENT_TYPE.JSON,
+  });
+}
+
 function createRequest(method) {
   return {
     method,
-    headers: {
-      [API_HEADER.ACCEPT]: API_CONTENT_TYPE.JSON,
-    },
+    headers: createBaseHeaders(),
   };
 }
 
 function createJsonRequest(method, payload) {
-  const request = createRequest(method);
-
   return {
-    ...request,
-    headers: {
-      ...request.headers,
-      [API_HEADER.CONTENT_TYPE]: API_CONTENT_TYPE.JSON,
-    },
+    method,
+    headers: createJsonHeaders(),
     body: JSON.stringify(payload),
   };
 }
