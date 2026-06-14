@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 276
+Stand: 2026-06-13 – nach Block 278
 
 ## Ziel des Projekts
 
@@ -917,7 +917,32 @@ Commit:
 
 - `0d90744` – Centralize shopping list API paths
 
-## Aktuelle nächste Schritte nach Block 276
+### Block 277 – Etiketten-API-Pfade zentralisiert
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei den Etiketten-Pfaden weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Der Basis-Pfad `/labels` wird jetzt zentral in `API_PATH.LABELS` definiert.
+- Das Etiketten-Pfadsegment `mark-printed` wird zentral in `LABEL_PATH_SEGMENT.MARK_PRINTED` gepflegt.
+- Das Etiketten-Pfadsegment `print-status` wird zentral in `LABEL_PATH_SEGMENT.PRINT_STATUS` gepflegt.
+- Das Etiketten-Pfadsegment `free` wird zentral in `LABEL_PATH_SEGMENT.FREE` gepflegt.
+- Das Etiketten-Pfadsegment `all` wird zentral in `LABEL_PATH_SEGMENT.ALL` gepflegt.
+- Mit `createPathWithSegments(basePath, ...segments)` gibt es einen allgemeinen Helper für segmentbasierte Pfade.
+- Mit `createLabelMarkPrintedPath()` wird der Pfad zum Markieren gedruckter Etiketten zentral erzeugt.
+- Mit `createLabelPrintStatusPath(labelCode)` wird der Druckstatus-Pfad zentral erzeugt.
+- Mit `createFreeLabelsPath()` wird der Pfad für freie Etiketten zentral erzeugt.
+- Mit `createResetFreeLabelsPath()` wird der Reset-Pfad für freie Etiketten zentral erzeugt.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `79c7d22` – Centralize label API paths
+
+## Aktuelle nächste Schritte nach Block 278
 
 Sinnvolle nächste Arbeiten:
 
