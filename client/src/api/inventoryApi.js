@@ -10,11 +10,20 @@ const API_METHOD = Object.freeze({
   DELETE: "DELETE",
 });
 
+const API_HEADER = Object.freeze({
+  ACCEPT: "Accept",
+  CONTENT_TYPE: "Content-Type",
+});
+
+const API_CONTENT_TYPE = Object.freeze({
+  JSON: "application/json",
+});
+
 function createRequest(method) {
   return {
     method,
     headers: {
-      Accept: "application/json",
+      [API_HEADER.ACCEPT]: API_CONTENT_TYPE.JSON,
     },
   };
 }
@@ -26,7 +35,7 @@ function createJsonRequest(method, payload) {
     ...request,
     headers: {
       ...request.headers,
-      "Content-Type": "application/json",
+      [API_HEADER.CONTENT_TYPE]: API_CONTENT_TYPE.JSON,
     },
     body: JSON.stringify(payload),
   };
