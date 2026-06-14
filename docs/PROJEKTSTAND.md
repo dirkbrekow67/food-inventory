@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 278
+Stand: 2026-06-13 – nach Block 280
 
 ## Ziel des Projekts
 
@@ -942,7 +942,32 @@ Commit:
 
 - `79c7d22` – Centralize label API paths
 
-## Aktuelle nächste Schritte nach Block 278
+### Block 279 – Produkt-API-Pfade zentralisiert
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei den Produkt-Pfaden weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Der Basis-Pfad `/products` wird jetzt zentral in `API_PATH.PRODUCTS` definiert.
+- Das Produkt-Pfadsegment `photos` wird zentral in `PRODUCT_PATH_SEGMENT.PHOTOS` gepflegt.
+- Mit `createProductItemPath(productId)` wird der Pfad einzelner Produkte zentral erzeugt.
+- Mit `createProductPhotosPath()` wird der Pfad für Produktfotos zentral erzeugt.
+- `loadProducts()` nutzt jetzt den zentralen Produktpfad.
+- `saveProduct(productId, payload)` nutzt beim Neuanlegen den zentralen Produktpfad.
+- `saveProduct(productId, payload)` nutzt beim Bearbeiten den zentralen Produkt-Item-Pfad.
+- `deactivateProductById(productId)` nutzt jetzt den zentralen Produkt-Item-Pfad.
+- `uploadProductPhoto(...)` nutzt jetzt den zentralen Produktfoto-Pfad.
+- Produktpfade sind dadurch weniger fehleranfällig bei späteren Anpassungen.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `a6b4646` – Centralize product API paths
+
+## Aktuelle nächste Schritte nach Block 280
 
 Sinnvolle nächste Arbeiten:
 
@@ -970,6 +995,7 @@ Block 250
 Block 260
 Block 270
 Block 280
+Block 290
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
