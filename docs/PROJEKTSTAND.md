@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 274
+Stand: 2026-06-13 – nach Block 276
 
 ## Ziel des Projekts
 
@@ -892,7 +892,32 @@ Commit:
 
 - `15e6ff4` – Add shopping list query helpers
 
-## Aktuelle nächste Schritte nach Block 274
+### Block 275 – Einkaufsliste-API-Pfade zentralisiert
+
+Die zentrale API-Hilfsdatei `client/src/api/inventoryApi.js` wurde bei den Pfaden der Einkaufsliste weiter strukturiert.
+
+Produktiv geändert wurde:
+
+- Der Basis-Pfad `/shopping-list` wird jetzt zentral in `API_PATH.SHOPPING_LIST` definiert.
+- Die Einkaufsliste-Aktionen `complete` und `reopen` werden zentral in `SHOPPING_LIST_ACTION` gepflegt.
+- Mit `createPathWithId(basePath, id)` gibt es einen allgemeinen Helper für ID-basierte Pfade.
+- Mit `createShoppingListItemPath(itemId)` wird der Pfad einzelner Einkaufslisteneinträge zentral erzeugt.
+- Mit `createShoppingListActionPath(itemId, action)` werden Aktionspfade zentral erzeugt.
+- Mit `createShoppingListCompletePath(itemId)` wird der Erledigt-Pfad zentral erzeugt.
+- Mit `createShoppingListReopenPath(itemId)` wird der Wiederöffnen-Pfad zentral erzeugt.
+- Laden und Anlegen der Einkaufsliste nutzen jetzt den zentralen Einkaufsliste-Pfad.
+- Bearbeiten und Löschen von Einkaufslisteneinträgen nutzen zentrale Item-Pfade.
+- Erledigen und Wiederöffnen nutzen zentrale Aktionspfade.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+
+Commit:
+
+- `0d90744` – Centralize shopping list API paths
+
+## Aktuelle nächste Schritte nach Block 276
 
 Sinnvolle nächste Arbeiten:
 
