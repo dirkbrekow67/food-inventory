@@ -11,7 +11,6 @@ import { API_PATH } from "./apiPaths";
 
 import {
   createHistoryItemPath,
-  createInventoryItemPath,
   createShoppingListCompletePath,
   createShoppingListItemPath,
   createShoppingListPath,
@@ -48,36 +47,15 @@ export {
   uploadProductPhoto,
 } from "./productApi";
 
-export function loadInventoryItems() {
-  return fetchJson(API_PATH.INVENTORY, "Bestand konnte nicht geladen werden.");
-}
+export {
+  createInventoryItem,
+  loadInventoryItems,
+  removeInventoryItemById,
+  updateInventoryItemById,
+} from "./inventoryItemsApi";
 
 export function loadHistoryItems() {
   return fetchJson(API_PATH.HISTORY, "Produkthistorie konnte nicht geladen werden.");
-}
-
-export function createInventoryItem(payload) {
-  return fetchJson(
-    API_PATH.INVENTORY,
-    "Bestand konnte nicht gespeichert werden.",
-    createJsonRequest(API_METHOD.POST, payload),
-  );
-}
-
-export function updateInventoryItemById(inventoryItemId, payload) {
-  return fetchJson(
-    createInventoryItemPath(inventoryItemId),
-    "Bestandseintrag konnte nicht gespeichert werden.",
-    createJsonRequest(API_METHOD.PUT, payload),
-  );
-}
-
-export function removeInventoryItemById(inventoryItemId, payload) {
-  return fetchJson(
-    createInventoryItemPath(inventoryItemId),
-    "Bestand konnte nicht entfernt werden.",
-    createJsonRequest(API_METHOD.DELETE, payload),
-  );
 }
 
 export function updateHistoryItemById(historyItemId, payload) {
