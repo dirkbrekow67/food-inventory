@@ -7,13 +7,14 @@ import {
   fetchJson,
 } from "./apiClient";
 
+import {
+  createBooleanQueryString,
+  createPathWithId,
+  createPathWithSegments,
+} from "./apiPathHelpers";
 
 const API_QUERY_PARAM = Object.freeze({
   INCLUDE_COMPLETED: "includeCompleted",
-});
-
-const API_QUERY_VALUE = Object.freeze({
-  TRUE: "1",
 });
 
 const API_PATH = Object.freeze({
@@ -52,35 +53,11 @@ const STORAGE_PATH_SEGMENT = Object.freeze({
 });
 
 
-function createQueryString(queryParams) {
-  const searchParams = new URLSearchParams(queryParams);
-
-  return `?${searchParams.toString()}`;
-}
-
-function createBooleanQueryString(paramName, enabled) {
-  if (!enabled) {
-    return "";
-  }
-
-  return createQueryString({
-    [paramName]: API_QUERY_VALUE.TRUE,
-  });
-}
-
 function createShoppingListQuery(includeCompleted) {
   return createBooleanQueryString(
     API_QUERY_PARAM.INCLUDE_COMPLETED,
     includeCompleted,
   );
-}
-
-function createPathWithId(basePath, id) {
-  return `${basePath}/${id}`;
-}
-
-function createPathWithSegments(basePath, ...segments) {
-  return [basePath, ...segments].join("/");
 }
 
 function createLabelMarkPrintedPath() {
