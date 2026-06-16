@@ -7,157 +7,34 @@ import {
   fetchJson,
 } from "./apiClient";
 
-import {
-  createBooleanQueryString,
-  createPathWithId,
-  createPathWithSegments,
-} from "./apiPathHelpers";
+import { API_PATH } from "./apiPaths";
 
 import {
-  API_PATH,
-  API_QUERY_PARAM,
-  LABEL_PATH_SEGMENT,
-  PRODUCT_PATH_SEGMENT,
-  SHOPPING_LIST_ACTION,
-  STORAGE_PATH_SEGMENT,
-} from "./apiPaths";
-
-function createShoppingListQuery(includeCompleted) {
-  return createBooleanQueryString(
-    API_QUERY_PARAM.INCLUDE_COMPLETED,
-    includeCompleted,
-  );
-}
-
-function createLabelMarkPrintedPath() {
-  return createPathWithSegments(API_PATH.LABELS, LABEL_PATH_SEGMENT.MARK_PRINTED);
-}
-
-function createLabelPrintStatusPath(labelCode) {
-  return createPathWithSegments(
-    API_PATH.LABELS,
-    labelCode,
-    LABEL_PATH_SEGMENT.PRINT_STATUS,
-  );
-}
-
-function createFreeLabelsPath() {
-  return createPathWithSegments(API_PATH.LABELS, LABEL_PATH_SEGMENT.FREE);
-}
-
-function createResetFreeLabelsPath() {
-  return createPathWithSegments(
-    API_PATH.LABELS,
-    LABEL_PATH_SEGMENT.FREE,
-    LABEL_PATH_SEGMENT.ALL,
-  );
-}
-
-function createProductItemPath(productId) {
-  return createPathWithId(API_PATH.PRODUCTS, productId);
-}
-
-function createProductPhotosPath() {
-  return createPathWithSegments(API_PATH.PRODUCTS, PRODUCT_PATH_SEGMENT.PHOTOS);
-}
-
-function createInventoryItemPath(inventoryItemId) {
-  return createPathWithId(API_PATH.INVENTORY, inventoryItemId);
-}
-
-function createHistoryItemPath(historyItemId) {
-  return createPathWithId(API_PATH.HISTORY, historyItemId);
-}
-
-function createStorageTreePath() {
-  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.TREE);
-}
-
-function createInactiveStoragePath() {
-  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.INACTIVE);
-}
-
-function createStorageLocationsPath() {
-  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.LOCATIONS);
-}
-
-function createStorageLocationItemPath(locationId) {
-  return createPathWithId(createStorageLocationsPath(), locationId);
-}
-
-function createStorageLocationReactivatePath(locationId) {
-  return createPathWithSegments(
-    createStorageLocationItemPath(locationId),
-    STORAGE_PATH_SEGMENT.REACTIVATE,
-  );
-}
-
-function createStorageUnitsPath() {
-  return createPathWithSegments(API_PATH.STORAGE, STORAGE_PATH_SEGMENT.UNITS);
-}
-
-function createStorageUnitItemPath(unitId) {
-  return createPathWithId(createStorageUnitsPath(), unitId);
-}
-
-function createStorageUnitReactivatePath(unitId) {
-  return createPathWithSegments(
-    createStorageUnitItemPath(unitId),
-    STORAGE_PATH_SEGMENT.REACTIVATE,
-  );
-}
-
-function createStorageUnitCompartmentsPath(unitId) {
-  return createPathWithSegments(
-    createStorageUnitItemPath(unitId),
-    STORAGE_PATH_SEGMENT.COMPARTMENTS,
-  );
-}
-
-function createStorageUnitGenerateCompartmentsPath(unitId) {
-  return createPathWithSegments(
-    createStorageUnitCompartmentsPath(unitId),
-    STORAGE_PATH_SEGMENT.GENERATE,
-  );
-}
-
-function createStorageCompartmentsPath() {
-  return createPathWithSegments(
-    API_PATH.STORAGE,
-    STORAGE_PATH_SEGMENT.COMPARTMENTS,
-  );
-}
-
-function createStorageCompartmentItemPath(compartmentId) {
-  return createPathWithId(createStorageCompartmentsPath(), compartmentId);
-}
-
-function createStorageCompartmentReactivatePath(compartmentId) {
-  return createPathWithSegments(
-    createStorageCompartmentItemPath(compartmentId),
-    STORAGE_PATH_SEGMENT.REACTIVATE,
-  );
-}
-
-function createShoppingListPath(includeCompleted) {
-  return `${API_PATH.SHOPPING_LIST}${createShoppingListQuery(includeCompleted)}`;
-}
-
-function createShoppingListItemPath(itemId) {
-  return createPathWithId(API_PATH.SHOPPING_LIST, itemId);
-}
-
-function createShoppingListActionPath(itemId, action) {
-  return `${createShoppingListItemPath(itemId)}/${action}`;
-}
-
-function createShoppingListCompletePath(itemId) {
-  return createShoppingListActionPath(itemId, SHOPPING_LIST_ACTION.COMPLETE);
-}
-
-function createShoppingListReopenPath(itemId) {
-  return createShoppingListActionPath(itemId, SHOPPING_LIST_ACTION.REOPEN);
-}
+  createFreeLabelsPath,
+  createHistoryItemPath,
+  createInactiveStoragePath,
+  createInventoryItemPath,
+  createLabelMarkPrintedPath,
+  createLabelPrintStatusPath,
+  createProductItemPath,
+  createProductPhotosPath,
+  createResetFreeLabelsPath,
+  createShoppingListCompletePath,
+  createShoppingListItemPath,
+  createShoppingListPath,
+  createShoppingListReopenPath,
+  createStorageCompartmentItemPath,
+  createStorageCompartmentReactivatePath,
+  createStorageLocationItemPath,
+  createStorageLocationReactivatePath,
+  createStorageLocationsPath,
+  createStorageTreePath,
+  createStorageUnitCompartmentsPath,
+  createStorageUnitGenerateCompartmentsPath,
+  createStorageUnitItemPath,
+  createStorageUnitReactivatePath,
+  createStorageUnitsPath,
+} from "./inventoryApiPaths";
 
 export function loadStorageTree() {
   return fetchJson(createStorageTreePath(), "Lagerstruktur konnte nicht geladen werden.");
