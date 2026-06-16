@@ -184,13 +184,21 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
-bc7a2c0 Plan localStorage reset feature
-df5de16 Document localStorage keys
-7f31e8b Update project status after documentation work
-6ca26ef Document local browser data
-068bb2f Add database documentation notes
-64d3b3c Document database schema
+25b6067 Extract shopping list API functions
+a47ce76 Extract history API functions
+98b92e7 Extract inventory item API functions
+94357b6 Extract product API functions
+40b94e2 Extract storage API functions
+a6577aa Extract label API functions
+aeceb0e Extract inventory API path builders
+ffcb05e Extract API path constants
+1171ecb Ignore local VS Code settings
+34e90d9 Extract shared API path helpers
+f0be4aa Extract shared API client helpers
+7927ed9 Update project status after storage inventory history paths
 ```
+
+Hinweis: Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
 
 ## Aktuelle Wiederaufnahme-Dokumente
 
@@ -1016,6 +1024,81 @@ Prüfung:
 Commit:
 
 - `04930ce` – Centralize storage inventory and history API paths
+
+### Block 284 – Client-API in fachliche Module aufgeteilt
+
+Die bisher stark angewachsene Datei `client/src/api/inventoryApi.js` wurde schrittweise entlastet und in kleinere, fachlich klar abgegrenzte API-Module aufgeteilt.
+
+Ziel war:
+
+- bessere Wartbarkeit
+- bessere Übersicht
+- klare fachliche Trennung der API-Aufrufe
+- stabilere Grundlage für weitere Frontend-Erweiterungen
+- bestehende Komponenten zunächst unverändert weiter nutzbar halten
+
+Produktiv geändert wurde:
+
+- Gemeinsame Fetch-, Request- und Fehlerlogik nach `client/src/api/apiClient.js` ausgelagert.
+- Allgemeine Pfad- und Query-Helfer nach `client/src/api/apiPathHelpers.js` ausgelagert.
+- Zentrale API-Pfadkonstanten nach `client/src/api/apiPaths.js` ausgelagert.
+- Konkrete Pfad-Erzeuger nach `client/src/api/inventoryApiPaths.js` ausgelagert.
+- Label-/Etiketten-API nach `client/src/api/labelApi.js` ausgelagert.
+- Storage-/Lagerstruktur-API nach `client/src/api/storageApi.js` ausgelagert.
+- Product-/Produkt-API nach `client/src/api/productApi.js` ausgelagert.
+- Inventory-Items-/Bestands-API nach `client/src/api/inventoryItemsApi.js` ausgelagert.
+- History-/Produkthistorie-API nach `client/src/api/historyApi.js` ausgelagert.
+- Shopping-List-/Einkaufslisten-API nach `client/src/api/shoppingListApi.js` ausgelagert.
+- `client/src/api/inventoryApi.js` bleibt als Kompatibilitäts-Sammeldatei bestehen und exportiert die Fachfunktionen weiter.
+
+Aktuelle API-Dateistruktur im Client:
+
+```text
+client/src/api/apiClient.js
+client/src/api/apiPathHelpers.js
+client/src/api/apiPaths.js
+client/src/api/inventoryApiPaths.js
+client/src/api/labelApi.js
+client/src/api/storageApi.js
+client/src/api/productApi.js
+client/src/api/inventoryItemsApi.js
+client/src/api/historyApi.js
+client/src/api/shoppingListApi.js
+client/src/api/inventoryApi.js
+```
+
+Ergebnis:
+
+- `inventoryApi.js` enthält keine eigene Fetch- oder Fachlogik mehr.
+- Bestehende Imports aus `inventoryApi.js` bleiben weiterhin funktionsfähig.
+- Die Fachbereiche können künftig einzeln erweitert oder direkt importiert werden.
+- Die Aufteilung reduziert das Risiko, eine zentrale Sammeldatei weiter aufzublähen.
+
+Prüfung:
+
+- Nach jedem Produktivschritt wurde `npm run check:client` ausgeführt.
+- Der letzte Check nach Auslagerung der Shopping-List-API war erfolgreich.
+- Vite-Build erfolgreich.
+- ESLint ohne Fehler.
+- Push nach GitHub erfolgreich.
+
+Commits:
+
+- `f0be4aa` – Extract shared API client helpers
+- `34e90d9` – Extract shared API path helpers
+- `1171ecb` – Ignore local VS Code settings
+- `ffcb05e` – Extract API path constants
+- `aeceb0e` – Extract inventory API path builders
+- `a6577aa` – Extract label API functions
+- `40b94e2` – Extract storage API functions
+- `94357b6` – Extract product API functions
+- `98b92e7` – Extract inventory item API functions
+- `a47ce76` – Extract history API functions
+- `25b6067` – Extract shopping list API functions
+
+Hinweis:
+
+Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
 
 ## Aktuelle nächste Schritte nach Block 284
 
