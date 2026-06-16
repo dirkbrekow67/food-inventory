@@ -43,3 +43,5 @@ server/uploads/products/*
 
 # Local database backups
 backups/
+# Local VS Code settings
+.vscode/
