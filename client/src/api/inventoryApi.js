@@ -10,7 +10,6 @@ import {
 import { API_PATH } from "./apiPaths";
 
 import {
-  createHistoryItemPath,
   createShoppingListCompletePath,
   createShoppingListItemPath,
   createShoppingListPath,
@@ -54,25 +53,11 @@ export {
   updateInventoryItemById,
 } from "./inventoryItemsApi";
 
-export function loadHistoryItems() {
-  return fetchJson(API_PATH.HISTORY, "Produkthistorie konnte nicht geladen werden.");
-}
-
-export function updateHistoryItemById(historyItemId, payload) {
-  return fetchJson(
-    createHistoryItemPath(historyItemId),
-    "Historieneintrag konnte nicht gespeichert werden.",
-    createJsonRequest(API_METHOD.PUT, payload),
-  );
-}
-
-export function deleteHistoryItemById(historyItemId) {
-  return fetchJson(
-    createHistoryItemPath(historyItemId),
-    "Historieneintrag konnte nicht gelöscht werden.",
-    createRequest(API_METHOD.DELETE),
-  );
-}
+export {
+  deleteHistoryItemById,
+  loadHistoryItems,
+  updateHistoryItemById,
+} from "./historyApi";
 
 export function loadShoppingListItems(includeCompleted = false) {
   return fetchJson(
