@@ -13,45 +13,14 @@ import {
   createPathWithSegments,
 } from "./apiPathHelpers";
 
-const API_QUERY_PARAM = Object.freeze({
-  INCLUDE_COMPLETED: "includeCompleted",
-});
-
-const API_PATH = Object.freeze({
-  HISTORY: "/history",
-  INVENTORY: "/inventory",
-  LABELS: "/labels",
-  PRODUCTS: "/products",
-  SHOPPING_LIST: "/shopping-list",
-  STORAGE: "/storage",
-});
-
-const SHOPPING_LIST_ACTION = Object.freeze({
-  COMPLETE: "complete",
-  REOPEN: "reopen",
-});
-
-const LABEL_PATH_SEGMENT = Object.freeze({
-  ALL: "all",
-  FREE: "free",
-  MARK_PRINTED: "mark-printed",
-  PRINT_STATUS: "print-status",
-});
-
-const PRODUCT_PATH_SEGMENT = Object.freeze({
-  PHOTOS: "photos",
-});
-
-const STORAGE_PATH_SEGMENT = Object.freeze({
-  COMPARTMENTS: "compartments",
-  GENERATE: "generate",
-  INACTIVE: "inactive",
-  LOCATIONS: "locations",
-  REACTIVATE: "reactivate",
-  TREE: "tree",
-  UNITS: "units",
-});
-
+import {
+  API_PATH,
+  API_QUERY_PARAM,
+  LABEL_PATH_SEGMENT,
+  PRODUCT_PATH_SEGMENT,
+  SHOPPING_LIST_ACTION,
+  STORAGE_PATH_SEGMENT,
+} from "./apiPaths";
 
 function createShoppingListQuery(includeCompleted) {
   return createBooleanQueryString(
