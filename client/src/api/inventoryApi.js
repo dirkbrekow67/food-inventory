@@ -10,15 +10,11 @@ import {
 import { API_PATH } from "./apiPaths";
 
 import {
-  createFreeLabelsPath,
   createHistoryItemPath,
   createInactiveStoragePath,
   createInventoryItemPath,
-  createLabelMarkPrintedPath,
-  createLabelPrintStatusPath,
   createProductItemPath,
   createProductPhotosPath,
-  createResetFreeLabelsPath,
   createShoppingListCompletePath,
   createShoppingListItemPath,
   createShoppingListPath,
@@ -35,6 +31,14 @@ import {
   createStorageUnitReactivatePath,
   createStorageUnitsPath,
 } from "./inventoryApiPaths";
+
+export {
+  loadLabelSlots,
+  markLabelCodesAsPrinted,
+  releaseFreeLabelCodes,
+  resetFreeLabelCodes,
+  updateLabelPrintStatus,
+} from "./labelApi";
 
 export function loadStorageTree() {
   return fetchJson(createStorageTreePath(), "Lagerstruktur konnte nicht geladen werden.");
@@ -97,42 +101,6 @@ export function createStorageCompartment(unitId, payload) {
 
 export function loadProducts() {
   return fetchJson(API_PATH.PRODUCTS, "Produkte konnten nicht geladen werden.");
-}
-
-export function loadLabelSlots() {
-  return fetchJson(API_PATH.LABELS, "Etikettenpool konnte nicht geladen werden.");
-}
-
-export function markLabelCodesAsPrinted(labelCodes) {
-  return fetchJson(
-    createLabelMarkPrintedPath(),
-    "Etikettenbogen konnte nicht als gedruckt markiert werden.",
-    createJsonRequest(API_METHOD.POST, { labelCodes }),
-  );
-}
-
-export function updateLabelPrintStatus(labelCode, printStatus) {
-  return fetchJson(
-    createLabelPrintStatusPath(labelCode),
-    "Druckstatus konnte nicht aktualisiert werden.",
-    createJsonRequest(API_METHOD.PATCH, { printStatus }),
-  );
-}
-
-export function releaseFreeLabelCodes(labelCodes) {
-  return fetchJson(
-    createFreeLabelsPath(),
-    "Freie Etiketten konnten nicht entfernt werden.",
-    createJsonRequest(API_METHOD.DELETE, { labelCodes }),
-  );
-}
-
-export function resetFreeLabelCodes() {
-  return fetchJson(
-    createResetFreeLabelsPath(),
-    "Freie Etiketten konnten nicht zurückgesetzt werden.",
-    createRequest(API_METHOD.DELETE),
-  );
 }
 
 export function loadInventoryItems() {
