@@ -12,7 +12,7 @@ import { renderSelectOptions } from "../form/FormSelectOptions";
 
 import { compressImageFileToDataUrl } from "../../utils/imageFileUtils";
 
-import { uploadProductPhoto } from "../../api/inventoryApi";
+import { uploadProductPhoto } from "../../api/productApi";
 
 import { createImageSrc } from "../../utils/imageUrlUtils";
 
