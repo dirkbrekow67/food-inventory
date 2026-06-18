@@ -13,7 +13,7 @@ import {
   reactivateStorageCompartmentById,
   reactivateStorageLocationById,
   reactivateStorageUnitById,
-} from "../../api/inventoryApi";
+} from "../../api/storageApi";
 
 const storageUnitTypes = [
   "Gefrierschrank",
