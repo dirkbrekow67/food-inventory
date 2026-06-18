@@ -22,7 +22,7 @@ import {
   markLabelCodesAsPrinted,
   releaseFreeLabelCodes,
   resetFreeLabelCodes,
-} from "../../api/inventoryApi";
+} from "../../api/labelApi";
 
 function createNextUnprintedLabelCodes({
   count,
