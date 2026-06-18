@@ -14,26 +14,36 @@ import {
 } from "./constants/localStorageKeys";
 
 import {
-  createInventoryItem,
-  deactivateProductById,
   deleteHistoryItemById,
   loadHistoryItems,
-  loadInventoryItems,
-  loadProducts,
-  loadStorageTree,
-  removeInventoryItemById,
-  saveProduct,
   updateHistoryItemById,
-  loadLabelSlots,
-  updateLabelPrintStatus,
+} from "./api/historyApi";
+
+import {
+  createInventoryItem,
+  loadInventoryItems,
+  removeInventoryItemById,
   updateInventoryItemById,
-  loadShoppingListItems,
-  createShoppingListItem,
-  updateShoppingListItemById,
+} from "./api/inventoryItemsApi";
+
+import { loadLabelSlots, updateLabelPrintStatus } from "./api/labelApi";
+
+import {
+  deactivateProductById,
+  loadProducts,
+  saveProduct,
+} from "./api/productApi";
+
+import {
   completeShoppingListItemById,
-  reopenShoppingListItemById,
+  createShoppingListItem,
   deleteShoppingListItemById,
-} from "./api/inventoryApi";
+  loadShoppingListItems,
+  reopenShoppingListItemById,
+  updateShoppingListItemById,
+} from "./api/shoppingListApi";
+
+import { loadStorageTree } from "./api/storageApi";
 
 import {
   getLatestInventoryItemForProduct,
