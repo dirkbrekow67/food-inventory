@@ -2,7 +2,7 @@
 
 # API-Routen – Food Inventory
 
-Stand: 2026-06-13 – nach Block 244
+Stand: 2026-06-13 – nach Block 292
 
 ## Zweck dieses Dokuments
 
@@ -12,7 +12,17 @@ Es dient als technische Übersicht für Entwicklung, Debugging, Raspberry-Pi-Bet
 
 Grundlage:
 
-- `client/src/api/inventoryApi.js`
+- `client/src/api/apiClient.js` – gemeinsame Fetch-, Request- und Fehlerbehandlung
+- `client/src/api/apiPathHelpers.js` – gemeinsame Pfad-Hilfsfunktionen
+- `client/src/api/apiPaths.js` – zentrale API-Pfadkonstanten
+- `client/src/api/inventoryApiPaths.js` – konkrete Pfad-Erzeuger für dynamische Routen
+- `client/src/api/productApi.js` – Produkt-API
+- `client/src/api/storageApi.js` – Lagerstruktur-API
+- `client/src/api/labelApi.js` – Etiketten-API
+- `client/src/api/inventoryItemsApi.js` – Bestands-API
+- `client/src/api/historyApi.js` – Historien-API
+- `client/src/api/shoppingListApi.js` – Einkaufslisten-API
+- `client/src/api/inventoryApi.js` – Kompatibilitätsdatei für ältere Imports, keine eigene Fetch- oder Fachlogik
 
 Basis-Pfad im Frontend:
 
