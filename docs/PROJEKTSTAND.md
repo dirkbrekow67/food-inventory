@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-13 – nach Block 284
+Stand: 2026-06-13 – nach Block 292
 
 ## Ziel des Projekts
 
@@ -184,18 +184,18 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
+c97056f Update API routes documentation for split client APIs
+96990fb Document inventory API compatibility exports
+59cc1fa Use direct API imports in app
+e13164c Use direct storage API imports in storage section
+02401a0 Use direct label API imports in label sheet
+a003d59 Use direct product API import in product form
+5d29a42 Update project status after client API split
 25b6067 Extract shopping list API functions
 a47ce76 Extract history API functions
 98b92e7 Extract inventory item API functions
 94357b6 Extract product API functions
 40b94e2 Extract storage API functions
-a6577aa Extract label API functions
-aeceb0e Extract inventory API path builders
-ffcb05e Extract API path constants
-1171ecb Ignore local VS Code settings
-34e90d9 Extract shared API path helpers
-f0be4aa Extract shared API client helpers
-7927ed9 Update project status after storage inventory history paths
 ```
 
 Hinweis: Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
@@ -1100,7 +1100,51 @@ Hinweis:
 
 Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
 
-## Aktuelle nächste Schritte nach Block 284
+### Block 286 bis 292 – Direkte Fach-API-Imports und Dokumentation nachgezogen
+
+Nach der Aufteilung der Client-API in fachliche Module wurden die verbliebenen Komponenten- und App-Imports von der Kompatibilitätsdatei `client/src/api/inventoryApi.js` auf direkte Fach-APIs umgestellt.
+
+Ziel war:
+
+- klarere fachliche Zuordnung der API-Aufrufe
+- weniger indirekte Sammelimporte in Komponenten
+- bessere Wartbarkeit bei späteren Erweiterungen
+- `inventoryApi.js` nur noch bewusst als Kompatibilitätsdatei nutzen
+
+Produktiv geändert wurde:
+
+- `ProductForm.jsx` importiert `uploadProductPhoto` direkt aus `productApi.js`.
+- `LabelSheetSection.jsx` importiert Etikettenfunktionen direkt aus `labelApi.js`.
+- `StorageSection.jsx` importiert Lagerstruktur-Funktionen direkt aus `storageApi.js`.
+- `App.jsx` importiert Produkt-, Lagerstruktur-, Etiketten-, Bestands-, Historien- und Einkaufslistenfunktionen direkt aus den jeweiligen Fach-APIs.
+- Aktive Imports aus `inventoryApi.js` wurden per `grep` geprüft und entfernt.
+- `inventoryApi.js` wurde als Kompatibilitätsdatei für ältere Imports kommentiert.
+- `docs/API_ROUTES.md` wurde auf die neue Client-API-Dateistruktur aktualisiert.
+
+Prüfung:
+
+- `npm run check:client` war nach den produktiven JS-Änderungen erfolgreich.
+- Die Suche nach aktiven Imports aus `inventoryApi.js` ergab keine Treffer mehr.
+- Dokumentationsänderungen wurden separat committed.
+- Push nach GitHub erfolgreich.
+- Working Tree war nach jedem Block clean.
+
+Commits:
+
+- `a003d59` – Use direct product API import in product form
+- `02401a0` – Use direct label API imports in label sheet
+- `e13164c` – Use direct storage API imports in storage section
+- `59cc1fa` – Use direct API imports in app
+- `96990fb` – Document inventory API compatibility exports
+- `c97056f` – Update API routes documentation for split client APIs
+
+Ergebnis:
+
+- Komponenten und `App.jsx` nutzen jetzt direkte Fach-API-Imports.
+- `inventoryApi.js` bleibt erhalten, enthält aber keine eigene Fetch- oder Fachlogik.
+- Die API-Routen-Dokumentation verweist jetzt auf die tatsächliche aufgeteilte Client-API-Struktur.
+
+## Aktuelle nächste Schritte nach Block 292
 
 Sinnvolle nächste Arbeiten:
 
@@ -1110,7 +1154,8 @@ Sinnvolle nächste Arbeiten:
 - Produktbild-Aufräumlogik planen
 - vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
 - Raspberry-Pi-Start erneut praktisch testen und dokumentieren
-- API-Dokumentation später um Request-Bodies und Response-Formate ergänzen
+- API-Dokumentation später um Request-Bodies, Response-Formate und typische Fehlerfälle ergänzen
+- bei späteren API-Erweiterungen direkte Fach-API-Imports beibehalten
 
 ## Arbeitsregel für Projektstand
 
@@ -1129,6 +1174,7 @@ Block 260
 Block 270
 Block 280
 Block 290
+Block 300
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
