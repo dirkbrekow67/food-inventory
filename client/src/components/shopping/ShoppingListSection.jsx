@@ -8,146 +8,16 @@ import {
   shoppingListPriorityOptions,
 } from "../../constants/selectOptions";
 
-function getShoppingListItemTitle(item) {
-  return item.product_name || item.custom_name || "Unbenannter Artikel";
-}
-
-function formatShoppingListQuantity(item) {
-  const quantity = item.quantity ?? "";
-  const unit = item.unit || "";
-
-  if (!quantity && !unit) {
-    return "";
-  }
-
-  return `${quantity} ${unit}`.trim();
-}
-
-function getShoppingListItemExportLine(item) {
-  const title = getShoppingListItemTitle(item);
-  const quantityText = formatShoppingListQuantity(item);
-
-  const parts = [
-    title,
-    quantityText,
-    item.category,
-    item.is_foreign_purchase === 1 ? "Ausland" : "",
-    item.priority && item.priority !== "normal"
-      ? `Priorität: ${item.priority}`
-      : "",
-    item.note ? `Notiz: ${item.note}` : "",
-  ].filter(Boolean);
-
-  return `- ${parts.join(" · ")}`;
-}
-
-function createShoppingListExportText(items, foreignPurchaseFilter) {
-  const filterLabel =
-    foreignPurchaseFilter === "foreign"
-      ? "Auslandseinkauf"
-      : foreignPurchaseFilter === "domestic"
-        ? "Normaler Einkauf"
-        : "Alle offenen Einträge";
-
-  if (items.length === 0) {
-    return `Einkaufsliste – ${filterLabel}\n\nKeine offenen Einträge vorhanden.`;
-  }
-
-  const groupedItems = groupShoppingListItemsByCategory(items);
-  const categoryNames = Object.keys(groupedItems).sort(compareText);
-
-  const categoryBlocks = categoryNames.map((categoryName) => {
-    const lines = groupedItems[categoryName].map(getShoppingListItemExportLine);
-
-    return [`${categoryName}:`, ...lines].join("\n");
-  });
-
-  return [`Einkaufsliste – ${filterLabel}`, ...categoryBlocks].join("\n\n");
-}
-
-function compareText(firstValue, secondValue) {
-  return String(firstValue || "").localeCompare(
-    String(secondValue || ""),
-    "de",
-    {
-      sensitivity: "base",
-      numeric: true,
-    },
-  );
-}
-
-function getPriorityWeight(priority) {
-  if (priority === "hoch") {
-    return 0;
-  }
-
-  if (priority === "normal") {
-    return 1;
-  }
-
-  return 2;
-}
-
-function sortShoppingListItems(items) {
-  return [...items].sort((firstItem, secondItem) => {
-    const firstPriorityWeight = getPriorityWeight(firstItem.priority);
-    const secondPriorityWeight = getPriorityWeight(secondItem.priority);
-
-    if (firstPriorityWeight !== secondPriorityWeight) {
-      return firstPriorityWeight - secondPriorityWeight;
-    }
-
-    return (
-      compareText(firstItem.category, secondItem.category) ||
-      compareText(
-        getShoppingListItemTitle(firstItem),
-        getShoppingListItemTitle(secondItem),
-      ) ||
-      Number(firstItem.id || 0) - Number(secondItem.id || 0)
-    );
-  });
-}
-
-function groupShoppingListItemsByCategory(items) {
-  return items.reduce((groups, item) => {
-    const category = item.category || "Ohne Kategorie";
-
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-
-    groups[category].push(item);
-
-    return groups;
-  }, {});
-}
-
-function filterShoppingListItemsByForeignPurchase(
-  items,
-  foreignPurchaseFilter,
-) {
-  if (foreignPurchaseFilter === "foreign") {
-    return items.filter((item) => item.is_foreign_purchase === 1);
-  }
-
-  if (foreignPurchaseFilter === "domestic") {
-    return items.filter((item) => item.is_foreign_purchase !== 1);
-  }
-
-  return items;
-}
-
-function createEditStateFromItem(item) {
-  return {
-    customName: item.custom_name || "",
-    quantity: item.quantity ?? "",
-    unit: item.unit || "",
-    category: item.category || "",
-    priority: item.priority || "normal",
-    note: item.note || "",
-    isForeignPurchase: item.is_foreign_purchase === 1,
-  };
-}
+import {
+  compareText,
+  createEditStateFromItem,
+  createShoppingListExportText,
+  filterShoppingListItemsByForeignPurchase,
+  formatShoppingListQuantity,
+  getShoppingListItemTitle,
+  groupShoppingListItemsByCategory,
+  sortShoppingListItems,
+} from "../../utils/shoppingListUtils";
 
 export function ShoppingListSection({
   shoppingListItems,
