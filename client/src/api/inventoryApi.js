@@ -1,5 +1,10 @@
 // client/src/api/inventoryApi.js
 
+// Kompatibilitätsdatei für ältere Imports.
+// Neue Komponenten sollen direkt aus den Fach-APIs importieren,
+// z. B. productApi.js, storageApi.js, labelApi.js,
+// inventoryItemsApi.js, historyApi.js oder shoppingListApi.js.
+
 export {
   deleteHistoryItemById,
   loadHistoryItems,
