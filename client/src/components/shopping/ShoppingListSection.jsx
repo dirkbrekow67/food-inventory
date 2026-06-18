@@ -11,7 +11,9 @@ import {
 import {
   compareText,
   createEditStateFromItem,
+  createShoppingListCreatePayload,
   createShoppingListExportText,
+  createShoppingListUpdatePayload,
   filterShoppingListItemsByForeignPurchase,
   formatShoppingListQuantity,
   getShoppingListItemTitle,
@@ -85,15 +87,17 @@ export function ShoppingListSection({
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const wasSaved = await onCreateShoppingListItem({
-      customName,
-      quantity,
-      unit,
-      category,
-      priority,
-      note,
-      isForeignPurchase,
-    });
+    const wasSaved = await onCreateShoppingListItem(
+      createShoppingListCreatePayload({
+        customName,
+        quantity,
+        unit,
+        category,
+        priority,
+        note,
+        isForeignPurchase,
+      }),
+    );
 
     if (!wasSaved) {
       return;
@@ -126,17 +130,10 @@ export function ShoppingListSection({
   }
 
   async function saveEditShoppingListItem(item) {
-    const wasSaved = await onUpdateShoppingListItem(item.id, {
-      productId: item.product_id,
-      customName: editState.customName,
-      quantity: editState.quantity,
-      unit: editState.unit,
-      category: editState.category,
-      priority: editState.priority,
-      note: editState.note,
-      isForeignPurchase: editState.isForeignPurchase,
-      status: item.status,
-    });
+    const wasSaved = await onUpdateShoppingListItem(
+      item.id,
+      createShoppingListUpdatePayload(item, editState),
+    );
 
     if (!wasSaved) {
       return;

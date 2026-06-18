@@ -140,3 +140,37 @@ export function createEditStateFromItem(item) {
     isForeignPurchase: item.is_foreign_purchase === 1,
   };
 }
+
+export function createShoppingListCreatePayload({
+  customName,
+  quantity,
+  unit,
+  category,
+  priority,
+  note,
+  isForeignPurchase,
+}) {
+  return {
+    customName,
+    quantity,
+    unit,
+    category,
+    priority,
+    note,
+    isForeignPurchase,
+  };
+}
+
+export function createShoppingListUpdatePayload(item, editState) {
+  return {
+    productId: item.product_id,
+    customName: editState.customName,
+    quantity: editState.quantity,
+    unit: editState.unit,
+    category: editState.category,
+    priority: editState.priority,
+    note: editState.note,
+    isForeignPurchase: editState.isForeignPurchase,
+    status: item.status,
+  };
+}
