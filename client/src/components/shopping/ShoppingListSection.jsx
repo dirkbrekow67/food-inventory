@@ -65,6 +65,9 @@ export function ShoppingListSection({
   const openItemsByCategory = groupShoppingListItemsByCategory(openItems);
   const openCategoryNames = Object.keys(openItemsByCategory).sort(compareText);
 
+  const hasOpenShoppingListItems = openItems.length > 0;
+  const hasCompletedShoppingListItems = completedItems.length > 0;
+
   const shoppingListExportText = createShoppingListExportText(
     openItems,
     foreignPurchaseFilter,
@@ -552,7 +555,7 @@ export function ShoppingListSection({
             type="button"
             className="secondary-button"
             onClick={copyShoppingListToClipboard}
-            disabled={loadingShoppingList}
+            disabled={loadingShoppingList || !hasOpenShoppingListItems}
           >
             Liste kopieren
           </button>
@@ -563,7 +566,7 @@ export function ShoppingListSection({
             onClick={() =>
               setShowShoppingListExportText(!showShoppingListExportText)
             }
-            disabled={loadingShoppingList}
+            disabled={loadingShoppingList || !hasOpenShoppingListItems}
           >
             {showShoppingListExportText ? "Text ausblenden" : "Text anzeigen"}
           </button>
@@ -574,6 +577,7 @@ export function ShoppingListSection({
             onClick={() =>
               onShowCompletedShoppingItemsChange(!showCompletedShoppingItems)
             }
+            disabled={!hasCompletedShoppingListItems}
           >
             {showCompletedShoppingItems
               ? "Erledigte ausblenden"
