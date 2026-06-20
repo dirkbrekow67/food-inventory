@@ -198,6 +198,18 @@ export function ShoppingListSection({
     }, 2500);
   }
 
+  async function completeSelectedShoppingListItems() {
+    if (!hasSelectedShoppingListItems || savingShoppingListItem) {
+      return;
+    }
+
+    for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
+      await onCompleteShoppingListItem(selectedShoppingListItemId);
+    }
+
+    clearShoppingListItemSelection();
+  }
+
   async function copyShoppingListToClipboard() {
     try {
       if (navigator.clipboard?.writeText) {
@@ -647,6 +659,7 @@ export function ShoppingListSection({
             <button
               type="button"
               className="secondary-button shopping-list-primary-action"
+              onClick={completeSelectedShoppingListItems}
               disabled
             >
               Ausgewählte erledigen
