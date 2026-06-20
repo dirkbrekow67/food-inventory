@@ -1352,6 +1352,7 @@ function App() {
 
   async function handleCompleteShoppingListItem(itemId) {
     try {
+      setSavingShoppingListItem(true);
       setErrorMessage("");
 
       const updatedItem = await completeShoppingListItemById(itemId);
@@ -1368,11 +1369,14 @@ function App() {
           "Einkaufslisteneintrag konnte nicht erledigt werden.",
         ),
       );
+    } finally {
+      setSavingShoppingListItem(false);
     }
   }
 
   async function handleReopenShoppingListItem(itemId) {
     try {
+      setSavingShoppingListItem(true);
       setErrorMessage("");
 
       const updatedItem = await reopenShoppingListItemById(itemId);
@@ -1389,6 +1393,8 @@ function App() {
           "Einkaufslisteneintrag konnte nicht wieder geöffnet werden.",
         ),
       );
+    } finally {
+      setSavingShoppingListItem(false);
     }
   }
 
@@ -1402,6 +1408,7 @@ function App() {
     }
 
     try {
+      setSavingShoppingListItem(true);
       setErrorMessage("");
 
       await deleteShoppingListItemById(itemId);
@@ -1418,6 +1425,8 @@ function App() {
           "Einkaufslisteneintrag konnte nicht gelöscht werden.",
         ),
       );
+    } finally {
+      setSavingShoppingListItem(false);
     }
   }
 

@@ -389,6 +389,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button shopping-list-primary-action"
               onClick={() => onCompleteShoppingListItem(item.id)}
+              disabled={savingShoppingListItem}
             >
               Erledigt
             </button>
@@ -397,6 +398,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button"
               onClick={() => onReopenShoppingListItem(item.id)}
+              disabled={savingShoppingListItem}
             >
               Wieder öffnen
             </button>
@@ -406,6 +408,7 @@ export function ShoppingListSection({
             type="button"
             className="secondary-button shopping-list-secondary-danger"
             onClick={() => onDeleteShoppingListItem(item.id)}
+            disabled={savingShoppingListItem}
           >
             Löschen
           </button>
