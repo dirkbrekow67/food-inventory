@@ -1,6 +1,6 @@
 // client/src/components/shopping/ShoppingListSection.jsx
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   quantityUnitOptions,
@@ -41,6 +41,7 @@ export function ShoppingListSection({
 
   const [foreignPurchaseFilter, setForeignPurchaseFilter] = useState("all");
   const [shoppingListCopyMessage, setShoppingListCopyMessage] = useState("");
+  const shoppingListCopyMessageTimeoutRef = useRef(null);
   const [showShoppingListExportText, setShowShoppingListExportText] =
     useState(false);
 
@@ -151,6 +152,19 @@ export function ShoppingListSection({
     cancelEditShoppingListItem();
   }
 
+  function showShoppingListCopyMessage(message) {
+    if (shoppingListCopyMessageTimeoutRef.current) {
+      window.clearTimeout(shoppingListCopyMessageTimeoutRef.current);
+    }
+
+    setShoppingListCopyMessage(message);
+
+    shoppingListCopyMessageTimeoutRef.current = window.setTimeout(() => {
+      setShoppingListCopyMessage("");
+      shoppingListCopyMessageTimeoutRef.current = null;
+    }, 2500);
+  }
+
   async function copyShoppingListToClipboard() {
     try {
       if (navigator.clipboard?.writeText) {
@@ -176,14 +190,10 @@ export function ShoppingListSection({
         }
       }
 
-      setShoppingListCopyMessage("Einkaufsliste wurde kopiert.");
-
-      window.setTimeout(() => {
-        setShoppingListCopyMessage("");
-      }, 2500);
+      showShoppingListCopyMessage("Einkaufsliste wurde kopiert.");
     } catch (error) {
       console.error(error);
-      setShoppingListCopyMessage(
+      showShoppingListCopyMessage(
         "Einkaufsliste konnte nicht automatisch kopiert werden.",
       );
     }
