@@ -84,6 +84,16 @@ export function ShoppingListSection({
     (item) => item.status === "open" && item.is_foreign_purchase !== 1,
   ).length;
 
+  function resetShoppingListForm() {
+    setCustomName("");
+    setQuantity("");
+    setUnit("");
+    setCategory("");
+    setPriority("normal");
+    setNote("");
+    setIsForeignPurchase(false);
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -103,13 +113,7 @@ export function ShoppingListSection({
       return;
     }
 
-    setCustomName("");
-    setQuantity("");
-    setUnit("");
-    setCategory("");
-    setPriority("normal");
-    setNote("");
-    setIsForeignPurchase(false);
+    resetShoppingListForm();
   }
 
   function startEditShoppingListItem(item) {
