@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-13 – Block 222
+Stand: 2026-06-20 – Block 311
 
 ## Ziel der Einkaufsliste
 
@@ -586,6 +586,95 @@ Abgeschlossen. Die Priorität-Optionen der Einkaufsliste wurden aus der Komponen
 
 Abgeschlossen. Die Dokumentation wurde um die zentrale Pflege der Priorität-Optionen und die Sortierlogik ergänzt.
 
+## Planung Sammelaktionen ab Block 311
+
+Die Einkaufsliste soll künftig Sammelaktionen unterstützen. Ziel ist, mehrere Einkaufslisteneinträge gemeinsam zu bearbeiten, ohne jeden Eintrag einzeln anklicken zu müssen.
+
+### Grundregeln
+
+Sammelaktionen sollen zunächst nur für offene Einkaufslisteneinträge umgesetzt werden.
+
+Erledigte Einträge bleiben vorerst von der Mehrfachauswahl ausgenommen. Dadurch bleibt die Bedienung einfacher und das Risiko versehentlicher Änderungen an bereits erledigten Einträgen geringer.
+
+Die Mehrfachauswahl soll sich immer auf den aktuell sichtbaren Filter beziehen:
+
+- Alle
+- Ausland
+- Normal
+
+Wenn der Filter gewechselt wird, soll die aktuelle Auswahl zurückgesetzt werden. Dadurch wird vermieden, dass nicht mehr sichtbare Einträge unbeabsichtigt mitbearbeitet werden.
+
+### Auswahl von Einträgen
+
+Offene Einkaufslisteneinträge sollen eine Auswahlmöglichkeit erhalten.
+
+Geplant ist:
+
+- Checkbox pro offenem Eintrag
+- Anzeige der Anzahl ausgewählter Einträge
+- Möglichkeit, die Auswahl wieder aufzuheben
+- Deaktivierung von Sammelaktionen, wenn keine Einträge ausgewählt sind
+
+Die Auswahl soll rein im Frontend-State liegen und nicht in der Datenbank gespeichert werden.
+
+### Erste Sammelaktion: mehrere Einträge erledigen
+
+Als erste produktive Sammelaktion ist `Ausgewählte erledigen` vorgesehen.
+
+Diese Aktion ist fachlich risikoarm, weil erledigte Einträge wieder geöffnet werden können.
+
+Geplanter Ablauf:
+
+1. Nutzer wählt mehrere offene Einträge aus.
+2. Die Sammelaktionsleiste zeigt die Anzahl der ausgewählten Einträge.
+3. Nutzer klickt `Ausgewählte erledigen`.
+4. Die ausgewählten Einträge werden nacheinander über die vorhandene Einzelaktion erledigt.
+5. Nach Abschluss wird die Auswahl zurückgesetzt.
+6. Eine Erfolgsmeldung informiert über die erledigten Einträge.
+
+### Zweite Sammelaktion: mehrere Einträge löschen
+
+Das Löschen mehrerer Einträge ist risikoreicher, weil gelöschte Einträge nicht ohne Weiteres wiederhergestellt werden können.
+
+Daher soll diese Aktion erst nach zusätzlicher Absicherung umgesetzt werden.
+
+Geplante Schutzmaßnahmen:
+
+- eigene Schaltfläche `Ausgewählte löschen`
+- Sicherheitsabfrage vor dem Löschen
+- Hinweis auf die Anzahl der betroffenen Einträge
+- Löschen nur nach ausdrücklicher Bestätigung
+
+Beispiel für eine Sicherheitsabfrage:
+
+- `3 ausgewählte Einkaufslisteneinträge wirklich löschen?`
+
+### Verhalten bei laufenden Aktionen
+
+Während eine Sammelaktion läuft, sollen relevante Einzel- und Sammelaktionsbuttons deaktiviert werden.
+
+Dadurch sollen doppelte Klicks, parallele Aktionen und unklare Zwischenzustände vermieden werden.
+
+### Technische Richtung
+
+Die Mehrfachauswahl soll in `ShoppingListSection.jsx` vorbereitet werden.
+
+Voraussichtliche technische Bausteine:
+
+- `selectedShoppingListItemIds`
+- `toggleShoppingListItemSelection`
+- `clearShoppingListItemSelection`
+- `hasSelectedShoppingListItems`
+- `selectedShoppingListItemsCount`
+
+Die bestehenden Einzelaktionen sollen zunächst weiterverwendet werden. Dadurch müssen keine neuen API-Endpunkte eingeführt werden.
+
+Für spätere Optimierung kann geprüft werden, ob eigene Sammel-API-Routen sinnvoll sind.
+
+### Block 311 – Sammelaktionen für Einkaufsliste fachlich planen
+
+Abgeschlossen. Die fachlichen Grundregeln für spätere Sammelaktionen wurden dokumentiert. Zunächst sollen offene Einkaufslisteneinträge auswählbar werden. Als erste risikoarme Sammelaktion ist `Ausgewählte erledigen` vorgesehen. Das Löschen mehrerer Einträge soll nur mit zusätzlicher Sicherheitsabfrage umgesetzt werden.
+
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
@@ -600,6 +689,8 @@ Mögliche spätere Funktionen:
 - gemeinsame Einheiten verwalten und erweitern
 - Prioritäten bei Bedarf erweitern oder umbenennen
 - Mengen aus Beständen oder Verbrauch ableiten
+- Sammelaktionen für mehrere Einkaufslisteneinträge umsetzen
+- Mehrfachauswahl für offene Einkaufslisteneinträge ergänzen
 
 ## Nicht Bestandteil des aktuellen Stands
 
