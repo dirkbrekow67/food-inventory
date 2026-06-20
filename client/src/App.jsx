@@ -462,6 +462,7 @@ function App() {
     useState(null);
   const [labelScanMessage, setLabelScanMessage] = useState("");
   const hasHandledInitialLabelUrl = useRef(false);
+  const shoppingListMessageTimeoutRef = useRef(null);
 
   useEffect(() => {
     async function loadData() {
@@ -1237,10 +1238,15 @@ function App() {
   }
 
   function showShoppingListMessage(message) {
+    if (shoppingListMessageTimeoutRef.current) {
+      window.clearTimeout(shoppingListMessageTimeoutRef.current);
+    }
+
     setShoppingListMessage(message);
 
-    window.setTimeout(() => {
+    shoppingListMessageTimeoutRef.current = window.setTimeout(() => {
       setShoppingListMessage("");
+      shoppingListMessageTimeoutRef.current = null;
     }, 2500);
   }
 
