@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-20 – nach Block 300
+Stand: 2026-06-20 – nach Block 310
 
 ## Ziel des Projekts
 
@@ -184,19 +184,22 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
+773ecbc Document shopping list stabilization
+71609b9 Prepare shopping list toolbar action states
+463ac8c Disable shopping list actions while saving
+c289df9 Stabilize shopping list copy message timeout
+84896a4 Unify shopping list message display
+d02c48e Stabilize shopping list message timeout
+bf121f5 Add shopping list action success messages
+d61c423 Use API error messages for shopping list actions
+6d2594d Centralize shopping list payload validation
+ca8ef89 Update project status after shopping list refactor
 fbcdcb4 Add shopping list form change handlers
 84b0074 Use object state for shopping list form
 18e73f6 Centralize shopping list form defaults
 ea346f5 Extract shopping list form reset helper
 6a9797a Extract shopping list payload helpers
 f53ea0b Extract shopping list utility helpers
-f53bcf5 Update project status after direct API imports
-c97056f Update API routes documentation for split client APIs
-96990fb Document inventory API compatibility exports
-59cc1fa Use direct API imports in app
-e13164c Use direct storage API imports in storage section
-02401a0 Use direct label API imports in label sheet
-a003d59 Use direct product API import in product form
 ```
 
 Hinweis: Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
@@ -1191,12 +1194,75 @@ Ergebnis:
 - Die Komponente ist besser vorbereitet für spätere Erweiterungen wie Sammelaktionen, verbesserte Fehleranzeigen oder weitere Formularfunktionen.
 - Die bestehende Bedienung der Einkaufsliste bleibt erhalten.
 
-## Aktuelle nächste Schritte nach Block 300
+
+### Block 301 bis 310 – Einkaufsliste stabilisiert und Projektstand aktualisiert
+
+Nach dem Refactoring der Einkaufslistenkomponente wurde die Einkaufsliste weiter stabilisiert. Schwerpunkt war nicht der Ausbau neuer Fachfunktionen, sondern die Absicherung bestehender Bedienabläufe, die Vereinheitlichung von Meldungen und die Vorbereitung späterer Sammelaktionen.
+
+Ziel war:
+
+- verständlichere Validierungs- und Fehlermeldungen
+- sichtbare Rückmeldungen bei erfolgreichen Einkaufslistenaktionen
+- stabilere Meldungs-Timeouts
+- weniger Risiko durch Mehrfachklicks bei laufenden Aktionen
+- sauber vorbereitete Toolbar-Zustände für spätere Sammelaktionen
+- Aktualisierung der Einkaufslisten-Dokumentation
+
+Produktiv geändert wurde:
+
+- Die Payload-Validierung für Einkaufslisteneinträge wurde zentral über `getShoppingListPayloadValidationMessage` in `client/src/utils/shoppingListUtils.js` gekapselt.
+- API- und Fallback-Fehlermeldungen für Einkaufslistenaktionen werden zentral über `getShoppingListActionErrorMessage` ausgewertet.
+- Erfolgreiche Aktionen in der Einkaufsliste erzeugen sichtbare Erfolgsmeldungen.
+- Die zentrale Einkaufslistenmeldung in `App.jsx` nutzt einen abgesicherten Timeout über `shoppingListMessageTimeoutRef`.
+- Die Anzeige von Aktionsmeldung und Kopiermeldung wurde in `ShoppingListSection.jsx` auf eine gemeinsame Meldungszeile vereinheitlicht.
+- Die Kopiermeldung nutzt ebenfalls einen abgesicherten Timeout über `shoppingListCopyMessageTimeoutRef`.
+- Erledigen, Wiederöffnen und Löschen setzen während laufender Aktionen `savingShoppingListItem`.
+- Die zugehörigen Aktionsbuttons werden während laufender Einkaufslistenaktionen deaktiviert.
+- Toolbar-Zustände für offene und erledigte Einkaufslisteneinträge wurden vorbereitet:
+  - `hasOpenShoppingListItems`
+  - `hasCompletedShoppingListItems`
+- Toolbar-Aktionen werden fachlich deaktiviert, wenn sie aktuell keinen sinnvollen Inhalt haben.
+- `docs/EINKAUFSLISTE.md` wurde um die Stabilisierung nach Block 301 bis 308 ergänzt.
+- `docs/PROJEKTSTAND.md` wurde mit Block 310 aktualisiert.
+
+Prüfung:
+
+- Nach jedem produktiven JS-Block wurde `npm run check:client` ausgeführt.
+- Vite-Build war erfolgreich.
+- ESLint war ohne Fehler.
+- Reine Markdown-Änderungen wurden ohne Client-Check committed.
+- Push nach GitHub war erfolgreich.
+- Working Tree war nach jedem Block clean.
+
+Commits:
+
+- `6d2594d` – Centralize shopping list payload validation
+- `d61c423` – Use API error messages for shopping list actions
+- `bf121f5` – Add shopping list action success messages
+- `d02c48e` – Stabilize shopping list message timeout
+- `84896a4` – Unify shopping list message display
+- `c289df9` – Stabilize shopping list copy message timeout
+- `463ac8c` – Disable shopping list actions while saving
+- `71609b9` – Prepare shopping list toolbar action states
+- `773ecbc` – Document shopping list stabilization
+
+Ergebnis:
+
+- Die Einkaufsliste ist bei Eingaben, Aktionen und Rückmeldungen robuster.
+- Meldungen sind für den Nutzer sichtbarer und einheitlicher.
+- Schnelle Mehrfachaktionen werden besser verhindert.
+- Die Toolbar ist fachlich besser vorbereitet.
+- Die Grundlage für spätere Sammelaktionen ist sauberer.
+- Die Dokumentation der Einkaufsliste ist nachgezogen.
+
+## Aktuelle nächste Schritte nach Block 310
 
 Sinnvolle nächste Arbeiten:
 
-- Einkaufsliste weiter stabilisieren und Fehleranzeigen prüfen
-- Mehrfachauswahl oder Sammelaktionen für Einkaufsliste prüfen
+- Sammelaktionen für die Einkaufsliste fachlich planen
+- Mehrfachauswahl für Einkaufslisteneinträge prüfen
+- Sammelaktion „mehrere Einträge erledigen“ vorbereiten
+- Sammelaktion „mehrere Einträge löschen“ nur mit Sicherheitsabfrage prüfen
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Produktbild-Aufräumlogik planen
 - vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
@@ -1222,6 +1288,7 @@ Block 270
 Block 280
 Block 290
 Block 300
+Block 310
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
