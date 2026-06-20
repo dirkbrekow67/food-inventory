@@ -89,7 +89,10 @@ import {
   getInventoryViewState,
 } from "./utils/viewStateUtils";
 
-import { getShoppingListPayloadValidationMessage } from "./utils/shoppingListUtils";
+import {
+  getShoppingListActionErrorMessage,
+  getShoppingListPayloadValidationMessage,
+} from "./utils/shoppingListUtils";
 
 import { ProductsSection } from "./components/products/ProductsSection";
 
@@ -1251,7 +1254,12 @@ function App() {
       return true;
     } catch (error) {
       console.error(error);
-      setErrorMessage("Einkaufslisteneintrag konnte nicht gespeichert werden.");
+      setErrorMessage(
+        getShoppingListActionErrorMessage(
+          error,
+          "Einkaufslisteneintrag konnte nicht gespeichert werden.",
+        ),
+      );
       return false;
     } finally {
       setSavingShoppingListItem(false);
@@ -1280,7 +1288,10 @@ function App() {
     } catch (error) {
       console.error(error);
       setErrorMessage(
-        "Produkt konnte nicht zur Einkaufsliste hinzugefügt werden.",
+        getShoppingListActionErrorMessage(
+          error,
+          "Produkt konnte nicht zur Einkaufsliste hinzugefügt werden.",
+        ),
       );
       return false;
     } finally {
@@ -1309,7 +1320,12 @@ function App() {
       return true;
     } catch (error) {
       console.error(error);
-      setErrorMessage("Einkaufslisteneintrag konnte nicht gespeichert werden.");
+      setErrorMessage(
+        getShoppingListActionErrorMessage(
+          error,
+          "Einkaufslisteneintrag konnte nicht gespeichert werden.",
+        ),
+      );
       return false;
     } finally {
       setSavingShoppingListItem(false);
@@ -1327,7 +1343,12 @@ function App() {
       );
     } catch (error) {
       console.error(error);
-      setErrorMessage("Einkaufslisteneintrag konnte nicht erledigt werden.");
+      setErrorMessage(
+        getShoppingListActionErrorMessage(
+          error,
+          "Einkaufslisteneintrag konnte nicht erledigt werden.",
+        ),
+      );
     }
   }
 
@@ -1343,7 +1364,10 @@ function App() {
     } catch (error) {
       console.error(error);
       setErrorMessage(
-        "Einkaufslisteneintrag konnte nicht wieder geöffnet werden.",
+        getShoppingListActionErrorMessage(
+          error,
+          "Einkaufslisteneintrag konnte nicht wieder geöffnet werden.",
+        ),
       );
     }
   }
@@ -1367,7 +1391,12 @@ function App() {
       );
     } catch (error) {
       console.error(error);
-      setErrorMessage("Einkaufslisteneintrag konnte nicht gelöscht werden.");
+      setErrorMessage(
+        getShoppingListActionErrorMessage(
+          error,
+          "Einkaufslisteneintrag konnte nicht gelöscht werden.",
+        ),
+      );
     }
   }
 

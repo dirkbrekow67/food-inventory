@@ -21,6 +21,16 @@ export function getShoppingListPayloadValidationMessage(payload) {
   return "";
 }
 
+export function getShoppingListActionErrorMessage(error, fallbackMessage) {
+  const errorMessage = String(error?.message || "").trim();
+
+  if (errorMessage) {
+    return errorMessage;
+  }
+
+  return fallbackMessage;
+}
+
 export function getShoppingListItemTitle(item) {
   return item.product_name || item.custom_name || "Unbenannter Artikel";
 }
