@@ -68,10 +68,15 @@ export function ShoppingListSection({
   const openItemsByCategory = groupShoppingListItemsByCategory(openItems);
   const openCategoryNames = Object.keys(openItemsByCategory).sort(compareText);
 
+  const openItemIds = new Set(openItems.map((item) => item.id));
+  const selectedOpenShoppingListItemIds = selectedShoppingListItemIds.filter(
+    (selectedShoppingListItemId) => openItemIds.has(selectedShoppingListItemId),
+  );
+
   const hasOpenShoppingListItems = openItems.length > 0;
   const hasCompletedShoppingListItems = completedItems.length > 0;
-  const hasSelectedShoppingListItems = selectedShoppingListItemIds.length > 0;
-  const selectedShoppingListItemsCount = selectedShoppingListItemIds.length;
+  const hasSelectedShoppingListItems = selectedOpenShoppingListItemIds.length > 0;
+  const selectedShoppingListItemsCount = selectedOpenShoppingListItemIds.length;
 
   const shoppingListExportText = createShoppingListExportText(
     openItems,
@@ -133,7 +138,7 @@ export function ShoppingListSection({
   }
 
   function isShoppingListItemSelected(itemId) {
-    return selectedShoppingListItemIds.includes(itemId);
+    return selectedOpenShoppingListItemIds.includes(itemId);
   }
 
   async function handleSubmit(event) {
@@ -669,7 +674,10 @@ export function ShoppingListSection({
         <button
           type="button"
           className={foreignPurchaseFilter === "all" ? "active" : ""}
-          onClick={() => setForeignPurchaseFilter("all")}
+          onClick={() => {
+            setForeignPurchaseFilter("all");
+            clearShoppingListItemSelection();
+          }}
         >
           Alle
           <span>{allOpenItemsCount}</span>
@@ -678,7 +686,10 @@ export function ShoppingListSection({
         <button
           type="button"
           className={foreignPurchaseFilter === "foreign" ? "active" : ""}
-          onClick={() => setForeignPurchaseFilter("foreign")}
+          onClick={() => {
+            setForeignPurchaseFilter("foreign");
+            clearShoppingListItemSelection();
+          }}
         >
           Ausland
           <span>{allForeignOpenItemsCount}</span>
@@ -687,7 +698,10 @@ export function ShoppingListSection({
         <button
           type="button"
           className={foreignPurchaseFilter === "domestic" ? "active" : ""}
-          onClick={() => setForeignPurchaseFilter("domestic")}
+          onClick={() => {
+            setForeignPurchaseFilter("domestic");
+            clearShoppingListItemSelection();
+          }}
         >
           Normal
           <span>{allDomesticOpenItemsCount}</span>
