@@ -120,6 +120,22 @@ export function ShoppingListSection({
     setSelectedShoppingListItemIds([]);
   }
 
+  function toggleShoppingListItemSelection(itemId) {
+    setSelectedShoppingListItemIds((currentSelectedShoppingListItemIds) => {
+      if (currentSelectedShoppingListItemIds.includes(itemId)) {
+        return currentSelectedShoppingListItemIds.filter(
+          (selectedShoppingListItemId) => selectedShoppingListItemId !== itemId,
+        );
+      }
+
+      return [...currentSelectedShoppingListItemIds, itemId];
+    });
+  }
+
+  function isShoppingListItemSelected(itemId) {
+    return selectedShoppingListItemIds.includes(itemId);
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -351,6 +367,8 @@ export function ShoppingListSection({
 
     const title = getShoppingListItemTitle(item);
     const quantityText = formatShoppingListQuantity(item);
+    const isOpenItem = item.status === "open";
+    const isSelectedItem = isShoppingListItemSelected(item.id);
 
     return (
       <li
@@ -359,6 +377,18 @@ export function ShoppingListSection({
           item.status === "completed" ? "shopping-list-item-completed" : ""
         }`}
       >
+        {isOpenItem && (
+          <label className="shopping-list-item-selection">
+            <input
+              type="checkbox"
+              checked={isSelectedItem}
+              onChange={() => toggleShoppingListItemSelection(item.id)}
+              disabled={savingShoppingListItem}
+            />
+            Auswählen
+          </label>
+        )}
+
         <div className="shopping-list-item-main">
           <h3>{title}</h3>
 
