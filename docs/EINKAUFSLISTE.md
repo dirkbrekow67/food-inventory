@@ -611,3 +611,60 @@ Noch nicht umgesetzt sind:
 - automatische Bedarfsermittlung
 - automatische Vorschlagsliste aus Verbrauch oder Historie
 - direkte Messenger-Teilen-Funktion
+
+## Stabilisierung der Einkaufsliste nach Block 301 bis 308
+
+Die Einkaufsliste wurde in den Blöcken 301 bis 308 weiter stabilisiert und für spätere Sammelaktionen vorbereitet.
+
+### Validierung und Fehlermeldungen
+
+Die Validierung von Einkaufslisten-Payloads erfolgt zentral über `getShoppingListPayloadValidationMessage` in `client/src/utils/shoppingListUtils.js`.
+
+Ein Einkaufslisteneintrag muss weiterhin entweder einen Produktbezug oder einen freien Artikelnamen enthalten. Fehlt beides, wird im Frontend eine verständliche Meldung angezeigt.
+
+Fehlermeldungen aus API-Antworten werden bei Einkaufslistenaktionen bevorzugt angezeigt. Wenn keine konkrete API-Meldung vorhanden ist, wird eine fachliche Standardmeldung genutzt.
+
+### Erfolgsmeldungen und Rückmeldung im UI
+
+Erfolgreiche Aktionen in der Einkaufsliste werden sichtbar bestätigt, z. B.:
+
+- Einkaufslisteneintrag wurde angelegt
+- Produkt wurde zur Einkaufsliste hinzugefügt
+- Einkaufslisteneintrag wurde aktualisiert
+- Einkaufslisteneintrag wurde erledigt
+- Einkaufslisteneintrag wurde wieder geöffnet
+- Einkaufslisteneintrag wurde gelöscht
+
+Die Meldungsanzeige der Einkaufsliste ist vereinheitlicht. Aktionsmeldungen und Kopiermeldungen nutzen dieselbe sichtbare Meldungszeile.
+
+Die Meldungs-Timeouts sind abgesichert. Wenn mehrere Aktionen kurz hintereinander ausgeführt werden, löscht ein alter Timeout keine neuere Meldung zu früh.
+
+### Bedienlogik und Aktionssperren
+
+Während laufender Speicher- oder Änderungsaktionen werden relevante Einkaufslistenbuttons deaktiviert. Dadurch werden versehentliche Mehrfachaktionen reduziert.
+
+Dies betrifft insbesondere:
+
+- Bearbeiten / Speichern
+- Erledigt
+- Wieder öffnen
+- Löschen
+
+### Vorbereitung späterer Sammelaktionen
+
+Für die Toolbar der Einkaufsliste werden abgeleitete Zustände genutzt:
+
+```text
+hasOpenShoppingListItems
+hasCompletedShoppingListItems
+```
+
+Damit können Toolbar-Aktionen fachlich korrekt aktiviert oder deaktiviert werden.
+
+Aktuell gilt:
+
+- `Liste kopieren` ist deaktiviert, wenn keine offenen Einträge vorhanden sind
+- `Text anzeigen` ist deaktiviert, wenn keine offenen Einträge vorhanden sind
+- `Erledigte anzeigen` ist deaktiviert, wenn keine erledigten Einträge vorhanden sind
+
+Diese Struktur ist die Grundlage für spätere Sammelaktionen, z. B. mehrere Einträge gemeinsam erledigen, löschen oder exportieren.
