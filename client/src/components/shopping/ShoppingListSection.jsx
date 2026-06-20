@@ -34,17 +34,8 @@ export function ShoppingListSection({
   onReopenShoppingListItem,
   onDeleteShoppingListItem,
 }) {
-  const [customName, setCustomName] = useState(
-    EMPTY_SHOPPING_LIST_FORM.customName,
-  );
-  const [quantity, setQuantity] = useState(EMPTY_SHOPPING_LIST_FORM.quantity);
-  const [unit, setUnit] = useState(EMPTY_SHOPPING_LIST_FORM.unit);
-  const [category, setCategory] = useState(EMPTY_SHOPPING_LIST_FORM.category);
-  const [priority, setPriority] = useState(EMPTY_SHOPPING_LIST_FORM.priority);
-  const [note, setNote] = useState(EMPTY_SHOPPING_LIST_FORM.note);
-
-  const [isForeignPurchase, setIsForeignPurchase] = useState(
-    EMPTY_SHOPPING_LIST_FORM.isForeignPurchase,
+  const [shoppingListForm, setShoppingListForm] = useState(
+    EMPTY_SHOPPING_LIST_FORM,
   );
 
   const [foreignPurchaseFilter, setForeignPurchaseFilter] = useState("all");
@@ -89,29 +80,22 @@ export function ShoppingListSection({
     (item) => item.status === "open" && item.is_foreign_purchase !== 1,
   ).length;
 
+  function updateShoppingListFormField(field, value) {
+    setShoppingListForm((currentShoppingListForm) => ({
+      ...currentShoppingListForm,
+      [field]: value,
+    }));
+  }
+
   function resetShoppingListForm() {
-    setCustomName(EMPTY_SHOPPING_LIST_FORM.customName);
-    setQuantity(EMPTY_SHOPPING_LIST_FORM.quantity);
-    setUnit(EMPTY_SHOPPING_LIST_FORM.unit);
-    setCategory(EMPTY_SHOPPING_LIST_FORM.category);
-    setPriority(EMPTY_SHOPPING_LIST_FORM.priority);
-    setNote(EMPTY_SHOPPING_LIST_FORM.note);
-    setIsForeignPurchase(EMPTY_SHOPPING_LIST_FORM.isForeignPurchase);
+    setShoppingListForm(EMPTY_SHOPPING_LIST_FORM);
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
     const wasSaved = await onCreateShoppingListItem(
-      createShoppingListCreatePayload({
-        customName,
-        quantity,
-        unit,
-        category,
-        priority,
-        note,
-        isForeignPurchase,
-      }),
+      createShoppingListCreatePayload(shoppingListForm),
     );
 
     if (!wasSaved) {
@@ -437,8 +421,10 @@ export function ShoppingListSection({
           Artikelname
           <input
             type="text"
-            value={customName}
-            onChange={(event) => setCustomName(event.target.value)}
+            value={shoppingListForm.customName}
+            onChange={(event) =>
+              updateShoppingListFormField("customName", event.target.value)
+            }
             placeholder="z. B. Milch"
           />
         </label>
@@ -450,8 +436,10 @@ export function ShoppingListSection({
               type="number"
               min="0"
               step="0.01"
-              value={quantity}
-              onChange={(event) => setQuantity(event.target.value)}
+              value={shoppingListForm.quantity}
+              onChange={(event) =>
+                updateShoppingListFormField("quantity", event.target.value)
+              }
               placeholder="z. B. 2"
             />
           </label>
@@ -461,8 +449,10 @@ export function ShoppingListSection({
             <input
               type="text"
               list="shopping-list-unit-suggestions"
-              value={unit}
-              onChange={(event) => setUnit(event.target.value)}
+              value={shoppingListForm.unit}
+              onChange={(event) =>
+                updateShoppingListFormField("unit", event.target.value)
+              }
               placeholder="z. B. Packung"
             />
           </label>
@@ -474,8 +464,10 @@ export function ShoppingListSection({
             <input
               type="text"
               list="shopping-list-category-suggestions"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
+              value={shoppingListForm.category}
+              onChange={(event) =>
+                updateShoppingListFormField("category", event.target.value)
+              }
               placeholder="z. B. Kühlware"
             />
           </label>
@@ -483,8 +475,10 @@ export function ShoppingListSection({
           <label>
             Priorität
             <select
-              value={priority}
-              onChange={(event) => setPriority(event.target.value)}
+              value={shoppingListForm.priority}
+              onChange={(event) =>
+                updateShoppingListFormField("priority", event.target.value)
+              }
             >
               {shoppingListPriorityOptions.map((priorityOption) => (
                 <option key={priorityOption.value} value={priorityOption.value}>
@@ -499,8 +493,10 @@ export function ShoppingListSection({
           Notiz
           <textarea
             rows="3"
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
+            value={shoppingListForm.note}
+            onChange={(event) =>
+              updateShoppingListFormField("note", event.target.value)
+            }
             placeholder="z. B. nur wenn im Angebot"
           />
         </label>
@@ -508,8 +504,13 @@ export function ShoppingListSection({
         <label className="shopping-list-checkbox-label">
           <input
             type="checkbox"
-            checked={isForeignPurchase}
-            onChange={(event) => setIsForeignPurchase(event.target.checked)}
+            checked={shoppingListForm.isForeignPurchase}
+            onChange={(event) =>
+              updateShoppingListFormField(
+                "isForeignPurchase",
+                event.target.checked,
+              )
+            }
           />
           Auslandseinkauf
         </label>
@@ -517,7 +518,9 @@ export function ShoppingListSection({
         <div className="form-actions">
           <button
             type="submit"
-            disabled={savingShoppingListItem || !customName.trim()}
+            disabled={
+              savingShoppingListItem || !shoppingListForm.customName.trim()
+            }
           >
             {savingShoppingListItem ? "Speichern..." : "Zur Einkaufsliste"}
           </button>
