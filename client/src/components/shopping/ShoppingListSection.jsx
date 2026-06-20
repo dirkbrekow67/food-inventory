@@ -27,6 +27,7 @@ export function ShoppingListSection({
   loadingShoppingList,
   showCompletedShoppingItems,
   savingShoppingListItem,
+  shoppingListMessage,
   onShowCompletedShoppingItemsChange,
   onCreateShoppingListItem,
   onUpdateShoppingListItem,
@@ -564,6 +565,10 @@ export function ShoppingListSection({
           </button>
         </div>
       </div>
+
+      {shoppingListMessage && (
+        <p className="shopping-list-copy-message">{shoppingListMessage}</p>
+      )}
 
       {shoppingListCopyMessage && (
         <p className="shopping-list-copy-message">{shoppingListCopyMessage}</p>

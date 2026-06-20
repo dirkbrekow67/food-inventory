@@ -373,6 +373,7 @@ function App() {
   const [shoppingListItems, setShoppingListItems] = useState([]);
   const [loadingShoppingList, setLoadingShoppingList] = useState(true);
   const [savingShoppingListItem, setSavingShoppingListItem] = useState(false);
+  const [shoppingListMessage, setShoppingListMessage] = useState("");
   const [showCompletedShoppingItems, setShowCompletedShoppingItems] =
     useState(false);
 
@@ -1235,6 +1236,14 @@ function App() {
     );
   }
 
+  function showShoppingListMessage(message) {
+    setShoppingListMessage(message);
+
+    window.setTimeout(() => {
+      setShoppingListMessage("");
+    }, 2500);
+  }
+
   async function handleCreateShoppingListItem(payload) {
     const validationMessage = getShoppingListPayloadValidationMessage(payload);
 
@@ -1250,6 +1259,7 @@ function App() {
       const createdItem = await createShoppingListItem(payload);
 
       setShoppingListItems((currentItems) => [createdItem, ...currentItems]);
+      showShoppingListMessage("Einkaufslisteneintrag wurde angelegt.");
 
       return true;
     } catch (error) {
@@ -1283,6 +1293,7 @@ function App() {
 
       setShoppingListItems((currentItems) => [createdItem, ...currentItems]);
       setActiveSection(saveActiveSection("shopping"));
+      showShoppingListMessage("Produkt wurde zur Einkaufsliste hinzugefügt.");
 
       return true;
     } catch (error) {
@@ -1316,6 +1327,7 @@ function App() {
       setShoppingListItems((currentItems) =>
         currentItems.map((item) => (item.id === itemId ? updatedItem : item)),
       );
+      showShoppingListMessage("Einkaufslisteneintrag wurde aktualisiert.");
 
       return true;
     } catch (error) {
@@ -1341,6 +1353,7 @@ function App() {
       setShoppingListItems((currentItems) =>
         currentItems.map((item) => (item.id === itemId ? updatedItem : item)),
       );
+      showShoppingListMessage("Einkaufslisteneintrag wurde erledigt.");
     } catch (error) {
       console.error(error);
       setErrorMessage(
@@ -1361,6 +1374,7 @@ function App() {
       setShoppingListItems((currentItems) =>
         currentItems.map((item) => (item.id === itemId ? updatedItem : item)),
       );
+      showShoppingListMessage("Einkaufslisteneintrag wurde wieder geöffnet.");
     } catch (error) {
       console.error(error);
       setErrorMessage(
@@ -1389,6 +1403,7 @@ function App() {
       setShoppingListItems((currentItems) =>
         currentItems.filter((item) => item.id !== itemId),
       );
+      showShoppingListMessage("Einkaufslisteneintrag wurde gelöscht.");
     } catch (error) {
       console.error(error);
       setErrorMessage(
@@ -1443,6 +1458,7 @@ function App() {
           loadingShoppingList={loadingShoppingList}
           showCompletedShoppingItems={showCompletedShoppingItems}
           savingShoppingListItem={savingShoppingListItem}
+          shoppingListMessage={shoppingListMessage}
           onShowCompletedShoppingItemsChange={setShowCompletedShoppingItems}
           onCreateShoppingListItem={handleCreateShoppingListItem}
           onUpdateShoppingListItem={handleUpdateShoppingListItem}
