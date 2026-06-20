@@ -69,6 +69,9 @@ export function ShoppingListSection({
     foreignPurchaseFilter,
   );
 
+  const visibleShoppingListMessage =
+    shoppingListCopyMessage || shoppingListMessage;
+
   const allOpenItemsCount = shoppingListItems.filter(
     (item) => item.status === "open",
   ).length;
@@ -566,12 +569,8 @@ export function ShoppingListSection({
         </div>
       </div>
 
-      {shoppingListMessage && (
-        <p className="shopping-list-copy-message">{shoppingListMessage}</p>
-      )}
-
-      {shoppingListCopyMessage && (
-        <p className="shopping-list-copy-message">{shoppingListCopyMessage}</p>
+      {visibleShoppingListMessage && (
+        <p className="shopping-list-message">{visibleShoppingListMessage}</p>
       )}
 
       {showShoppingListExportText && (
