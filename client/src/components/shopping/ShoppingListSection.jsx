@@ -9,6 +9,7 @@ import {
 } from "../../constants/selectOptions";
 
 import {
+  EMPTY_SHOPPING_LIST_FORM,
   compareText,
   createEditStateFromItem,
   createShoppingListCreatePayload,
@@ -33,14 +34,18 @@ export function ShoppingListSection({
   onReopenShoppingListItem,
   onDeleteShoppingListItem,
 }) {
-  const [customName, setCustomName] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [unit, setUnit] = useState("");
-  const [category, setCategory] = useState("");
-  const [priority, setPriority] = useState("normal");
-  const [note, setNote] = useState("");
+  const [customName, setCustomName] = useState(
+    EMPTY_SHOPPING_LIST_FORM.customName,
+  );
+  const [quantity, setQuantity] = useState(EMPTY_SHOPPING_LIST_FORM.quantity);
+  const [unit, setUnit] = useState(EMPTY_SHOPPING_LIST_FORM.unit);
+  const [category, setCategory] = useState(EMPTY_SHOPPING_LIST_FORM.category);
+  const [priority, setPriority] = useState(EMPTY_SHOPPING_LIST_FORM.priority);
+  const [note, setNote] = useState(EMPTY_SHOPPING_LIST_FORM.note);
 
-  const [isForeignPurchase, setIsForeignPurchase] = useState(false);
+  const [isForeignPurchase, setIsForeignPurchase] = useState(
+    EMPTY_SHOPPING_LIST_FORM.isForeignPurchase,
+  );
 
   const [foreignPurchaseFilter, setForeignPurchaseFilter] = useState("all");
   const [shoppingListCopyMessage, setShoppingListCopyMessage] = useState("");
@@ -85,13 +90,13 @@ export function ShoppingListSection({
   ).length;
 
   function resetShoppingListForm() {
-    setCustomName("");
-    setQuantity("");
-    setUnit("");
-    setCategory("");
-    setPriority("normal");
-    setNote("");
-    setIsForeignPurchase(false);
+    setCustomName(EMPTY_SHOPPING_LIST_FORM.customName);
+    setQuantity(EMPTY_SHOPPING_LIST_FORM.quantity);
+    setUnit(EMPTY_SHOPPING_LIST_FORM.unit);
+    setCategory(EMPTY_SHOPPING_LIST_FORM.category);
+    setPriority(EMPTY_SHOPPING_LIST_FORM.priority);
+    setNote(EMPTY_SHOPPING_LIST_FORM.note);
+    setIsForeignPurchase(EMPTY_SHOPPING_LIST_FORM.isForeignPurchase);
   }
 
   async function handleSubmit(event) {

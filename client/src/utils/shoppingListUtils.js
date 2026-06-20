@@ -1,5 +1,15 @@
 // client/src/utils/shoppingListUtils.js
 
+export const EMPTY_SHOPPING_LIST_FORM = Object.freeze({
+  customName: "",
+  quantity: "",
+  unit: "",
+  category: "",
+  priority: "normal",
+  note: "",
+  isForeignPurchase: false,
+});
+
 export function getShoppingListItemTitle(item) {
   return item.product_name || item.custom_name || "Unbenannter Artikel";
 }
