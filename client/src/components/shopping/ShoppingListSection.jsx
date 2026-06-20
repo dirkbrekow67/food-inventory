@@ -87,6 +87,18 @@ export function ShoppingListSection({
     }));
   }
 
+  function handleShoppingListFormFieldChange(field) {
+    return (event) => {
+      updateShoppingListFormField(field, event.target.value);
+    };
+  }
+
+  function handleShoppingListFormCheckboxChange(field) {
+    return (event) => {
+      updateShoppingListFormField(field, event.target.checked);
+    };
+  }
+
   function resetShoppingListForm() {
     setShoppingListForm(EMPTY_SHOPPING_LIST_FORM);
   }
@@ -422,9 +434,7 @@ export function ShoppingListSection({
           <input
             type="text"
             value={shoppingListForm.customName}
-            onChange={(event) =>
-              updateShoppingListFormField("customName", event.target.value)
-            }
+            onChange={handleShoppingListFormFieldChange("customName")}
             placeholder="z. B. Milch"
           />
         </label>
@@ -437,9 +447,7 @@ export function ShoppingListSection({
               min="0"
               step="0.01"
               value={shoppingListForm.quantity}
-              onChange={(event) =>
-                updateShoppingListFormField("quantity", event.target.value)
-              }
+              onChange={handleShoppingListFormFieldChange("quantity")}
               placeholder="z. B. 2"
             />
           </label>
@@ -450,9 +458,7 @@ export function ShoppingListSection({
               type="text"
               list="shopping-list-unit-suggestions"
               value={shoppingListForm.unit}
-              onChange={(event) =>
-                updateShoppingListFormField("unit", event.target.value)
-              }
+              onChange={handleShoppingListFormFieldChange("unit")}
               placeholder="z. B. Packung"
             />
           </label>
@@ -465,9 +471,7 @@ export function ShoppingListSection({
               type="text"
               list="shopping-list-category-suggestions"
               value={shoppingListForm.category}
-              onChange={(event) =>
-                updateShoppingListFormField("category", event.target.value)
-              }
+              onChange={handleShoppingListFormFieldChange("category")}
               placeholder="z. B. Kühlware"
             />
           </label>
@@ -476,9 +480,7 @@ export function ShoppingListSection({
             Priorität
             <select
               value={shoppingListForm.priority}
-              onChange={(event) =>
-                updateShoppingListFormField("priority", event.target.value)
-              }
+              onChange={handleShoppingListFormFieldChange("priority")}
             >
               {shoppingListPriorityOptions.map((priorityOption) => (
                 <option key={priorityOption.value} value={priorityOption.value}>
@@ -494,9 +496,7 @@ export function ShoppingListSection({
           <textarea
             rows="3"
             value={shoppingListForm.note}
-            onChange={(event) =>
-              updateShoppingListFormField("note", event.target.value)
-            }
+            onChange={handleShoppingListFormFieldChange("note")}
             placeholder="z. B. nur wenn im Angebot"
           />
         </label>
@@ -505,12 +505,7 @@ export function ShoppingListSection({
           <input
             type="checkbox"
             checked={shoppingListForm.isForeignPurchase}
-            onChange={(event) =>
-              updateShoppingListFormField(
-                "isForeignPurchase",
-                event.target.checked,
-              )
-            }
+            onChange={handleShoppingListFormCheckboxChange("isForeignPurchase")}
           />
           Auslandseinkauf
         </label>
