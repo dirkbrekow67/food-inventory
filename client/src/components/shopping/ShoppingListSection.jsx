@@ -45,6 +45,9 @@ export function ShoppingListSection({
   const [showShoppingListExportText, setShowShoppingListExportText] =
     useState(false);
 
+  const [selectedShoppingListItemIds, setSelectedShoppingListItemIds] =
+    useState([]);
+
   const [editingShoppingListItemId, setEditingShoppingListItemId] =
     useState(null);
   const [editState, setEditState] = useState(createEditStateFromItem({}));
@@ -67,6 +70,8 @@ export function ShoppingListSection({
 
   const hasOpenShoppingListItems = openItems.length > 0;
   const hasCompletedShoppingListItems = completedItems.length > 0;
+  const hasSelectedShoppingListItems = selectedShoppingListItemIds.length > 0;
+  const selectedShoppingListItemsCount = selectedShoppingListItemIds.length;
 
   const shoppingListExportText = createShoppingListExportText(
     openItems,
@@ -109,6 +114,10 @@ export function ShoppingListSection({
 
   function resetShoppingListForm() {
     setShoppingListForm(EMPTY_SHOPPING_LIST_FORM);
+  }
+
+  function clearShoppingListItemSelection() {
+    setSelectedShoppingListItemIds([]);
   }
 
   async function handleSubmit(event) {
@@ -588,6 +597,23 @@ export function ShoppingListSection({
 
       {visibleShoppingListMessage && (
         <p className="shopping-list-message">{visibleShoppingListMessage}</p>
+      )}
+
+      {hasSelectedShoppingListItems && (
+        <div className="shopping-list-selection-toolbar">
+          <p className="muted">
+            {selectedShoppingListItemsCount} Einkaufslisteneinträge ausgewählt
+          </p>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={clearShoppingListItemSelection}
+            disabled={savingShoppingListItem}
+          >
+            Auswahl aufheben
+          </button>
+        </div>
       )}
 
       {showShoppingListExportText && (
