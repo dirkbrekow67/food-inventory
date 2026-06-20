@@ -10,6 +10,17 @@ export const EMPTY_SHOPPING_LIST_FORM = Object.freeze({
   isForeignPurchase: false,
 });
 
+export function getShoppingListPayloadValidationMessage(payload) {
+  const hasProductId = Boolean(payload.productId);
+  const hasCustomName = String(payload.customName || "").trim().length > 0;
+
+  if (!hasProductId && !hasCustomName) {
+    return "Bitte einen Artikelnamen eingeben.";
+  }
+
+  return "";
+}
+
 export function getShoppingListItemTitle(item) {
   return item.product_name || item.custom_name || "Unbenannter Artikel";
 }

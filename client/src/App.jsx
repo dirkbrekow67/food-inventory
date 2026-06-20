@@ -89,6 +89,8 @@ import {
   getInventoryViewState,
 } from "./utils/viewStateUtils";
 
+import { getShoppingListPayloadValidationMessage } from "./utils/shoppingListUtils";
+
 import { ProductsSection } from "./components/products/ProductsSection";
 
 import { InventorySection } from "./components/inventory/InventorySection";
@@ -1231,8 +1233,10 @@ function App() {
   }
 
   async function handleCreateShoppingListItem(payload) {
-    if (!payload.customName.trim()) {
-      setErrorMessage("Bitte einen Artikelnamen eingeben.");
+    const validationMessage = getShoppingListPayloadValidationMessage(payload);
+
+    if (validationMessage) {
+      setErrorMessage(validationMessage);
       return false;
     }
 
@@ -1285,8 +1289,10 @@ function App() {
   }
 
   async function handleUpdateShoppingListItem(itemId, payload) {
-    if (!payload.productId && !payload.customName.trim()) {
-      setErrorMessage("Bitte einen Artikelnamen eingeben.");
+    const validationMessage = getShoppingListPayloadValidationMessage(payload);
+
+    if (validationMessage) {
+      setErrorMessage(validationMessage);
       return false;
     }
 
