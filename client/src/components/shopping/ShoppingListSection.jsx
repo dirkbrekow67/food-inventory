@@ -660,9 +660,11 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button shopping-list-primary-action"
               onClick={completeSelectedShoppingListItems}
-              disabled
+              disabled={savingShoppingListItem || !hasSelectedShoppingListItems}
             >
-              Ausgewählte erledigen
+              {savingShoppingListItem
+                ? "Erledige Auswahl..."
+                : "Ausgewählte erledigen"}
             </button>
 
             <button
