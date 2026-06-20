@@ -636,18 +636,31 @@ export function ShoppingListSection({
 
       {hasSelectedShoppingListItems && (
         <div className="shopping-list-selection-toolbar">
-          <p className="muted">
-            {selectedShoppingListItemsCount} Einkaufslisteneinträge ausgewählt
-          </p>
+          <div>
+            <h3>Sammelaktionen</h3>
+            <p className="muted">
+              {selectedShoppingListItemsCount} Einkaufslisteneinträge ausgewählt
+            </p>
+          </div>
 
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={clearShoppingListItemSelection}
-            disabled={savingShoppingListItem}
-          >
-            Auswahl aufheben
-          </button>
+          <div className="shopping-list-selection-actions">
+            <button
+              type="button"
+              className="secondary-button shopping-list-primary-action"
+              disabled
+            >
+              Ausgewählte erledigen
+            </button>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={clearShoppingListItemSelection}
+              disabled={savingShoppingListItem}
+            >
+              Auswahl aufheben
+            </button>
+          </div>
         </div>
       )}
 
