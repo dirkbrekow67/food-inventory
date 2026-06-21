@@ -237,6 +237,27 @@ export function ShoppingListSection({
     );
   }
 
+  async function deleteSelectedShoppingListItems() {
+    if (!confirmDeleteSelectedShoppingListItems()) {
+      return;
+    }
+
+    const selectedItemsCount = selectedOpenShoppingListItemIds.length;
+
+    for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
+      await onDeleteShoppingListItem(selectedShoppingListItemId);
+    }
+
+    clearShoppingListItemSelection();
+
+    showShoppingListLocalMessage(
+      selectedItemsCount === 1
+        ? "1 Einkaufslisteneintrag wurde gelöscht."
+        : `${selectedItemsCount} Einkaufslisteneinträge wurden gelöscht.`,
+      5000,
+    );
+  }
+
   async function copyShoppingListToClipboard() {
     try {
       if (navigator.clipboard?.writeText) {
@@ -697,7 +718,7 @@ export function ShoppingListSection({
             <button
               type="button"
               className="secondary-button shopping-list-secondary-danger"
-              onClick={confirmDeleteSelectedShoppingListItems}
+              onClick={deleteSelectedShoppingListItems}
               disabled
             >
               Ausgewählte löschen
