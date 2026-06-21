@@ -8,6 +8,8 @@ export {
   getShoppingListHistoryTransferDecisionCounts,
   getShoppingListHistoryTransferStatus,
   getShoppingListHistoryTransferStatusText,
+  getShoppingListHistoryTransferReviewableDecisions,
+  getShoppingListHistoryTransferReviewableItemIds,
   getShoppingListHistoryTransferTargetText,
   hasShoppingListItemProductReference,
   hasShoppingListHistoryTransferReviewableItems,
