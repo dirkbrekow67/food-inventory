@@ -84,6 +84,33 @@ export function createShoppingListHistoryTransferDecision(item) {
   };
 }
 
+
+export function getShoppingListInventoryReviewCandidateName(item) {
+  return item?.product_name || item?.custom_name || "Unbenannter Einkaufslisteneintrag";
+}
+
+export function createShoppingListInventoryReviewCandidate(item) {
+  const decision = createShoppingListHistoryTransferDecision(item);
+
+  if (!decision.canBeReviewedManually) {
+    return null;
+  }
+
+  return {
+    shoppingListItemId: item?.id ?? null,
+    productId: item?.product_id ?? null,
+    name: getShoppingListInventoryReviewCandidateName(item),
+    quantity: item?.quantity ?? null,
+    unit: item?.unit || null,
+    status: decision.status,
+    statusText: decision.statusText,
+    target: decision.target,
+    targetText: decision.targetText,
+    automaticTransferAllowed: false,
+    canBeReviewedManually: decision.canBeReviewedManually,
+  };
+}
+
 export function createShoppingListHistoryTransferDecisions(items) {
   if (!Array.isArray(items)) {
     return [];
