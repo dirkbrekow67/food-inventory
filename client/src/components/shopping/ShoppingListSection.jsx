@@ -185,7 +185,7 @@ export function ShoppingListSection({
     cancelEditShoppingListItem();
   }
 
-  function showShoppingListCopyMessage(message) {
+  function showShoppingListCopyMessage(message, durationMs = 2500) {
     if (shoppingListCopyMessageTimeoutRef.current) {
       window.clearTimeout(shoppingListCopyMessageTimeoutRef.current);
     }
@@ -195,7 +195,7 @@ export function ShoppingListSection({
     shoppingListCopyMessageTimeoutRef.current = window.setTimeout(() => {
       setShoppingListCopyMessage("");
       shoppingListCopyMessageTimeoutRef.current = null;
-    }, 2500);
+    }, durationMs);
   }
 
   async function completeSelectedShoppingListItems() {
@@ -203,11 +203,20 @@ export function ShoppingListSection({
       return;
     }
 
+    const selectedItemsCount = selectedOpenShoppingListItemIds.length;
+
     for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
       await onCompleteShoppingListItem(selectedShoppingListItemId);
     }
 
     clearShoppingListItemSelection();
+
+    showShoppingListCopyMessage(
+      selectedItemsCount === 1
+        ? "1 Einkaufslisteneintrag wurde erledigt."
+        : `${selectedItemsCount} Einkaufslisteneinträge wurden erledigt.`,
+      5000,
+    );
   }
 
   async function copyShoppingListToClipboard() {
