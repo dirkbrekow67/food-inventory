@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-20 – Block 330
+Stand: 2026-06-20 – Block 334
 
 ## Ziel der Einkaufsliste
 
@@ -350,6 +350,9 @@ Umgesetzt sind:
 - doppelte Löschabfrage beim Sammellöschen vermeiden
 - Auswahlzähler mit korrektem Singular und Plural anzeigen
 - Sammelaktionsleiste mit Hinweis auf sichtbare offene Einträge anzeigen
+- Sammelaktionen während laufender Verarbeitung eindeutig sperren
+- Buttontexte während laufender Sammelaktion passend anzeigen
+- Sammelaktionsmeldungen fachlich einheitlich anzeigen
 - Auswahl bei Filterwechsel zurücksetzen
 
 ## Textkopie / Export
@@ -662,6 +665,22 @@ Abgeschlossen. Die Sammelaktionsleiste wurde sprachlich gekürzt und um den Hinw
 
 Abgeschlossen. Die nächsten Blöcke 331 bis 338 wurden in `docs/PROJEKTSTAND.md` geplant.
 
+### Block 331 – Sammelaktions-Sperre lokal sauberer machen
+
+Abgeschlossen. Während laufender Sammelaktionen wird ein eigener lokaler Sammelaktionsstatus genutzt. Auswahl, Checkboxen und relevante Einzel- und Sammelaktionsbuttons werden während der Verarbeitung gesperrt.
+
+### Block 332 – Buttontexte während Sammelaktionen präzisieren
+
+Abgeschlossen. Die Sammelaktionsbuttons zeigen während der Verarbeitung den passenden Vorgang an, z. B. `Erledige Auswahl...` oder `Lösche Auswahl...`.
+
+### Block 333 – Sammelaktionsmeldungen fachlich vereinheitlichen
+
+Abgeschlossen. Die Erfolgsmeldungen für Sammelaktionen wurden vereinheitlicht. Einzahl und Mehrzahl werden für Erledigen, Löschen und allgemeine Verarbeitung konsistent formuliert.
+
+### Block 334 – Einkaufslisten-Dokumentation nach Glättung aktualisieren
+
+Abgeschlossen. Die Dokumentation der Einkaufsliste wurde nach den Blöcken 331 bis 333 aktualisiert.
+
 ## Planung Sammelaktionen ab Block 311
 
 Die Einkaufsliste soll künftig Sammelaktionen unterstützen. Ziel ist, mehrere Einkaufslisteneinträge gemeinsam zu bearbeiten, ohne jeden Eintrag einzeln anklicken zu müssen.
@@ -765,23 +784,33 @@ Geplanter Ablauf:
 
 ### Verhalten bei laufenden Aktionen
 
-Während eine Sammelaktion läuft, sollen relevante Einzel- und Sammelaktionsbuttons deaktiviert werden.
+Während eine Sammelaktion läuft, werden relevante Einzel- und Sammelaktionsbuttons sowie Auswahl-Checkboxen deaktiviert.
 
-Dadurch sollen doppelte Klicks, parallele Aktionen und unklare Zwischenzustände vermieden werden.
+Dafür wird ein eigener lokaler Sammelaktionsstatus genutzt. Dadurch werden doppelte Klicks, parallele Aktionen und unklare Zwischenzustände vermieden.
+
+Die Buttontexte zeigen während der Verarbeitung an, welche Sammelaktion gerade läuft:
+
+- `Erledige Auswahl...`
+- `Lösche Auswahl...`
+
+Nach Abschluss wird die Auswahl zurückgesetzt und eine einheitliche Erfolgsmeldung angezeigt.
 
 ### Technische Richtung
 
-Die Mehrfachauswahl soll in `ShoppingListSection.jsx` vorbereitet werden.
+Die Mehrfachauswahl ist in `ShoppingListSection.jsx` umgesetzt.
 
-Voraussichtliche technische Bausteine:
+Wichtige technische Bausteine:
 
 - `selectedShoppingListItemIds`
 - `toggleShoppingListItemSelection`
 - `clearShoppingListItemSelection`
 - `hasSelectedShoppingListItems`
 - `selectedShoppingListItemsCount`
+- `shoppingListBulkAction`
+- `isShoppingListActionDisabled`
+- `getSelectedShoppingListItemsSuccessMessage`
 
-Die bestehenden Einzelaktionen sollen zunächst weiterverwendet werden. Dadurch müssen keine neuen API-Endpunkte eingeführt werden.
+Die bestehenden Einzelaktionen werden für Sammelaktionen weiterverwendet. Dadurch mussten keine neuen API-Endpunkte eingeführt werden.
 
 Für spätere Optimierung kann geprüft werden, ob eigene Sammel-API-Routen sinnvoll sind.
 
