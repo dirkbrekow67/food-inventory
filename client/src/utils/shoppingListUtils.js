@@ -4,10 +4,13 @@ export {
   SHOPPING_HISTORY_TRANSFER_STATUS,
   SHOPPING_HISTORY_TRANSFER_TARGET,
   createShoppingListHistoryTransferDecision,
+  createShoppingListHistoryTransferDecisions,
+  getShoppingListHistoryTransferDecisionCounts,
   getShoppingListHistoryTransferStatus,
   getShoppingListHistoryTransferStatusText,
   getShoppingListHistoryTransferTargetText,
   hasShoppingListItemProductReference,
+  hasShoppingListHistoryTransferReviewableItems,
   hasShoppingListItemQuantityInformation,
   isShoppingListItemCompleted,
 } from "./shoppingHistoryDecisionUtils";
