@@ -1,5 +1,17 @@
 // client/src/utils/shoppingListUtils.js
 
+export {
+  SHOPPING_HISTORY_TRANSFER_STATUS,
+  SHOPPING_HISTORY_TRANSFER_TARGET,
+  createShoppingListHistoryTransferDecision,
+  getShoppingListHistoryTransferStatus,
+  getShoppingListHistoryTransferStatusText,
+  getShoppingListHistoryTransferTargetText,
+  hasShoppingListItemProductReference,
+  hasShoppingListItemQuantityInformation,
+  isShoppingListItemCompleted,
+} from "./shoppingHistoryDecisionUtils";
+
 export const EMPTY_SHOPPING_LIST_FORM = Object.freeze({
   customName: "",
   quantity: "",
