@@ -678,6 +678,14 @@ export function ShoppingListSection({
 
             <button
               type="button"
+              className="secondary-button shopping-list-secondary-danger"
+              disabled
+            >
+              Ausgewählte löschen
+            </button>
+
+            <button
+              type="button"
               className="secondary-button"
               onClick={clearShoppingListItemSelection}
               disabled={savingShoppingListItem}
