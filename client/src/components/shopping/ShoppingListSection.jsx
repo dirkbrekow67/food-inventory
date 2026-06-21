@@ -47,6 +47,7 @@ export function ShoppingListSection({
 
   const [selectedShoppingListItemIds, setSelectedShoppingListItemIds] =
     useState([]);
+  const [shoppingListBulkAction, setShoppingListBulkAction] = useState("");
 
   const [editingShoppingListItemId, setEditingShoppingListItemId] =
     useState(null);
@@ -77,6 +78,9 @@ export function ShoppingListSection({
   const hasCompletedShoppingListItems = completedItems.length > 0;
   const hasSelectedShoppingListItems = selectedOpenShoppingListItemIds.length > 0;
   const selectedShoppingListItemsCount = selectedOpenShoppingListItemIds.length;
+  const isShoppingListBulkActionRunning = shoppingListBulkAction !== "";
+  const isShoppingListActionDisabled =
+    savingShoppingListItem || isShoppingListBulkActionRunning;
 
   const shoppingListExportText = createShoppingListExportText(
     openItems,
@@ -205,24 +209,30 @@ export function ShoppingListSection({
   }
 
   async function completeSelectedShoppingListItems() {
-    if (!hasSelectedShoppingListItems || savingShoppingListItem) {
+    if (!hasSelectedShoppingListItems || isShoppingListActionDisabled) {
       return;
     }
 
     const selectedItemsCount = selectedOpenShoppingListItemIds.length;
 
-    for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
-      await onCompleteShoppingListItem(selectedShoppingListItemId);
+    setShoppingListBulkAction("complete");
+
+    try {
+      for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
+        await onCompleteShoppingListItem(selectedShoppingListItemId);
+      }
+
+      clearShoppingListItemSelection();
+
+      showShoppingListLocalMessage(
+        selectedItemsCount === 1
+          ? "1 Einkaufslisteneintrag wurde erledigt."
+          : `${selectedItemsCount} Einkaufslisteneinträge wurden erledigt.`,
+        5000,
+      );
+    } finally {
+      setShoppingListBulkAction("");
     }
-
-    clearShoppingListItemSelection();
-
-    showShoppingListLocalMessage(
-      selectedItemsCount === 1
-        ? "1 Einkaufslisteneintrag wurde erledigt."
-        : `${selectedItemsCount} Einkaufslisteneinträge wurden erledigt.`,
-      5000,
-    );
   }
 
   function createDeleteSelectedShoppingListItemsConfirmationMessage() {
@@ -234,7 +244,7 @@ export function ShoppingListSection({
   }
 
   function confirmDeleteSelectedShoppingListItems() {
-    if (!hasSelectedShoppingListItems || savingShoppingListItem) {
+    if (!hasSelectedShoppingListItems || isShoppingListActionDisabled) {
       return false;
     }
 
@@ -250,20 +260,26 @@ export function ShoppingListSection({
 
     const selectedItemsCount = selectedOpenShoppingListItemIds.length;
 
-    for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
-      await onDeleteShoppingListItem(selectedShoppingListItemId, {
-        skipConfirmation: true,
-      });
+    setShoppingListBulkAction("delete");
+
+    try {
+      for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
+        await onDeleteShoppingListItem(selectedShoppingListItemId, {
+          skipConfirmation: true,
+        });
+      }
+
+      clearShoppingListItemSelection();
+
+      showShoppingListLocalMessage(
+        selectedItemsCount === 1
+          ? "1 Einkaufslisteneintrag wurde gelöscht."
+          : `${selectedItemsCount} Einkaufslisteneinträge wurden gelöscht.`,
+        5000,
+      );
+    } finally {
+      setShoppingListBulkAction("");
     }
-
-    clearShoppingListItemSelection();
-
-    showShoppingListLocalMessage(
-      selectedItemsCount === 1
-        ? "1 Einkaufslisteneintrag wurde gelöscht."
-        : `${selectedItemsCount} Einkaufslisteneinträge wurden gelöscht.`,
-      5000,
-    );
   }
 
   async function copyShoppingListToClipboard() {
@@ -414,7 +430,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button"
               onClick={() => saveEditShoppingListItem(item)}
-              disabled={savingShoppingListItem}
+              disabled={isShoppingListActionDisabled}
             >
               Speichern
             </button>
@@ -423,7 +439,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button"
               onClick={cancelEditShoppingListItem}
-              disabled={savingShoppingListItem}
+              disabled={isShoppingListActionDisabled}
             >
               Abbrechen
             </button>
@@ -456,7 +472,7 @@ export function ShoppingListSection({
               type="checkbox"
               checked={isSelectedItem}
               onChange={() => toggleShoppingListItemSelection(item.id)}
-              disabled={savingShoppingListItem}
+              disabled={isShoppingListActionDisabled}
             />
             Auswählen
           </label>
@@ -494,7 +510,7 @@ export function ShoppingListSection({
             type="button"
             className="secondary-button"
             onClick={() => startEditShoppingListItem(item)}
-            disabled={savingShoppingListItem}
+            disabled={isShoppingListActionDisabled}
           >
             Bearbeiten
           </button>
@@ -504,7 +520,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button shopping-list-primary-action"
               onClick={() => onCompleteShoppingListItem(item.id)}
-              disabled={savingShoppingListItem}
+              disabled={isShoppingListActionDisabled}
             >
               Erledigt
             </button>
@@ -513,7 +529,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button"
               onClick={() => onReopenShoppingListItem(item.id)}
-              disabled={savingShoppingListItem}
+              disabled={isShoppingListActionDisabled}
             >
               Wieder öffnen
             </button>
@@ -523,7 +539,7 @@ export function ShoppingListSection({
             type="button"
             className="secondary-button shopping-list-secondary-danger"
             onClick={() => onDeleteShoppingListItem(item.id)}
-            disabled={savingShoppingListItem}
+            disabled={isShoppingListActionDisabled}
           >
             Löschen
           </button>
@@ -646,7 +662,7 @@ export function ShoppingListSection({
           <button
             type="submit"
             disabled={
-              savingShoppingListItem || !shoppingListForm.customName.trim()
+              isShoppingListActionDisabled || !shoppingListForm.customName.trim()
             }
           >
             {savingShoppingListItem ? "Speichern..." : "Zur Einkaufsliste"}
@@ -717,7 +733,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button shopping-list-primary-action"
               onClick={completeSelectedShoppingListItems}
-              disabled={savingShoppingListItem || !hasSelectedShoppingListItems}
+              disabled={isShoppingListActionDisabled || !hasSelectedShoppingListItems}
             >
               {savingShoppingListItem
                 ? "Erledige Auswahl..."
@@ -728,7 +744,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button shopping-list-secondary-danger"
               onClick={deleteSelectedShoppingListItems}
-              disabled={savingShoppingListItem || !hasSelectedShoppingListItems}
+              disabled={isShoppingListActionDisabled || !hasSelectedShoppingListItems}
             >
               Auswahl löschen
             </button>
@@ -737,7 +753,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button"
               onClick={clearShoppingListItemSelection}
-              disabled={savingShoppingListItem}
+              disabled={isShoppingListActionDisabled}
             >
               Auswahl aufheben
             </button>
