@@ -40,8 +40,8 @@ export function ShoppingListSection({
   );
 
   const [foreignPurchaseFilter, setForeignPurchaseFilter] = useState("all");
-  const [shoppingListCopyMessage, setShoppingListCopyMessage] = useState("");
-  const shoppingListCopyMessageTimeoutRef = useRef(null);
+  const [shoppingListLocalMessage, setShoppingListLocalMessage] = useState("");
+  const shoppingListLocalMessageTimeoutRef = useRef(null);
   const [showShoppingListExportText, setShowShoppingListExportText] =
     useState(false);
 
@@ -84,7 +84,7 @@ export function ShoppingListSection({
   );
 
   const visibleShoppingListMessage =
-    shoppingListCopyMessage || shoppingListMessage;
+    shoppingListLocalMessage || shoppingListMessage;
 
   const allOpenItemsCount = shoppingListItems.filter(
     (item) => item.status === "open",
@@ -185,16 +185,16 @@ export function ShoppingListSection({
     cancelEditShoppingListItem();
   }
 
-  function showShoppingListCopyMessage(message, durationMs = 2500) {
-    if (shoppingListCopyMessageTimeoutRef.current) {
-      window.clearTimeout(shoppingListCopyMessageTimeoutRef.current);
+  function showShoppingListLocalMessage(message, durationMs = 2500) {
+    if (shoppingListLocalMessageTimeoutRef.current) {
+      window.clearTimeout(shoppingListLocalMessageTimeoutRef.current);
     }
 
-    setShoppingListCopyMessage(message);
+    setShoppingListLocalMessage(message);
 
-    shoppingListCopyMessageTimeoutRef.current = window.setTimeout(() => {
-      setShoppingListCopyMessage("");
-      shoppingListCopyMessageTimeoutRef.current = null;
+    shoppingListLocalMessageTimeoutRef.current = window.setTimeout(() => {
+      setShoppingListLocalMessage("");
+      shoppingListLocalMessageTimeoutRef.current = null;
     }, durationMs);
   }
 
@@ -211,7 +211,7 @@ export function ShoppingListSection({
 
     clearShoppingListItemSelection();
 
-    showShoppingListCopyMessage(
+    showShoppingListLocalMessage(
       selectedItemsCount === 1
         ? "1 Einkaufslisteneintrag wurde erledigt."
         : `${selectedItemsCount} Einkaufslisteneinträge wurden erledigt.`,
@@ -244,10 +244,10 @@ export function ShoppingListSection({
         }
       }
 
-      showShoppingListCopyMessage("Einkaufsliste wurde kopiert.");
+      showShoppingListLocalMessage("Einkaufsliste wurde kopiert.");
     } catch (error) {
       console.error(error);
-      showShoppingListCopyMessage(
+      showShoppingListLocalMessage(
         "Einkaufsliste konnte nicht automatisch kopiert werden.",
       );
     }
