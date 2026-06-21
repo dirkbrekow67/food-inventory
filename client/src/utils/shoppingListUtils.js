@@ -6,6 +6,7 @@ export {
   createShoppingListHistoryTransferDecision,
   createShoppingListHistoryTransferDecisions,
   getShoppingListHistoryTransferDecisionCounts,
+  getShoppingListHistoryTransferDecisionSummaryText,
   getShoppingListHistoryTransferStatus,
   getShoppingListHistoryTransferStatusText,
   getShoppingListHistoryTransferReviewableDecisions,

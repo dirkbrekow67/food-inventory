@@ -115,6 +115,24 @@ export function getShoppingListHistoryTransferDecisionCounts(items) {
   );
 }
 
+export function getShoppingListHistoryTransferDecisionSummaryText(items) {
+  const counts = getShoppingListHistoryTransferDecisionCounts(items);
+
+  if (counts.total === 0) {
+    return "Keine erledigten Einkaufslisteneinträge zur Prüfung vorhanden.";
+  }
+
+  if (counts.reviewable === 0) {
+    return "Keine Einkaufslisteneinträge für eine manuelle Bestandsprüfung vorbereitet.";
+  }
+
+  if (counts.reviewable === 1) {
+    return "1 Einkaufslisteneintrag ist für eine manuelle Bestandsprüfung vorbereitet.";
+  }
+
+  return `${counts.reviewable} Einkaufslisteneinträge sind für eine manuelle Bestandsprüfung vorbereitet.`;
+}
+
 export function getShoppingListHistoryTransferReviewableDecisions(items) {
   return createShoppingListHistoryTransferDecisions(items).filter(
     (decision) => decision.canBeReviewedManually,
