@@ -245,7 +245,9 @@ export function ShoppingListSection({
     const selectedItemsCount = selectedOpenShoppingListItemIds.length;
 
     for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
-      await onDeleteShoppingListItem(selectedShoppingListItemId);
+      await onDeleteShoppingListItem(selectedShoppingListItemId, {
+        skipConfirmation: true,
+      });
     }
 
     clearShoppingListItemSelection();
@@ -719,7 +721,7 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button shopping-list-secondary-danger"
               onClick={deleteSelectedShoppingListItems}
-              disabled
+              disabled={savingShoppingListItem || !hasSelectedShoppingListItems}
             >
               Ausgewählte löschen
             </button>

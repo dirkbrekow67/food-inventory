@@ -1398,12 +1398,13 @@ function App() {
     }
   }
 
-  async function handleDeleteShoppingListItem(itemId) {
-    const confirmed = window.confirm(
-      "Diesen Einkaufslisteneintrag wirklich löschen?",
-    );
+  async function handleDeleteShoppingListItem(itemId, options = {}) {
+    const shouldSkipDeleteConfirmation = options.skipConfirmation === true;
 
-    if (!confirmed) {
+    if (
+      !shouldSkipDeleteConfirmation &&
+      !window.confirm("Diesen Einkaufslisteneintrag wirklich löschen?")
+    ) {
       return;
     }
 
