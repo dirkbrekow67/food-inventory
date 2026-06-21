@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-20 – nach Block 320
+Stand: 2026-06-20 – nach Block 328
 
 ## Ziel des Projekts
 
@@ -184,6 +184,14 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
+b593b39 Document shopping list bulk delete
+33622f9 Fix selected shopping list item count text
+cdb9fc7 Avoid duplicate confirmation for shopping list bulk delete
+b08d004 Prepare deleting selected shopping list items
+a2f4a91 Prepare shopping list bulk delete confirmation
+dfd2eb6 Prepare shopping list bulk delete button
+5ea8354 Plan shopping list bulk delete
+8d0943c Update documentation after shopping list bulk actions
 259b696 Rename shopping list local message state
 30260f8 Extend shopping list bulk action message duration
 e7830cc Complete selected shopping list items
@@ -192,14 +200,6 @@ d724a18 Prepare shopping list bulk action toolbar
 70fe5ca Reset shopping list selection on filter changes
 e97e0f6 Add shopping list item selection checkboxes
 ca8a60f Prepare shopping list item selection state
-1694684 Plan shopping list bulk actions
-477966b Update project status after shopping list stabilization
-773ecbc Document shopping list stabilization
-71609b9 Prepare shopping list toolbar action states
-463ac8c Disable shopping list actions while saving
-c289df9 Stabilize shopping list copy message timeout
-84896a4 Unify shopping list message display
-d02c48e Stabilize shopping list message timeout
 ```
 
 Hinweis: Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
@@ -472,6 +472,13 @@ Aktueller Stand:
 - Kategorie-Vorschläge aus den gemeinsamen Produktkategorien nutzen
 - Einheit-Vorschläge aus den gemeinsamen Einheiten nutzen
 - Priorität-Optionen zentral über `shoppingListPriorityOptions` nutzen
+- offene Einträge einzeln auswählen
+- ausgewählte offene Einträge gemeinsam erledigen
+- ausgewählte offene Einträge gemeinsam löschen
+- Sammellöschen mit Sicherheitsabfrage absichern
+- doppelte Löschabfrage beim Sammellöschen vermeiden
+- Auswahlzähler mit korrektem Singular und Plural anzeigen
+- Auswahl bei Filterwechsel zurücksetzen
 - die mobile Darstellung der Einkaufsliste wurde verbessert
 
 Technischer Stand:
@@ -484,6 +491,8 @@ Technischer Stand:
 - Kategorie-Vorschläge werden aus `productCategoryOptions` abgeleitet
 - Einheit-Vorschläge nutzen `quantityUnitOptions`
 - Priorität-Optionen nutzen `shoppingListPriorityOptions`
+- Sammelaktionen nutzen zunächst die vorhandenen Einzelaktionen
+- Sammellöschen überspringt beim Sammellauf die zusätzliche Einzelabfrage
 
 Aktuell wichtig für Wiederaufnahme:
 
@@ -492,16 +501,22 @@ Aktuell wichtig für Wiederaufnahme:
 - Exporttext kann kopiert oder manuell aus einem Textfeld übernommen werden
 - Kategorien und Einheiten bleiben freie Textfelder, haben aber Vorschläge
 - Prioritäten bleiben Auswahlfelder und werden zentral gepflegt
-- alte Roadmap-Punkte zur Einkaufsliste sind teilweise überholt, weil Auslandseinkauf, Exporttext, Vorschläge und Dokumentation bereits umgesetzt wurden
+- offene Einträge können einzeln ausgewählt werden
+- ausgewählte offene Einträge können gemeinsam erledigt werden
+- ausgewählte offene Einträge können gemeinsam gelöscht werden
+- beim Sammellöschen erscheint nur die Sammelabfrage
+- Einzellöschen behält weiterhin die eigene Sicherheitsabfrage
 
 Offene nächste Schritte:
 
-- Mehrfachauswahl oder Sammelaktionen prüfen
+- Sammellöschen weiter beobachten und bei Bedarf optisch stärker absichern
+- Sammelaktionslogik bei Bedarf später in eigene API-Route auslagern
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
-- spätere Druck- oder Exportansicht prüfen
-- Datenbankstruktur separat dokumentieren
-- lokale Browserdaten und `localStorage` dokumentieren
-- Einkaufsliste weiter stabilisieren und Fehleranzeigen prüfen
+- Produktbild-Aufräumlogik planen
+- vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
+- Raspberry-Pi-Start erneut praktisch testen und dokumentieren
+- API-Dokumentation später um Request-Bodies, Response-Formate und typische Fehlerfälle ergänzen
+- bei späteren API-Erweiterungen direkte Fach-API-Imports beibehalten
 
 ## Aktueller Sicherungsstand
 
@@ -1314,13 +1329,65 @@ Ergebnis:
 - Die Meldungslogik ist fachlich besser benannt.
 - Die Einkaufsliste ist für weitere Sammelaktionen, insbesondere `Ausgewählte löschen`, vorbereitet.
 
-## Aktuelle nächste Schritte nach Block 320
+### Block 321 bis 328 – Sammellöschen umgesetzt und dokumentiert
+
+Nach der Sammelaktion `Ausgewählte erledigen` wurde das Sammellöschen für offene Einkaufslisteneinträge fachlich geplant, vorbereitet, produktiv aktiviert und dokumentiert.
+
+Ziel war:
+
+- Sammellöschen fachlich sicher abgrenzen
+- Sicherheitsabfrage mit Anzahl der betroffenen Einträge nutzen
+- Abbruch ohne Änderung ermöglichen
+- doppelte Löschabfragen vermeiden
+- Einzellöschen weiterhin separat absichern
+- Auswahlzähler sprachlich korrekt anzeigen
+- Dokumentation der Einkaufsliste aktualisieren
+
+Produktiv geändert wurde:
+
+- `docs/EINKAUFSLISTE.md` um die Regeln für Sammellöschen ergänzt.
+- Schaltfläche `Ausgewählte löschen` in der Sammelaktionsleiste vorbereitet.
+- Sicherheitsabfrage für `Ausgewählte löschen` ergänzt.
+- technische Löschfunktion für ausgewählte offene Einträge ergänzt.
+- Sammellöschen nutzt `skipConfirmation: true`, damit nach der Sammelabfrage keine zusätzliche Einzelabfrage erscheint.
+- Einzellöschen behält weiterhin seine eigene Sicherheitsabfrage.
+- Auswahlzähler zeigt Singular und Plural korrekt an.
+- Dokumentation der Einkaufsliste auf Block 327 aktualisiert.
+
+Prüfung:
+
+- Nach jedem produktiven JS-Block wurde `npm run check:client` ausgeführt.
+- Vite-Build war erfolgreich.
+- ESLint war ohne Fehler.
+- Sammellöschen wurde im Browser praktisch getestet.
+- Push nach GitHub war erfolgreich.
+- Working Tree war nach jedem Block clean.
+
+Commits:
+
+- `5ea8354` – Plan shopping list bulk delete
+- `dfd2eb6` – Prepare shopping list bulk delete button
+- `a2f4a91` – Prepare shopping list bulk delete confirmation
+- `b08d004` – Prepare deleting selected shopping list items
+- `cdb9fc7` – Avoid duplicate confirmation for shopping list bulk delete
+- `33622f9` – Fix selected shopping list item count text
+- `b593b39` – Document shopping list bulk delete
+
+Ergebnis:
+
+- Ausgewählte offene Einkaufslisteneinträge können gemeinsam gelöscht werden.
+- Vor dem Sammellöschen erscheint eine Sicherheitsabfrage mit Anzahl der betroffenen Einträge.
+- Bei Abbruch wird kein Eintrag gelöscht.
+- Beim Sammellöschen erscheint keine doppelte Löschabfrage mehr.
+- Die Einkaufsliste ist damit für die aktuell geplanten Sammelaktionen funktionsfähig.
+
+## Aktuelle nächste Schritte nach Block 328
 
 Sinnvolle nächste Arbeiten:
 
-- Sammelaktion `Ausgewählte löschen` fachlich und technisch absichern
-- Sicherheitsabfrage für Sammellöschen formulieren
-- Sammellöschen erst nach ausdrücklicher Bestätigung produktiv aktivieren
+- Sammellöschen im praktischen Alltag weiter beobachten
+- Sammelaktionsleiste bei Bedarf optisch stärker strukturieren
+- Sammelaktionslogik bei Bedarf später in eigene API-Route auslagern
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Produktbild-Aufräumlogik planen
 - vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
@@ -1348,6 +1415,7 @@ Block 290
 Block 300
 Block 310
 Block 320
+Block 330
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.
