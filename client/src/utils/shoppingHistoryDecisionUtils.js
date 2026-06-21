@@ -115,8 +115,18 @@ export function getShoppingListHistoryTransferDecisionCounts(items) {
   );
 }
 
-export function hasShoppingListHistoryTransferReviewableItems(items) {
-  return createShoppingListHistoryTransferDecisions(items).some(
+export function getShoppingListHistoryTransferReviewableDecisions(items) {
+  return createShoppingListHistoryTransferDecisions(items).filter(
     (decision) => decision.canBeReviewedManually,
   );
+}
+
+export function getShoppingListHistoryTransferReviewableItemIds(items) {
+  return getShoppingListHistoryTransferReviewableDecisions(items)
+    .map((decision) => decision.itemId)
+    .filter((itemId) => itemId !== null);
+}
+
+export function hasShoppingListHistoryTransferReviewableItems(items) {
+  return getShoppingListHistoryTransferReviewableDecisions(items).length > 0;
 }
