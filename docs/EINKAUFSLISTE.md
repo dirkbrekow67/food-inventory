@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-20 – Block 335
+Stand: 2026-06-21 – Block 346
 
 ## Ziel der Einkaufsliste
 
@@ -685,6 +685,50 @@ Abgeschlossen. Die Dokumentation der Einkaufsliste wurde nach den Blöcken 331 b
 
 Abgeschlossen. Die Einkaufsliste wird zunächst als stabiler Funktionsstand abgeschlossen. Eine produktive Anbindung erledigter Einkäufe an Historie, Verbrauch oder Bestand wird noch nicht umgesetzt, sondern in den nächsten Blöcken fachlich und technisch geprüft.
 
+### Block 336 – Sammelaktionen mit Auswahl-Snapshot absichern
+
+Abgeschlossen. Sammelaktionen arbeiten jetzt mit einem festen Auswahl-Snapshot. Dadurch werden genau die Einträge verarbeitet, die beim Klick ausgewählt waren.
+
+### Block 337 – technische Vorprüfung Historie und Verbrauch
+
+Abgeschlossen. Ein Prüfskript wurde ergänzt, das relevante Tabellen und Code-Fundstellen für Einkaufsliste, Bestand und Historie auswertet, ohne Datenbankdaten zu verändern.
+
+### Block 338 – Entscheidungslogik für spätere Einkaufslisten-Übernahme vorbereiten
+
+Abgeschlossen. Eine Utility-Datei bereitet die fachliche Entscheidung vor, dass erledigte Einkaufslisteneinträge nicht automatisch übernommen werden, sondern später manuell geprüft werden müssen.
+
+### Block 339 – Entscheidungstexte für spätere manuelle Einkaufslisten-Übernahme ergänzen
+
+Abgeschlossen. Die Entscheidungslogik wurde um deutsche Status- und Zieltexte ergänzt.
+
+### Block 340 – Einkaufslisten-Übernahmeentscheidung zentral exportfähig machen
+
+Abgeschlossen. Die Basisfunktionen der Übernahmeentscheidung werden über `shoppingListUtils.js` re-exportiert.
+
+### Block 341 – Entscheidungslogik für mehrere Einkaufslisteneinträge vorbereiten
+
+Abgeschlossen. Die Entscheidungslogik kann mehrere Einkaufslisteneinträge auswerten und Zählwerte für spätere Übersichten erzeugen.
+
+### Block 342 – neue Entscheidungs-Summary-Funktionen zentral re-exportieren
+
+Abgeschlossen. Die Summary- und Count-Funktionen werden über `shoppingListUtils.js` re-exportiert.
+
+### Block 343 – prüfbare Einkaufslisten-Übernahmen als Liste vorbereiten
+
+Abgeschlossen. Prüffähige Entscheidungen und deren Einkaufslisten-IDs können jetzt direkt als Liste abgeleitet werden.
+
+### Block 344 – prüfbare Übernahme-Helper zentral re-exportieren
+
+Abgeschlossen. Die Reviewable-Helper werden über `shoppingListUtils.js` re-exportiert.
+
+### Block 345 – zusammenfassenden Entscheidungstext vorbereiten
+
+Abgeschlossen. Aus den Decision-Counts kann ein kurzer deutscher Hinweistext für eine spätere UI erzeugt werden.
+
+### Block 346 – gemeinsamer Dokumentationsblock nach 10 Produktivblöcken
+
+Abgeschlossen. Die Markdown-Dokumentation wurde gesammelt nach den Produktivblöcken 336 bis 345 aktualisiert.
+
 ## Planung Sammelaktionen ab Block 311
 
 Die Einkaufsliste soll künftig Sammelaktionen unterstützen. Ziel ist, mehrere Einkaufslisteneinträge gemeinsam zu bearbeiten, ohne jeden Eintrag einzeln anklicken zu müssen.
@@ -847,6 +891,100 @@ Richtung für die nächsten Blöcke:
 - bestehende Historien- und Bestandslogik prüfen
 - erst danach entscheiden, ob eine produktive Verknüpfung sinnvoll ist
 
+## Entwicklung nach Block 336 bis 345
+
+Nach der Glättung der Sammelaktionen wurde die Einkaufsliste technisch auf eine spätere, bewusst manuelle Prüfung erledigter Einkaufslisteneinträge vorbereitet.
+
+Wichtig: Es wurde keine automatische Übernahme erledigter Einkaufslisteneinträge in Historie, Verbrauch oder Bestand umgesetzt.
+
+### Auswahl-Snapshot für Sammelaktionen
+
+Die Sammelaktionen verwenden jetzt beim Start einen festen Snapshot der ausgewählten offenen Einträge.
+
+Dadurch verarbeitet eine Sammelaktion genau die Einträge, die beim Klick ausgewählt waren. Änderungen an Filter, sichtbarer Liste oder State während der laufenden Verarbeitung verändern diese Aktionsliste nicht mehr nachträglich.
+
+### Technische Vorprüfung Historie und Bestand
+
+Für die technische Vorprüfung wurde das Skript `scripts/inspect-shopping-history-prerequisites.py` ergänzt.
+
+Das Skript prüft:
+
+- relevante Datenbanktabellen
+- Spalten von Einkaufsliste, Bestand, Historie und Produkten
+- Datensatzanzahlen
+- relevante Code-Fundstellen in Server-, Client-API-, Shopping- und Utils-Dateien
+
+Die Prüfung verändert keine Datenbankdaten.
+
+Vorläufige technische Bewertung:
+
+- `shopping_list_items` enthält Produktbezug, Menge, Einheit, Status und `completed_at`.
+- `inventory_items` enthält die eigentlichen Bestands- und Mengenfelder.
+- `inventory_history` ist auf entfernte bzw. verbrauchte Bestandseinträge ausgelegt.
+- `inventory_history` enthält keine vollständigen Felder für einen Einkauf oder Bestandseingang.
+- Eine direkte Übernahme erledigter Einkaufslisteneinträge in die bestehende Historie wäre fachlich unscharf.
+
+### Entscheidungslogik für spätere manuelle Prüfung
+
+Für spätere UI- oder Fachlogik wurde die Datei `client/src/utils/shoppingHistoryDecisionUtils.js` ergänzt.
+
+Die Datei bewertet erledigte Einkaufslisteneinträge für eine spätere manuelle Bestandsprüfung.
+
+Mögliche Statuswerte:
+
+- `not_applicable`
+- `needs_product`
+- `needs_quantity_review`
+- `ready_for_manual_review`
+
+Die Entscheidung enthält unter anderem:
+
+- `status`
+- `statusText`
+- `automaticTransferAllowed`
+- `target`
+- `targetText`
+- `canBeReviewedManually`
+
+Dabei gilt verbindlich: `automaticTransferAllowed: false`.
+
+Es wird also keine automatische Übernahme erzeugt.
+
+### Manuelle Bestandsprüfung als spätere Zielrichtung
+
+Die vorbereitete Zielrichtung lautet `manual_inventory_review`.
+
+Das bedeutet:
+
+- erledigte Einkaufslisteneinträge können später fachlich geprüft werden
+- eine Produktzuordnung kann erforderlich sein
+- Mengenangaben können manuell geprüft werden
+- ein Bestandseintrag darf später nur bewusst erzeugt werden
+- Historie oder Verbrauch werden nicht automatisch aus einem erledigten Einkauf abgeleitet
+
+### Summary- und Reviewable-Funktionen
+
+Die Utility-Datei kann inzwischen:
+
+- einzelne Einkaufslisteneinträge bewerten
+- mehrere Einträge gesammelt bewerten
+- Zählwerte erzeugen
+- prüffähige Entscheidungen filtern
+- prüffähige Einkaufslisten-IDs ableiten
+- einen kurzen deutschen Zusammenfassungstext erzeugen
+
+Wichtige Funktionen:
+
+- `createShoppingListHistoryTransferDecision`
+- `createShoppingListHistoryTransferDecisions`
+- `getShoppingListHistoryTransferDecisionCounts`
+- `getShoppingListHistoryTransferDecisionSummaryText`
+- `getShoppingListHistoryTransferReviewableDecisions`
+- `getShoppingListHistoryTransferReviewableItemIds`
+- `hasShoppingListHistoryTransferReviewableItems`
+
+Die Funktionen werden zentral über `shoppingListUtils.js` re-exportiert.
+
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
@@ -875,6 +1013,7 @@ Noch nicht umgesetzt sind:
 - automatische Bedarfsermittlung
 - automatische Vorschlagsliste aus Verbrauch oder Historie
 - direkte Messenger-Teilen-Funktion
+- automatische Übernahme erledigter Einkaufslisteneinträge in Historie, Verbrauch oder Bestand
 
 ## Stabilisierung der Einkaufsliste nach Block 301 bis 308
 

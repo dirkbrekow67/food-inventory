@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-20 – nach Block 330
+Stand: 2026-06-21 – Block 346
 
 ## Ziel des Projekts
 
@@ -2044,3 +2044,40 @@ Geplante Inhalte:
 - erledigte Blöcke 235 bis 244
 - nächste Roadmap
 - letzter sauberer Commit
+
+## Aktualisierung nach Block 336 bis 346 – Einkaufsliste / spätere Historien- und Bestandsprüfung
+
+Die Einkaufsliste wurde in den Blöcken 336 bis 345 produktiv weiter vorbereitet. Anschließend wurde die Dokumentation gesammelt in Block 346 aktualisiert.
+
+### Abgeschlossene Produktivblöcke
+
+- Block 336: Sammelaktionen verwenden einen festen Auswahl-Snapshot.
+- Block 337: technisches Prüfskript für Einkaufsliste, Bestand und Historie ergänzt.
+- Block 338: Entscheidungslogik für spätere manuelle Einkaufslisten-Übernahme vorbereitet.
+- Block 339: deutsche Status- und Zieltexte ergänzt.
+- Block 340: Basisfunktionen zentral über `shoppingListUtils.js` re-exportiert.
+- Block 341: Summary- und Count-Funktionen für mehrere Einträge ergänzt.
+- Block 342: Summary-Funktionen zentral re-exportiert.
+- Block 343: Reviewable-Helper für prüffähige Entscheidungen ergänzt.
+- Block 344: Reviewable-Helper zentral re-exportiert.
+- Block 345: zusammenfassender deutscher Entscheidungstext ergänzt.
+- Block 346: gemeinsamer Dokumentationsblock für die betroffenen Markdown-Dateien.
+
+### Technische Dateien
+
+Geändert bzw. ergänzt wurden im Produktivpaket:
+
+- `client/src/components/shopping/ShoppingListSection.jsx`
+- `client/src/utils/shoppingHistoryDecisionUtils.js`
+- `client/src/utils/shoppingListUtils.js`
+- `scripts/inspect-shopping-history-prerequisites.py`
+
+### Fachliche Festlegung
+
+Erledigte Einkaufslisteneinträge werden nicht automatisch in Historie, Verbrauch oder Bestand übernommen.
+
+Die vorbereitete Logik dient nur einer späteren manuellen Bestandsprüfung. Ein Einkauf ist fachlich nicht automatisch ein Bestandseingang, ein Verbrauch oder ein Historieneintrag.
+
+### Aktueller Stand
+
+Die Einkaufsliste ist als Einkaufs- und Planungsfunktion stabil. Sammelaktionen sind abgesichert. Eine spätere Übernahme erledigter Einkaufslisteneinträge kann auf Basis der neuen Entscheidungslogik vorbereitet werden, bleibt aber bewusst manuell und nicht automatisch.
