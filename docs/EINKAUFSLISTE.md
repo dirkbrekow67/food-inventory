@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-20 – Block 334
+Stand: 2026-06-20 – Block 335
 
 ## Ziel der Einkaufsliste
 
@@ -681,6 +681,10 @@ Abgeschlossen. Die Erfolgsmeldungen für Sammelaktionen wurden vereinheitlicht. 
 
 Abgeschlossen. Die Dokumentation der Einkaufsliste wurde nach den Blöcken 331 bis 333 aktualisiert.
 
+### Block 335 – Entscheidung: Einkaufsliste abschließen oder Historie anbinden
+
+Abgeschlossen. Die Einkaufsliste wird zunächst als stabiler Funktionsstand abgeschlossen. Eine produktive Anbindung erledigter Einkäufe an Historie, Verbrauch oder Bestand wird noch nicht umgesetzt, sondern in den nächsten Blöcken fachlich und technisch geprüft.
+
 ## Planung Sammelaktionen ab Block 311
 
 Die Einkaufsliste soll künftig Sammelaktionen unterstützen. Ziel ist, mehrere Einkaufslisteneinträge gemeinsam zu bearbeiten, ohne jeden Eintrag einzeln anklicken zu müssen.
@@ -815,6 +819,34 @@ Die bestehenden Einzelaktionen werden für Sammelaktionen weiterverwendet. Dadur
 Für spätere Optimierung kann geprüft werden, ob eigene Sammel-API-Routen sinnvoll sind.
 
 
+## Entscheidung nach Block 335
+
+Die Einkaufsliste wird nach den umgesetzten Sammelaktionen zunächst als stabiler Funktionsstand betrachtet.
+
+Eine direkte produktive Anbindung erledigter Einkäufe an Historie, Verbrauch oder Bestand wird vorerst nicht umgesetzt.
+
+Begründung:
+
+- Die Einkaufsliste ist aktuell für den praktischen Einkauf nutzbar.
+- Offene Einträge können angelegt, bearbeitet, gefiltert, exportiert, erledigt und gelöscht werden.
+- Sammelaktionen für offene Einträge sind umgesetzt und abgesichert.
+- Eine Anbindung an Historie oder Verbrauch betrifft mehrere Datenbereiche und sollte nicht nebenbei eingebaut werden.
+- Vor einer produktiven Umsetzung muss geklärt werden, ob erledigte Einkäufe als Einkaufsereignis, Verbrauchsereignis, Bestandsergänzung oder reine Notiz behandelt werden sollen.
+
+Festlegung:
+
+- Die Einkaufsliste bleibt vorerst eigenständig.
+- Erledigte Einkaufslisteneinträge werden noch nicht automatisch in die Historie übernommen.
+- Es wird noch kein Bestand automatisch aus erledigten Einkaufslisteneinträgen erzeugt.
+- Es wird noch kein Verbrauch automatisch aus erledigten Einkaufslisteneinträgen abgeleitet.
+- Die nächsten Blöcke prüfen zunächst Konzept, Datenfluss und technische Voraussetzungen.
+
+Richtung für die nächsten Blöcke:
+
+- fachlich klären, welche Bedeutung ein erledigter Einkauf haben soll
+- bestehende Historien- und Bestandslogik prüfen
+- erst danach entscheiden, ob eine produktive Verknüpfung sinnvoll ist
+
 ## Spätere Erweiterungen
 
 Mögliche spätere Funktionen:
@@ -824,6 +856,7 @@ Mögliche spätere Funktionen:
 - Offline-Kopie im Browser
 - automatische Vorschläge aus Produkten mit Bewertung `wieder_kaufen`
 - Einkauf aus Historie oder Verbrauch ableiten
+- erledigte Einkäufe später fachlich geprüft mit Historie, Verbrauch oder Bestand verknüpfen
 - Gruppierung nach Geschäft
 - gemeinsame Produkt- und Einkaufskategorien verwalten
 - gemeinsame Einheiten verwalten und erweitern
