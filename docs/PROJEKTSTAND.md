@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-20 – nach Block 310
+Stand: 2026-06-20 – nach Block 320
 
 ## Ziel des Projekts
 
@@ -184,22 +184,22 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
+259b696 Rename shopping list local message state
+30260f8 Extend shopping list bulk action message duration
+e7830cc Complete selected shopping list items
+27f7d77 Prepare completing selected shopping list items
+d724a18 Prepare shopping list bulk action toolbar
+70fe5ca Reset shopping list selection on filter changes
+e97e0f6 Add shopping list item selection checkboxes
+ca8a60f Prepare shopping list item selection state
+1694684 Plan shopping list bulk actions
+477966b Update project status after shopping list stabilization
 773ecbc Document shopping list stabilization
 71609b9 Prepare shopping list toolbar action states
 463ac8c Disable shopping list actions while saving
 c289df9 Stabilize shopping list copy message timeout
 84896a4 Unify shopping list message display
 d02c48e Stabilize shopping list message timeout
-bf121f5 Add shopping list action success messages
-d61c423 Use API error messages for shopping list actions
-6d2594d Centralize shopping list payload validation
-ca8ef89 Update project status after shopping list refactor
-fbcdcb4 Add shopping list form change handlers
-84b0074 Use object state for shopping list form
-18e73f6 Centralize shopping list form defaults
-ea346f5 Extract shopping list form reset helper
-6a9797a Extract shopping list payload helpers
-f53ea0b Extract shopping list utility helpers
 ```
 
 Hinweis: Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
@@ -1255,14 +1255,72 @@ Ergebnis:
 - Die Grundlage für spätere Sammelaktionen ist sauberer.
 - Die Dokumentation der Einkaufsliste ist nachgezogen.
 
-## Aktuelle nächste Schritte nach Block 310
+### Block 311 bis 320 – Sammelaktionen für Einkaufsliste vorbereitet und umgesetzt
+
+Nach der Stabilisierung der Einkaufsliste wurde die Mehrfachauswahl für offene Einkaufslisteneinträge geplant, vorbereitet und produktiv nutzbar gemacht.
+
+Ziel war:
+
+- Sammelaktionen fachlich sauber abgrenzen
+- Mehrfachauswahl zunächst nur für offene Einträge ermöglichen
+- erledigte Einträge von der Auswahl ausnehmen
+- Auswahl bei Filterwechseln und Listenänderungen sicher behandeln
+- Sammelaktion `Ausgewählte erledigen` risikoarm umsetzen
+- Meldungen für Einzel-, Kopier- und Sammelaktionen sauberer strukturieren
+- Dokumentation nachziehen
+
+Produktiv geändert wurde:
+
+- `docs/EINKAUFSLISTE.md` um die Planung der Sammelaktionen ergänzt.
+- `selectedShoppingListItemIds` als Auswahl-State in `ShoppingListSection.jsx` ergänzt.
+- Checkboxen für offene Einkaufslisteneinträge eingebaut.
+- Erledigte Einträge bleiben ohne Checkbox.
+- Auswahlzähler und Sammelaktionsleiste ergänzt.
+- Filterwechsel zwischen `Alle`, `Ausland` und `Normal` setzt die Auswahl zurück.
+- Auswahlstatus berücksichtigt nur aktuell sichtbare offene Einträge.
+- Sammelaktion `Ausgewählte erledigen` vorbereitet und produktiv aktiviert.
+- Ausgewählte offene Einträge werden nacheinander über die vorhandene Einzelaktion erledigt.
+- Nach der Sammelaktion wird die Auswahl geleert.
+- Zusammenfassende Erfolgsmeldung für Sammelaktionen ergänzt.
+- Sammelaktionsmeldungen bleiben länger sichtbar als reine Kopiermeldungen.
+- Lokale Meldungslogik wurde neutral von `shoppingListCopyMessage` zu `shoppingListLocalMessage` umbenannt.
+
+Prüfung:
+
+- Nach jedem produktiven JS-Block wurde `npm run check:client` ausgeführt.
+- Vite-Build war erfolgreich.
+- ESLint war ohne Fehler.
+- Die Sammelaktion wurde im Browser praktisch getestet.
+- Push nach GitHub war erfolgreich.
+- Working Tree war nach jedem Block clean.
+
+Commits:
+
+- `1694684` – Plan shopping list bulk actions
+- `ca8a60f` – Prepare shopping list item selection state
+- `e97e0f6` – Add shopping list item selection checkboxes
+- `70fe5ca` – Reset shopping list selection on filter changes
+- `d724a18` – Prepare shopping list bulk action toolbar
+- `27f7d77` – Prepare completing selected shopping list items
+- `e7830cc` – Complete selected shopping list items
+- `30260f8` – Extend shopping list bulk action message duration
+- `259b696` – Rename shopping list local message state
+
+Ergebnis:
+
+- Offene Einkaufslisteneinträge können ausgewählt werden.
+- Mehrere ausgewählte offene Einträge können gemeinsam erledigt werden.
+- Die Auswahl wird bei Filterwechseln und nach Sammelaktionen sauber zurückgesetzt.
+- Die Meldungslogik ist fachlich besser benannt.
+- Die Einkaufsliste ist für weitere Sammelaktionen, insbesondere `Ausgewählte löschen`, vorbereitet.
+
+## Aktuelle nächste Schritte nach Block 320
 
 Sinnvolle nächste Arbeiten:
 
-- Sammelaktionen für die Einkaufsliste fachlich planen
-- Mehrfachauswahl für Einkaufslisteneinträge prüfen
-- Sammelaktion „mehrere Einträge erledigen“ vorbereiten
-- Sammelaktion „mehrere Einträge löschen“ nur mit Sicherheitsabfrage prüfen
+- Sammelaktion `Ausgewählte löschen` fachlich und technisch absichern
+- Sicherheitsabfrage für Sammellöschen formulieren
+- Sammellöschen erst nach ausdrücklicher Bestätigung produktiv aktivieren
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Produktbild-Aufräumlogik planen
 - vollständige Sicherung aus Datenbank und Upload-Ordner prüfen
@@ -1289,6 +1347,7 @@ Block 280
 Block 290
 Block 300
 Block 310
+Block 320
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.

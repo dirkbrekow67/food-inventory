@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-20 – Block 311
+Stand: 2026-06-20 – Block 319
 
 ## Ziel der Einkaufsliste
 
@@ -343,6 +343,9 @@ Umgesetzt sind:
 - Einkaufsliste nach `Alle`, `Ausland` und `Normal` filtern
 - aktuell gefilterte offene Einkaufsliste als Text kopieren
 - Exporttext anzeigen und manuell kopieren
+- offene Einträge einzeln auswählen
+- ausgewählte offene Einträge gemeinsam erledigen
+- Auswahl bei Filterwechsel zurücksetzen
 
 ## Textkopie / Export
 
@@ -586,6 +589,42 @@ Abgeschlossen. Die Priorität-Optionen der Einkaufsliste wurden aus der Komponen
 
 Abgeschlossen. Die Dokumentation wurde um die zentrale Pflege der Priorität-Optionen und die Sortierlogik ergänzt.
 
+### Block 311 – Sammelaktionen für Einkaufsliste fachlich planen
+
+Abgeschlossen. Die fachlichen Grundregeln für spätere Sammelaktionen wurden dokumentiert. Zunächst sollen offene Einkaufslisteneinträge auswählbar werden. Als erste risikoarme Sammelaktion ist `Ausgewählte erledigen` vorgesehen. Das Löschen mehrerer Einträge soll nur mit zusätzlicher Sicherheitsabfrage umgesetzt werden.
+
+### Block 312 – Auswahlzustand für Einkaufslisteneinträge vorbereiten
+
+Abgeschlossen. Der State `selectedShoppingListItemIds` wurde vorbereitet. Zusätzlich wurden abgeleitete Werte für ausgewählte offene Einträge und eine erste Auswahlleiste mit `Auswahl aufheben` ergänzt.
+
+### Block 313 – Checkboxen für offene Einkaufslisteneinträge einbauen
+
+Abgeschlossen. Offene Einkaufslisteneinträge können über Checkboxen ausgewählt werden. Erledigte Einträge bleiben ohne Auswahlmöglichkeit.
+
+### Block 314 – Auswahl bei Filterwechsel und Listenänderungen bereinigen
+
+Abgeschlossen. Beim Wechsel zwischen `Alle`, `Ausland` und `Normal` wird die Auswahl zurückgesetzt. Zusätzlich werden nur aktuell sichtbare offene Einträge für Auswahlstatus und Auswahlzähler berücksichtigt.
+
+### Block 315 – Sammelaktionsleiste vorbereiten
+
+Abgeschlossen. Die Auswahlleiste wurde zur Sammelaktionsleiste erweitert. Sie zeigt die Anzahl ausgewählter Einträge und bereitet die Aktion `Ausgewählte erledigen` vor.
+
+### Block 316 – Sammelaktion „Ausgewählte erledigen“ vorbereiten
+
+Abgeschlossen. Die technische Funktion `completeSelectedShoppingListItems` wurde ergänzt und mit dem Button verbunden. Der Button blieb in diesem Block noch deaktiviert.
+
+### Block 317 – Sammelaktion „Ausgewählte erledigen“ produktiv aktivieren
+
+Abgeschlossen. Ausgewählte offene Einkaufslisteneinträge können gemeinsam erledigt werden. Die Einträge werden nacheinander über die vorhandene Einzelaktion verarbeitet und die Auswahl wird danach zurückgesetzt.
+
+### Block 318 – Sammelaktionsmeldung verbessern
+
+Abgeschlossen. Nach der Sammelaktion wird eine zusammenfassende Erfolgsmeldung angezeigt. Sammelaktionsmeldungen bleiben länger sichtbar als reine Kopiermeldungen.
+
+### Block 319 – lokale Einkaufslistenmeldung neutral benennen
+
+Abgeschlossen. Die lokale Meldungslogik wurde von `shoppingListCopyMessage` auf `shoppingListLocalMessage` umbenannt, weil dieselbe Meldungszeile inzwischen für Kopiermeldungen und Sammelaktionsmeldungen genutzt wird.
+
 ## Planung Sammelaktionen ab Block 311
 
 Die Einkaufsliste soll künftig Sammelaktionen unterstützen. Ziel ist, mehrere Einkaufslisteneinträge gemeinsam zu bearbeiten, ohne jeden Eintrag einzeln anklicken zu müssen.
@@ -619,18 +658,18 @@ Die Auswahl soll rein im Frontend-State liegen und nicht in der Datenbank gespei
 
 ### Erste Sammelaktion: mehrere Einträge erledigen
 
-Als erste produktive Sammelaktion ist `Ausgewählte erledigen` vorgesehen.
+Die erste produktive Sammelaktion `Ausgewählte erledigen` ist umgesetzt.
 
 Diese Aktion ist fachlich risikoarm, weil erledigte Einträge wieder geöffnet werden können.
 
-Geplanter Ablauf:
+Aktueller Ablauf:
 
 1. Nutzer wählt mehrere offene Einträge aus.
 2. Die Sammelaktionsleiste zeigt die Anzahl der ausgewählten Einträge.
 3. Nutzer klickt `Ausgewählte erledigen`.
 4. Die ausgewählten Einträge werden nacheinander über die vorhandene Einzelaktion erledigt.
 5. Nach Abschluss wird die Auswahl zurückgesetzt.
-6. Eine Erfolgsmeldung informiert über die erledigten Einträge.
+6. Eine zusammenfassende Erfolgsmeldung informiert über die erledigten Einträge.
 
 ### Zweite Sammelaktion: mehrere Einträge löschen
 
@@ -671,9 +710,6 @@ Die bestehenden Einzelaktionen sollen zunächst weiterverwendet werden. Dadurch 
 
 Für spätere Optimierung kann geprüft werden, ob eigene Sammel-API-Routen sinnvoll sind.
 
-### Block 311 – Sammelaktionen für Einkaufsliste fachlich planen
-
-Abgeschlossen. Die fachlichen Grundregeln für spätere Sammelaktionen wurden dokumentiert. Zunächst sollen offene Einkaufslisteneinträge auswählbar werden. Als erste risikoarme Sammelaktion ist `Ausgewählte erledigen` vorgesehen. Das Löschen mehrerer Einträge soll nur mit zusätzlicher Sicherheitsabfrage umgesetzt werden.
 
 ## Spätere Erweiterungen
 
@@ -689,8 +725,8 @@ Mögliche spätere Funktionen:
 - gemeinsame Einheiten verwalten und erweitern
 - Prioritäten bei Bedarf erweitern oder umbenennen
 - Mengen aus Beständen oder Verbrauch ableiten
-- Sammelaktionen für mehrere Einkaufslisteneinträge umsetzen
-- Mehrfachauswahl für offene Einkaufslisteneinträge ergänzen
+- Sammelaktion `Ausgewählte löschen` mit Sicherheitsabfrage prüfen
+- Sammelaktionslogik bei Bedarf später in eigene API-Route auslagern
 
 ## Nicht Bestandteil des aktuellen Stands
 
