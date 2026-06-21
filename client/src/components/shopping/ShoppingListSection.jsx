@@ -141,6 +141,12 @@ export function ShoppingListSection({
     return selectedOpenShoppingListItemIds.includes(itemId);
   }
 
+  function getSelectedShoppingListItemsCountText() {
+    return selectedShoppingListItemsCount === 1
+      ? "1 Einkaufslisteneintrag ausgewählt"
+      : `${selectedShoppingListItemsCount} Einkaufslisteneinträge ausgewählt`;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -700,9 +706,7 @@ export function ShoppingListSection({
         <div className="shopping-list-selection-toolbar">
           <div>
             <h3>Sammelaktionen</h3>
-            <p className="muted">
-              {selectedShoppingListItemsCount} Einkaufslisteneinträge ausgewählt
-            </p>
+            <p className="muted">{getSelectedShoppingListItemsCountText()}</p>
           </div>
 
           <div className="shopping-list-selection-actions">
