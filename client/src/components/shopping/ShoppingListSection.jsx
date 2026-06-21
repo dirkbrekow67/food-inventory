@@ -707,6 +707,9 @@ export function ShoppingListSection({
           <div>
             <h3>Sammelaktionen</h3>
             <p className="muted">{getSelectedShoppingListItemsCountText()}</p>
+            <p className="muted shopping-list-selection-hint">
+              Gilt nur für aktuell sichtbare offene Einträge.
+            </p>
           </div>
 
           <div className="shopping-list-selection-actions">
@@ -718,7 +721,7 @@ export function ShoppingListSection({
             >
               {savingShoppingListItem
                 ? "Erledige Auswahl..."
-                : "Ausgewählte erledigen"}
+                : "Auswahl erledigen"}
             </button>
 
             <button
@@ -727,7 +730,7 @@ export function ShoppingListSection({
               onClick={deleteSelectedShoppingListItems}
               disabled={savingShoppingListItem || !hasSelectedShoppingListItems}
             >
-              Ausgewählte löschen
+              Auswahl löschen
             </button>
 
             <button

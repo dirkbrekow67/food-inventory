@@ -2582,3 +2582,14 @@ h4 {
 
 }
 
+.shopping-list-selection-hint {
+  margin-top: 0.25rem;
+}
+
+.shopping-list-selection-toolbar .shopping-list-selection-actions {
+  align-items: stretch;
+}
+
+.shopping-list-selection-toolbar .shopping-list-secondary-danger {
+  font-weight: 700;
+}
