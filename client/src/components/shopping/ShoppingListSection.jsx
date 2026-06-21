@@ -219,6 +219,24 @@ export function ShoppingListSection({
     );
   }
 
+  function createDeleteSelectedShoppingListItemsConfirmationMessage() {
+    const selectedItemsCount = selectedOpenShoppingListItemIds.length;
+
+    return selectedItemsCount === 1
+      ? "1 ausgewählten Einkaufslisteneintrag wirklich löschen?"
+      : `${selectedItemsCount} ausgewählte Einkaufslisteneinträge wirklich löschen?`;
+  }
+
+  function confirmDeleteSelectedShoppingListItems() {
+    if (!hasSelectedShoppingListItems || savingShoppingListItem) {
+      return false;
+    }
+
+    return window.confirm(
+      createDeleteSelectedShoppingListItemsConfirmationMessage(),
+    );
+  }
+
   async function copyShoppingListToClipboard() {
     try {
       if (navigator.clipboard?.writeText) {
@@ -679,6 +697,7 @@ export function ShoppingListSection({
             <button
               type="button"
               className="secondary-button shopping-list-secondary-danger"
+              onClick={confirmDeleteSelectedShoppingListItems}
               disabled
             >
               Ausgewählte löschen
