@@ -163,6 +163,24 @@ export function ShoppingListSection({
       : "Auswahl löschen";
   }
 
+  function getSelectedShoppingListItemsSuccessMessage(action, selectedItemsCount) {
+    if (action === "complete") {
+      return selectedItemsCount === 1
+        ? "1 ausgewählter Einkaufslisteneintrag wurde erledigt."
+        : `${selectedItemsCount} ausgewählte Einkaufslisteneinträge wurden erledigt.`;
+    }
+
+    if (action === "delete") {
+      return selectedItemsCount === 1
+        ? "1 ausgewählter Einkaufslisteneintrag wurde gelöscht."
+        : `${selectedItemsCount} ausgewählte Einkaufslisteneinträge wurden gelöscht.`;
+    }
+
+    return selectedItemsCount === 1
+      ? "1 ausgewählter Einkaufslisteneintrag wurde verarbeitet."
+      : `${selectedItemsCount} ausgewählte Einkaufslisteneinträge wurden verarbeitet.`;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -237,9 +255,7 @@ export function ShoppingListSection({
       clearShoppingListItemSelection();
 
       showShoppingListLocalMessage(
-        selectedItemsCount === 1
-          ? "1 Einkaufslisteneintrag wurde erledigt."
-          : `${selectedItemsCount} Einkaufslisteneinträge wurden erledigt.`,
+        getSelectedShoppingListItemsSuccessMessage("complete", selectedItemsCount),
         5000,
       );
     } finally {
@@ -284,9 +300,7 @@ export function ShoppingListSection({
       clearShoppingListItemSelection();
 
       showShoppingListLocalMessage(
-        selectedItemsCount === 1
-          ? "1 Einkaufslisteneintrag wurde gelöscht."
-          : `${selectedItemsCount} Einkaufslisteneinträge wurden gelöscht.`,
+        getSelectedShoppingListItemsSuccessMessage("delete", selectedItemsCount),
         5000,
       );
     } finally {
