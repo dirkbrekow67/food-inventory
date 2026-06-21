@@ -151,6 +151,18 @@ export function ShoppingListSection({
       : `${selectedShoppingListItemsCount} Einkaufslisteneinträge ausgewählt`;
   }
 
+  function getCompleteSelectedShoppingListItemsButtonText() {
+    return shoppingListBulkAction === "complete"
+      ? "Erledige Auswahl..."
+      : "Auswahl erledigen";
+  }
+
+  function getDeleteSelectedShoppingListItemsButtonText() {
+    return shoppingListBulkAction === "delete"
+      ? "Lösche Auswahl..."
+      : "Auswahl löschen";
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -733,20 +745,22 @@ export function ShoppingListSection({
               type="button"
               className="secondary-button shopping-list-primary-action"
               onClick={completeSelectedShoppingListItems}
-              disabled={isShoppingListActionDisabled || !hasSelectedShoppingListItems}
+              disabled={
+                isShoppingListActionDisabled || !hasSelectedShoppingListItems
+              }
             >
-              {savingShoppingListItem
-                ? "Erledige Auswahl..."
-                : "Auswahl erledigen"}
+              {getCompleteSelectedShoppingListItemsButtonText()}
             </button>
 
             <button
               type="button"
               className="secondary-button shopping-list-secondary-danger"
               onClick={deleteSelectedShoppingListItems}
-              disabled={isShoppingListActionDisabled || !hasSelectedShoppingListItems}
+              disabled={
+                isShoppingListActionDisabled || !hasSelectedShoppingListItems
+              }
             >
-              Auswahl löschen
+              {getDeleteSelectedShoppingListItemsButtonText()}
             </button>
 
             <button
