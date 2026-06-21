@@ -2,7 +2,7 @@
 
 # Projektstand – Food Inventory
 
-Stand: 2026-06-20 – nach Block 328
+Stand: 2026-06-20 – nach Block 330
 
 ## Ziel des Projekts
 
@@ -184,6 +184,8 @@ working tree clean
 Relevante letzte Commits:
 
 ```text
+9dd5d85 Refine shopping list bulk action toolbar
+7a1d313 Update project status after shopping list bulk delete
 b593b39 Document shopping list bulk delete
 33622f9 Fix selected shopping list item count text
 cdb9fc7 Avoid duplicate confirmation for shopping list bulk delete
@@ -198,8 +200,6 @@ e7830cc Complete selected shopping list items
 27f7d77 Prepare completing selected shopping list items
 d724a18 Prepare shopping list bulk action toolbar
 70fe5ca Reset shopping list selection on filter changes
-e97e0f6 Add shopping list item selection checkboxes
-ca8a60f Prepare shopping list item selection state
 ```
 
 Hinweis: Der Commit `1171ecb – Ignore local VS Code settings` war ein kleiner Nebenblock, um lokale VS-Code-Einstellungen wie `.vscode/settings.json` nicht im Repository zu verfolgen.
@@ -509,7 +509,7 @@ Aktuell wichtig für Wiederaufnahme:
 
 Offene nächste Schritte:
 
-- Sammellöschen weiter beobachten und bei Bedarf optisch stärker absichern
+- Sammelaktionen im praktischen Alltag weiter beobachten
 - Sammelaktionslogik bei Bedarf später in eigene API-Route auslagern
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Produktbild-Aufräumlogik planen
@@ -1381,12 +1381,43 @@ Ergebnis:
 - Beim Sammellöschen erscheint keine doppelte Löschabfrage mehr.
 - Die Einkaufsliste ist damit für die aktuell geplanten Sammelaktionen funktionsfähig.
 
-## Aktuelle nächste Schritte nach Block 328
+### Block 329 bis 330 – Sammelaktionsleiste geglättet und nächste Blöcke geplant
+
+Nach der Umsetzung des Sammellöschens wurde die Sammelaktionsleiste der Einkaufsliste sprachlich und optisch geglättet.
+
+Produktiv geändert wurde:
+
+- zusätzlicher Hinweis in der Sammelaktionsleiste ergänzt
+- Hinweistext: `Gilt nur für aktuell sichtbare offene Einträge.`
+- Buttontext `Ausgewählte erledigen` auf `Auswahl erledigen` gekürzt
+- Buttontext `Ausgewählte löschen` auf `Auswahl löschen` gekürzt
+- Gefahraktion in der Sammelaktionsleiste leicht stärker hervorgehoben
+- CSS-Regeln für den Hinweis und die Sammelaktionsleiste ergänzt
+
+Dokumentarisch festgelegt wurde:
+
+- Block 329 war ein sinnvoller Glättungsblock nach dem Sammellöschen.
+- Block 330 legt die nächsten Arbeitsblöcke 331 bis 338 fest.
+- Größere neue Fachrichtungen starten erst nach dieser Planung.
+
+Prüfung:
+
+- `npm run check:client` war erfolgreich.
+- Vite-Build war erfolgreich.
+- ESLint war ohne Fehler.
+- Push nach GitHub war erfolgreich.
+- Working Tree war nach Block 329 clean.
+
+Commit:
+
+- `9dd5d85` – Refine shopping list bulk action toolbar
+
+## Aktuelle nächste Schritte nach Block 330
 
 Sinnvolle nächste Arbeiten:
 
-- Sammellöschen im praktischen Alltag weiter beobachten
-- Sammelaktionsleiste bei Bedarf optisch stärker strukturieren
+- Block 331 bis 338 gemäß der neuen 10er-Planung bearbeiten
+- Sammelaktionen im praktischen Alltag weiter beobachten
 - Sammelaktionslogik bei Bedarf später in eigene API-Route auslagern
 - erledigte Einkäufe optional in Historie oder Verbrauch übernehmen
 - Produktbild-Aufräumlogik planen
@@ -1394,6 +1425,42 @@ Sinnvolle nächste Arbeiten:
 - Raspberry-Pi-Start erneut praktisch testen und dokumentieren
 - API-Dokumentation später um Request-Bodies, Response-Formate und typische Fehlerfälle ergänzen
 - bei späteren API-Erweiterungen direkte Fach-API-Imports beibehalten
+
+## Planung Block 331 bis 338
+
+Die nächsten Blöcke sollen nach dem abgeschlossenen Sammelaktionspaket wieder geordnet weitergeführt werden.
+
+### Block 331 – Sammelaktions-Sperre lokal sauberer machen
+
+Während Sammelaktionen laufen, soll ein eigener lokaler Sammelaktionsstatus genutzt werden. Ziel ist, Auswahl, Checkboxen und Sammelaktionsbuttons während laufender Sammelaktionen eindeutig zu sperren.
+
+### Block 332 – Buttontexte während Sammelaktionen präzisieren
+
+Die Buttons sollen während laufender Sammelaktionen eindeutiger anzeigen, was gerade passiert, z. B. `Erledige Auswahl...` oder `Lösche Auswahl...`.
+
+### Block 333 – Sammelaktionsmeldungen fachlich vereinheitlichen
+
+Erfolgsmeldungen für Sammelaktionen sollen geprüft und bei Bedarf vereinheitlicht werden. Einzahl, Mehrzahl, Erledigen und Löschen sollen sprachlich konsistent bleiben.
+
+### Block 334 – Einkaufslisten-Dokumentation nach Glättung aktualisieren
+
+`docs/EINKAUFSLISTE.md` soll nach den UI- und Bedienlogikblöcken aktualisiert werden.
+
+### Block 335 – Entscheidung: Einkaufsliste abschließen oder Historie anbinden
+
+Fachlich entscheiden, ob die Einkaufsliste zunächst abgeschlossen wird oder ob erledigte Einkäufe als nächstes mit Historie, Verbrauch oder Bestand verknüpft werden sollen.
+
+### Block 336 – Konzept erledigte Einkäufe zu Historie oder Verbrauch
+
+Falls die Historienrichtung gewählt wird, soll der Datenfluss geplant werden. Noch keine große Umsetzung, sondern fachliche und technische Abgrenzung.
+
+### Block 337 – technische Vorprüfung Historie und Verbrauch
+
+Bestehende Tabellen, API-Funktionen und Historienlogik prüfen. Ziel ist festzustellen, was für eine spätere Übernahme erledigter Einkäufe bereits vorhanden ist und was fehlt.
+
+### Block 338 – Projektstand nach Block 331 bis 337 aktualisieren
+
+`docs/PROJEKTSTAND.md` aktualisieren und die bis dahin erledigten Blöcke dokumentieren.
 
 ## Arbeitsregel für Projektstand
 
@@ -1416,6 +1483,8 @@ Block 300
 Block 310
 Block 320
 Block 330
+Block 338
+Block 340
 ```
 
 Ziel: Bei Chatverlust reicht die aktuelle Projekt-ZIP plus diese Datei, um den Stand wieder aufzunehmen.

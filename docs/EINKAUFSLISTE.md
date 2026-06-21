@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-20 – Block 327
+Stand: 2026-06-20 – Block 330
 
 ## Ziel der Einkaufsliste
 
@@ -349,6 +349,7 @@ Umgesetzt sind:
 - Sammellöschen mit Sicherheitsabfrage absichern
 - doppelte Löschabfrage beim Sammellöschen vermeiden
 - Auswahlzähler mit korrektem Singular und Plural anzeigen
+- Sammelaktionsleiste mit Hinweis auf sichtbare offene Einträge anzeigen
 - Auswahl bei Filterwechsel zurücksetzen
 
 ## Textkopie / Export
@@ -653,6 +654,14 @@ Abgeschlossen. Beim Sammellöschen wird nur noch die Sammelabfrage angezeigt. Da
 
 Abgeschlossen. Der Auswahlzähler zeigt Singular und Plural korrekt an, z. B. `1 Einkaufslisteneintrag ausgewählt` und `2 Einkaufslisteneinträge ausgewählt`.
 
+### Block 329 – Sammelaktionsleiste optisch und sprachlich glätten
+
+Abgeschlossen. Die Sammelaktionsleiste wurde sprachlich gekürzt und um den Hinweis `Gilt nur für aktuell sichtbare offene Einträge.` ergänzt. Die Gefahraktion `Auswahl löschen` wurde leicht stärker hervorgehoben.
+
+### Block 330 – nächste Arbeitsblöcke planen
+
+Abgeschlossen. Die nächsten Blöcke 331 bis 338 wurden in `docs/PROJEKTSTAND.md` geplant.
+
 ## Planung Sammelaktionen ab Block 311
 
 Die Einkaufsliste soll künftig Sammelaktionen unterstützen. Ziel ist, mehrere Einkaufslisteneinträge gemeinsam zu bearbeiten, ohne jeden Eintrag einzeln anklicken zu müssen.
@@ -673,16 +682,17 @@ Wenn der Filter gewechselt wird, soll die aktuelle Auswahl zurückgesetzt werden
 
 ### Auswahl von Einträgen
 
-Offene Einkaufslisteneinträge sollen eine Auswahlmöglichkeit erhalten.
+Offene Einkaufslisteneinträge haben eine Auswahlmöglichkeit.
 
-Geplant ist:
+Umgesetzt ist:
 
 - Checkbox pro offenem Eintrag
 - Anzeige der Anzahl ausgewählter Einträge
+- Hinweis, dass Sammelaktionen nur für aktuell sichtbare offene Einträge gelten
 - Möglichkeit, die Auswahl wieder aufzuheben
 - Deaktivierung von Sammelaktionen, wenn keine Einträge ausgewählt sind
 
-Die Auswahl soll rein im Frontend-State liegen und nicht in der Datenbank gespeichert werden.
+Die Auswahl liegt rein im Frontend-State und wird nicht in der Datenbank gespeichert.
 
 ### Erste Sammelaktion: mehrere Einträge erledigen
 
