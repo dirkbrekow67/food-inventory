@@ -243,19 +243,25 @@ export function ShoppingListSection({
       return;
     }
 
-    const selectedItemsCount = selectedOpenShoppingListItemIds.length;
+    const selectedShoppingListItemIdsToComplete = [
+      ...selectedOpenShoppingListItemIds,
+    ];
+    const selectedItemsCount = selectedShoppingListItemIdsToComplete.length;
 
     setShoppingListBulkAction("complete");
 
     try {
-      for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
+      for (const selectedShoppingListItemId of selectedShoppingListItemIdsToComplete) {
         await onCompleteShoppingListItem(selectedShoppingListItemId);
       }
 
       clearShoppingListItemSelection();
 
       showShoppingListLocalMessage(
-        getSelectedShoppingListItemsSuccessMessage("complete", selectedItemsCount),
+        getSelectedShoppingListItemsSuccessMessage(
+          "complete",
+          selectedItemsCount,
+        ),
         5000,
       );
     } finally {
@@ -286,12 +292,15 @@ export function ShoppingListSection({
       return;
     }
 
-    const selectedItemsCount = selectedOpenShoppingListItemIds.length;
+    const selectedShoppingListItemIdsToDelete = [
+      ...selectedOpenShoppingListItemIds,
+    ];
+    const selectedItemsCount = selectedShoppingListItemIdsToDelete.length;
 
     setShoppingListBulkAction("delete");
 
     try {
-      for (const selectedShoppingListItemId of selectedOpenShoppingListItemIds) {
+      for (const selectedShoppingListItemId of selectedShoppingListItemIdsToDelete) {
         await onDeleteShoppingListItem(selectedShoppingListItemId, {
           skipConfirmation: true,
         });
