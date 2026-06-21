@@ -2,7 +2,7 @@
 
 # Einkaufsliste – Planung und aktueller Stand
 
-Stand: 2026-06-20 – Block 321
+Stand: 2026-06-20 – Block 327
 
 ## Ziel der Einkaufsliste
 
@@ -345,6 +345,10 @@ Umgesetzt sind:
 - Exporttext anzeigen und manuell kopieren
 - offene Einträge einzeln auswählen
 - ausgewählte offene Einträge gemeinsam erledigen
+- ausgewählte offene Einträge gemeinsam löschen
+- Sammellöschen mit Sicherheitsabfrage absichern
+- doppelte Löschabfrage beim Sammellöschen vermeiden
+- Auswahlzähler mit korrektem Singular und Plural anzeigen
 - Auswahl bei Filterwechsel zurücksetzen
 
 ## Textkopie / Export
@@ -629,6 +633,26 @@ Abgeschlossen. Die lokale Meldungslogik wurde von `shoppingListCopyMessage` auf 
 
 Abgeschlossen. Die fachlichen Regeln für `Ausgewählte löschen` wurden ergänzt. Sammellöschen soll zunächst nur für offene ausgewählte Einträge gelten, immer eine Sicherheitsabfrage mit Anzahl der betroffenen Einträge nutzen und bei Abbruch keine Änderung ausführen.
 
+### Block 322 – Sammellöschen-Schaltfläche vorbereiten
+
+Abgeschlossen. Die Schaltfläche `Ausgewählte löschen` wurde in der Sammelaktionsleiste ergänzt und zunächst deaktiviert vorbereitet.
+
+### Block 323 – Sicherheitsabfrage für Sammellöschen vorbereiten
+
+Abgeschlossen. Die Bestätigungsabfrage für `Ausgewählte löschen` wurde vorbereitet. Die Abfrage nennt die Anzahl der ausgewählten offenen Einträge.
+
+### Block 324 – Sammellöschen technisch vorbereiten
+
+Abgeschlossen. Die technische Funktion zum Löschen ausgewählter offener Einkaufslisteneinträge wurde ergänzt und mit der Sammelaktionsschaltfläche verbunden.
+
+### Block 325 – doppelte Löschabfrage beim Sammellöschen vermeiden
+
+Abgeschlossen. Beim Sammellöschen wird nur noch die Sammelabfrage angezeigt. Das Einzellöschen behält weiterhin seine eigene Sicherheitsabfrage.
+
+### Block 326 – Auswahlzähler sprachlich korrigieren
+
+Abgeschlossen. Der Auswahlzähler zeigt Singular und Plural korrekt an, z. B. `1 Einkaufslisteneintrag ausgewählt` und `2 Einkaufslisteneinträge ausgewählt`.
+
 ## Planung Sammelaktionen ab Block 311
 
 Die Einkaufsliste soll künftig Sammelaktionen unterstützen. Ziel ist, mehrere Einkaufslisteneinträge gemeinsam zu bearbeiten, ohne jeden Eintrag einzeln anklicken zu müssen.
@@ -662,7 +686,7 @@ Die Auswahl soll rein im Frontend-State liegen und nicht in der Datenbank gespei
 
 ### Erste Sammelaktion: mehrere Einträge erledigen
 
-Die erste produktive Sammelaktion `Ausgewählte erledigen` ist umgesetzt.
+Die produktive Sammelaktion `Ausgewählte erledigen` ist umgesetzt.
 
 Diese Aktion ist fachlich risikoarm, weil erledigte Einträge wieder geöffnet werden können.
 
@@ -677,9 +701,11 @@ Aktueller Ablauf:
 
 ### Zweite Sammelaktion: mehrere Einträge löschen
 
+Die produktive Sammelaktion `Ausgewählte löschen` ist umgesetzt.
+
 Das Löschen mehrerer Einträge ist risikoreicher, weil gelöschte Einträge nicht ohne Weiteres wiederhergestellt werden können.
 
-Daher wird die Sammelaktion `Ausgewählte löschen` nur mit zusätzlicher Absicherung umgesetzt.
+Daher wird die Sammelaktion `Ausgewählte löschen` nur mit zusätzlicher Absicherung genutzt.
 
 Fachliche Regeln:
 
@@ -688,10 +714,13 @@ Fachliche Regeln:
 - Die Aktion bezieht sich nur auf die aktuell ausgewählten offenen Einträge.
 - Nicht sichtbare oder durch Filterwechsel ausgeblendete Einträge dürfen nicht unbeabsichtigt mitgelöscht werden.
 - Beim Wechsel zwischen `Alle`, `Ausland` und `Normal` wird die Auswahl zurückgesetzt.
-- Die Schaltfläche `Ausgewählte löschen` wird nur nutzbar, wenn mindestens ein offener Eintrag ausgewählt ist.
+- Die Schaltfläche `Ausgewählte löschen` ist nur nutzbar, wenn mindestens ein offener Eintrag ausgewählt ist.
 - Vor dem Löschen ist immer eine Sicherheitsabfrage erforderlich.
 - Die Sicherheitsabfrage nennt die Anzahl der betroffenen Einträge.
-- Wird die Sicherheitsabfrage abgebrochen, darf kein Eintrag gelöscht werden.
+- Wird die Sicherheitsabfrage abgebrochen, wird kein Eintrag gelöscht.
+- Beim Sammellöschen erscheint nur die Sammelabfrage.
+- Die zusätzliche Einzelabfrage wird beim Sammellöschen übersprungen.
+- Beim Einzellöschen bleibt die eigene Sicherheitsabfrage erhalten.
 - Nach erfolgreichem Löschen wird die Auswahl zurückgesetzt.
 - Nach erfolgreichem Löschen wird eine zusammenfassende Meldung angezeigt.
 
@@ -719,9 +748,10 @@ Geplanter Ablauf:
 3. Nutzer klickt `Ausgewählte löschen`.
 4. Eine Sicherheitsabfrage mit Anzahl der betroffenen Einträge erscheint.
 5. Bei Abbruch bleibt die Einkaufsliste unverändert.
-6. Bei Bestätigung werden die ausgewählten offenen Einträge gelöscht.
-7. Nach Abschluss wird die Auswahl zurückgesetzt.
-8. Eine zusammenfassende Erfolgsmeldung informiert über die gelöschten Einträge.
+6. Bei Bestätigung werden die ausgewählten offenen Einträge nacheinander gelöscht.
+7. Die Einzel-Löschabfrage wird dabei übersprungen, damit keine doppelte Abfrage erscheint.
+8. Nach Abschluss wird die Auswahl zurückgesetzt.
+9. Eine zusammenfassende Erfolgsmeldung informiert über die gelöschten Einträge.
 
 ### Verhalten bei laufenden Aktionen
 
@@ -760,7 +790,7 @@ Mögliche spätere Funktionen:
 - gemeinsame Einheiten verwalten und erweitern
 - Prioritäten bei Bedarf erweitern oder umbenennen
 - Mengen aus Beständen oder Verbrauch ableiten
-- Sammelaktion `Ausgewählte löschen` mit Sicherheitsabfrage fachlich geplant
+- Sammelaktion `Ausgewählte löschen` weiter beobachten und bei Bedarf optisch stärker absichern
 - Sammelaktionslogik bei Bedarf später in eigene API-Route auslagern
 
 ## Nicht Bestandteil des aktuellen Stands
