@@ -773,6 +773,13 @@ export function ShoppingListSection({
         <p className="shopping-list-message">{visibleShoppingListMessage}</p>
       )}
 
+
+      {shoppingListInventoryReviewState.hasCandidateItems && (
+        <p className="muted shopping-list-inventory-review-hint">
+          {shoppingListInventoryReviewState.summaryText}
+        </p>
+      )}
+
       {hasSelectedShoppingListItems && (
         <div className="shopping-list-selection-toolbar">
           <div>
