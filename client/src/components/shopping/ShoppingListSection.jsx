@@ -21,6 +21,7 @@ import {
   groupShoppingListItemsByCategory,
   sortShoppingListItems,
   createShoppingListInventoryReviewCandidates,
+  createShoppingListInventoryReviewDrafts,
   getShoppingListHistoryTransferDecisionSummaryText,
   getShoppingListHistoryTransferDecisionCounts,
   hasShoppingListInventoryReviewCandidates,
@@ -84,11 +85,14 @@ export function ShoppingListSection({
   const selectedShoppingListItemsCount = selectedOpenShoppingListItemIds.length;
   const shoppingListInventoryReviewCandidates =
     createShoppingListInventoryReviewCandidates(shoppingListItems);
+  const shoppingListInventoryReviewDrafts =
+    createShoppingListInventoryReviewDrafts(shoppingListInventoryReviewCandidates);
   const shoppingListInventoryReviewDecisionCounts =
     getShoppingListHistoryTransferDecisionCounts(shoppingListItems);
   const shoppingListInventoryReviewState = Object.freeze({
     hasCandidateItems: hasShoppingListInventoryReviewCandidates(shoppingListItems),
     candidateCount: shoppingListInventoryReviewCandidates.length,
+    draftCount: shoppingListInventoryReviewDrafts.length,
     readyForManualReviewCount:
       shoppingListInventoryReviewDecisionCounts.ready_for_manual_review,
     needsQuantityReviewCount:
@@ -613,6 +617,9 @@ export function ShoppingListSection({
       }
       data-inventory-review-candidate-count={
         shoppingListInventoryReviewState.candidateCount
+      }
+      data-inventory-review-draft-count={
+        shoppingListInventoryReviewState.draftCount
       }
       data-inventory-review-summary={shoppingListInventoryReviewState.summaryText}
     >
