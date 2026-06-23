@@ -2081,3 +2081,43 @@ Die vorbereitete Logik dient nur einer späteren manuellen Bestandsprüfung. Ein
 ### Aktueller Stand
 
 Die Einkaufsliste ist als Einkaufs- und Planungsfunktion stabil. Sammelaktionen sind abgesichert. Eine spätere Übernahme erledigter Einkaufslisteneinträge kann auf Basis der neuen Entscheidungslogik vorbereitet werden, bleibt aber bewusst manuell und nicht automatisch.
+
+## Einkaufslisten-Review für spätere manuelle Bestandsprüfung
+
+Stand nach Block 347–356:
+
+Die Einkaufsliste bereitet erledigte Einträge jetzt für eine spätere manuelle Bestandsprüfung vor. Es erfolgt weiterhin keine automatische Übernahme in den Bestand, keine automatische Bestandsbewegung und keine automatische Verbrauchs- oder Historienbuchung.
+
+Umgesetzt wurde:
+
+- technische Prüfung der Voraussetzungen für eine spätere manuelle Bestandsprüfung
+- Ableitung einzelner Review-Kandidaten aus erledigten Einkaufslisteneinträgen
+- Ableitung mehrerer Review-Kandidaten aus der Einkaufsliste
+- zentrale Re-Exports der Review-Helfer über `shoppingListUtils.js`
+- vorbereitete Review-Werte in `ShoppingListSection.jsx`
+- sichtbarer Hinweis, wenn erledigte Einkaufslisteneinträge für eine manuelle Bestandsprüfung vorbereitet sind
+- eigener Bereich „Manuelle Bestandsprüfung“ in der Einkaufsliste
+- Anzeige der vorbereiteten Review-Kandidaten mit Name, Menge/Einheit und Prüfstatus
+- Statusdetails für prüfbare und nicht gelistete erledigte Einträge
+- stabiler Anzeigezustand `canShowShoppingListInventoryReviewSection`
+
+Wichtige fachliche Grenze:
+
+Erledigte Einkaufslisteneinträge werden nur zur manuellen Prüfung vorbereitet. Für die tatsächliche Bestandsanlage fehlen weiterhin bewusst erforderliche Bestandsdaten wie Lagerort, Lagereinheit, Fach/Abteil und spätere fachliche Bestätigung durch den Nutzer.
+
+Relevante Commits:
+
+- `ccd08df` – Add shopping inventory review prerequisite inspection script
+- `3b8db9c` – Add shopping list inventory review candidate helper
+- `17696d6` – Add shopping list inventory review candidate list helpers
+- `abfc684` – Re-export shopping list inventory review candidate helpers
+- `c1e2cd8` – Prepare shopping list inventory review derived values
+- `6b24202` – Show shopping list inventory review hint
+- `2260f22` – Prepare shopping list inventory review section
+- `bcefa51` – Show shopping list inventory review candidates
+- `94472b8` – Show shopping list inventory review status details
+- `23b30c1` – Stabilize shopping list inventory review visibility
+
+Nächster sinnvoller Ausbauschritt:
+
+Die manuelle Bestandsprüfung kann in einem späteren Produktivpaket zu einem echten Review-Workflow erweitert werden. Dabei sollte weiterhin keine automatische Übernahme erfolgen. Stattdessen sollte der Nutzer Lagerort, Lagereinheit, Fach/Abteil, Menge, Einheit und Bestätigungsentscheidung bewusst prüfen und bestätigen.
