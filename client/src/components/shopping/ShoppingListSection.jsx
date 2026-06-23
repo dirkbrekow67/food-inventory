@@ -20,6 +20,9 @@ import {
   getShoppingListItemTitle,
   groupShoppingListItemsByCategory,
   sortShoppingListItems,
+  createShoppingListInventoryReviewCandidates,
+  getShoppingListHistoryTransferDecisionSummaryText,
+  hasShoppingListInventoryReviewCandidates,
 } from "../../utils/shoppingListUtils";
 
 export function ShoppingListSection({
@@ -78,6 +81,14 @@ export function ShoppingListSection({
   const hasCompletedShoppingListItems = completedItems.length > 0;
   const hasSelectedShoppingListItems = selectedOpenShoppingListItemIds.length > 0;
   const selectedShoppingListItemsCount = selectedOpenShoppingListItemIds.length;
+  const shoppingListInventoryReviewCandidates =
+    createShoppingListInventoryReviewCandidates(shoppingListItems);
+  const shoppingListInventoryReviewState = Object.freeze({
+    hasCandidateItems: hasShoppingListInventoryReviewCandidates(shoppingListItems),
+    candidateCount: shoppingListInventoryReviewCandidates.length,
+    summaryText: getShoppingListHistoryTransferDecisionSummaryText(shoppingListItems),
+  });
+
   const isShoppingListBulkActionRunning = shoppingListBulkAction !== "";
   const isShoppingListActionDisabled =
     savingShoppingListItem || isShoppingListBulkActionRunning;
@@ -584,7 +595,16 @@ export function ShoppingListSection({
   }
 
   return (
-    <section className="card shopping-list-section">
+    <section
+      className="card shopping-list-section"
+      data-inventory-review-candidates={
+        shoppingListInventoryReviewState.hasCandidateItems ? "true" : "false"
+      }
+      data-inventory-review-candidate-count={
+        shoppingListInventoryReviewState.candidateCount
+      }
+      data-inventory-review-summary={shoppingListInventoryReviewState.summaryText}
+    >
       <datalist id="shopping-list-category-suggestions">
         {shoppingListCategorySuggestionOptions.map((categorySuggestion) => (
           <option
