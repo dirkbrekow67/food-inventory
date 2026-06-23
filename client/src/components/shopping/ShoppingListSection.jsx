@@ -788,6 +788,21 @@ export function ShoppingListSection({
             manuellen Prüfung vorbereitet. Es erfolgt keine automatische
             Bestandsübernahme.
           </p>
+
+          <ul className="shopping-list-inventory-review-candidates">
+            {shoppingListInventoryReviewCandidates.map((candidate) => (
+              <li key={candidate.shoppingListItemId}>
+                <strong>{candidate.name}</strong>
+                {candidate.quantity || candidate.unit ? (
+                  <span>
+                    {" "}
+                    · {[candidate.quantity, candidate.unit].filter(Boolean).join(" ")}
+                  </span>
+                ) : null}
+                <span> · {candidate.statusText}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
