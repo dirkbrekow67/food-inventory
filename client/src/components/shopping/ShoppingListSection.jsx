@@ -775,9 +775,20 @@ export function ShoppingListSection({
 
 
       {shoppingListInventoryReviewState.hasCandidateItems && (
-        <p className="muted shopping-list-inventory-review-hint">
-          {shoppingListInventoryReviewState.summaryText}
-        </p>
+        <div className="shopping-list-inventory-review-section">
+          <div>
+            <h3>Manuelle Bestandsprüfung</h3>
+            <p className="muted shopping-list-inventory-review-hint">
+              {shoppingListInventoryReviewState.summaryText}
+            </p>
+          </div>
+
+          <p className="muted">
+            Erledigte Einkaufslisteneinträge werden hier nur zur späteren
+            manuellen Prüfung vorbereitet. Es erfolgt keine automatische
+            Bestandsübernahme.
+          </p>
+        </div>
       )}
 
       {hasSelectedShoppingListItems && (
