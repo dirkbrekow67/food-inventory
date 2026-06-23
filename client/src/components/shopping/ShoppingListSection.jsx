@@ -22,6 +22,7 @@ import {
   sortShoppingListItems,
   createShoppingListInventoryReviewCandidates,
   getShoppingListHistoryTransferDecisionSummaryText,
+  getShoppingListHistoryTransferDecisionCounts,
   hasShoppingListInventoryReviewCandidates,
 } from "../../utils/shoppingListUtils";
 
@@ -83,9 +84,16 @@ export function ShoppingListSection({
   const selectedShoppingListItemsCount = selectedOpenShoppingListItemIds.length;
   const shoppingListInventoryReviewCandidates =
     createShoppingListInventoryReviewCandidates(shoppingListItems);
+  const shoppingListInventoryReviewDecisionCounts =
+    getShoppingListHistoryTransferDecisionCounts(shoppingListItems);
   const shoppingListInventoryReviewState = Object.freeze({
     hasCandidateItems: hasShoppingListInventoryReviewCandidates(shoppingListItems),
     candidateCount: shoppingListInventoryReviewCandidates.length,
+    readyForManualReviewCount:
+      shoppingListInventoryReviewDecisionCounts.ready_for_manual_review,
+    needsQuantityReviewCount:
+      shoppingListInventoryReviewDecisionCounts.needs_quantity_review,
+    needsProductCount: shoppingListInventoryReviewDecisionCounts.needs_product,
     summaryText: getShoppingListHistoryTransferDecisionSummaryText(shoppingListItems),
   });
 
@@ -788,6 +796,29 @@ export function ShoppingListSection({
             manuellen Prüfung vorbereitet. Es erfolgt keine automatische
             Bestandsübernahme.
           </p>
+
+          <ul className="shopping-list-inventory-review-status-list">
+            {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
+              <li>
+                {shoppingListInventoryReviewState.readyForManualReviewCount} mit
+                Produkt- und Mengenangabe für die manuelle Prüfung vorbereitet.
+              </li>
+            )}
+
+            {shoppingListInventoryReviewState.needsQuantityReviewCount > 0 && (
+              <li>
+                {shoppingListInventoryReviewState.needsQuantityReviewCount} mit
+                Produktzuordnung, aber Menge oder Einheit muss geprüft werden.
+              </li>
+            )}
+
+            {shoppingListInventoryReviewState.needsProductCount > 0 && (
+              <li>
+                {shoppingListInventoryReviewState.needsProductCount} erledigte
+                Einträge werden nicht gelistet, weil die Produktzuordnung fehlt.
+              </li>
+            )}
+          </ul>
 
           <ul className="shopping-list-inventory-review-candidates">
             {shoppingListInventoryReviewCandidates.map((candidate) => (
