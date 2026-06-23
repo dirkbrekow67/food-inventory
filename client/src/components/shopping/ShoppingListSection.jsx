@@ -816,6 +816,12 @@ export function ShoppingListSection({
             {shoppingListInventoryReviewDrafts.map((draft) => (
               <li key={draft.shoppingListItemId}>
                 <strong>{draft.name}</strong>
+                {draft.quantity || draft.unit ? (
+                  <span>
+                    {" "}
+                    · {[draft.quantity, draft.unit].filter(Boolean).join(" ")}
+                  </span>
+                ) : null}
                 <span> · Lagerdaten manuell ergänzen</span>
                 <span> · Bestätigung erforderlich</span>
               </li>
