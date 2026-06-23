@@ -9,6 +9,8 @@ export {
   getShoppingListInventoryReviewCandidateIds,
   createShoppingListInventoryReviewCandidates,
   createShoppingListInventoryReviewCandidate,
+  createShoppingListInventoryReviewDraft,
+  createShoppingListInventoryReviewDrafts,
   createShoppingListHistoryTransferDecisions,
   getShoppingListHistoryTransferDecisionCounts,
   getShoppingListHistoryTransferDecisionSummaryText,
