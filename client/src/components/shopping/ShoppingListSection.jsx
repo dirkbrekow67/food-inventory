@@ -629,6 +629,33 @@ export function ShoppingListSection({
     );
   }
 
+  function renderShoppingListInventoryReviewStatusList() {
+    return (
+      <ul className="shopping-list-inventory-review-status-list">
+        {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
+          <li>
+            {shoppingListInventoryReviewState.readyForManualReviewCount} mit
+            Produkt- und Mengenangabe für die manuelle Prüfung vorbereitet.
+          </li>
+        )}
+
+        {shoppingListInventoryReviewState.needsQuantityReviewCount > 0 && (
+          <li>
+            {shoppingListInventoryReviewState.needsQuantityReviewCount} mit
+            Produktzuordnung, aber Menge oder Einheit muss geprüft werden.
+          </li>
+        )}
+
+        {shoppingListInventoryReviewState.needsProductCount > 0 && (
+          <li>
+            {shoppingListInventoryReviewState.needsProductCount} erledigte
+            Einträge werden nicht gelistet, weil die Produktzuordnung fehlt.
+          </li>
+        )}
+      </ul>
+    );
+  }
+
   function renderShoppingListInventoryReviewSection() {
     if (!canShowShoppingListInventoryReviewSection) {
       return null;
@@ -667,29 +694,7 @@ export function ShoppingListSection({
           </p>
         </div>
 
-        <ul className="shopping-list-inventory-review-status-list">
-          {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
-            <li>
-              {shoppingListInventoryReviewState.readyForManualReviewCount} mit
-              Produkt- und Mengenangabe für die manuelle Prüfung vorbereitet.
-            </li>
-          )}
-
-          {shoppingListInventoryReviewState.needsQuantityReviewCount > 0 && (
-            <li>
-              {shoppingListInventoryReviewState.needsQuantityReviewCount} mit
-              Produktzuordnung, aber Menge oder Einheit muss geprüft werden.
-            </li>
-          )}
-
-          {shoppingListInventoryReviewState.needsProductCount > 0 && (
-            <li>
-              {shoppingListInventoryReviewState.needsProductCount} erledigte
-              Einträge werden nicht gelistet, weil die Produktzuordnung fehlt.
-            </li>
-          )}
-        </ul>
-
+        {renderShoppingListInventoryReviewStatusList()}
         <ul className="shopping-list-inventory-review-candidates">
           {shoppingListInventoryReviewCandidates.map((candidate) => (
             <li key={candidate.shoppingListItemId}>
