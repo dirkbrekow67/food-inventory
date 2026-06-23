@@ -806,6 +806,12 @@ export function ShoppingListSection({
             Bestandsübernahme.
           </p>
 
+          <p className="muted shopping-list-inventory-review-draft-count">
+            {shoppingListInventoryReviewState.draftCount === 1
+              ? "1 manueller Review-Entwurf ist vorbereitet."
+              : `${shoppingListInventoryReviewState.draftCount} manuelle Review-Entwürfe sind vorbereitet.`}
+          </p>
+
           <ul className="shopping-list-inventory-review-status-list">
             {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
               <li>
