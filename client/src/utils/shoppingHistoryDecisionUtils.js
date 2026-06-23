@@ -111,6 +111,27 @@ export function createShoppingListInventoryReviewCandidate(item) {
   };
 }
 
+
+export function createShoppingListInventoryReviewCandidates(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items
+    .map(createShoppingListInventoryReviewCandidate)
+    .filter((candidate) => candidate !== null);
+}
+
+export function getShoppingListInventoryReviewCandidateIds(items) {
+  return createShoppingListInventoryReviewCandidates(items)
+    .map((candidate) => candidate.shoppingListItemId)
+    .filter((shoppingListItemId) => shoppingListItemId !== null);
+}
+
+export function hasShoppingListInventoryReviewCandidates(items) {
+  return createShoppingListInventoryReviewCandidates(items).length > 0;
+}
+
 export function createShoppingListHistoryTransferDecisions(items) {
   if (!Array.isArray(items)) {
     return [];
