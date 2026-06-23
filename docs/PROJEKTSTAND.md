@@ -2121,3 +2121,45 @@ Relevante Commits:
 Nächster sinnvoller Ausbauschritt:
 
 Die manuelle Bestandsprüfung kann in einem späteren Produktivpaket zu einem echten Review-Workflow erweitert werden. Dabei sollte weiterhin keine automatische Übernahme erfolgen. Stattdessen sollte der Nutzer Lagerort, Lagereinheit, Fach/Abteil, Menge, Einheit und Bestätigungsentscheidung bewusst prüfen und bestätigen.
+
+## Einkaufslisten-Review-Entwürfe für manuelle Bestandsprüfung
+
+Stand nach Block 358–367.
+
+Die vorbereitete manuelle Bestandsprüfung für erledigte Einkaufslisteneinträge wurde erweitert. Aus geeigneten erledigten Einkaufslisteneinträgen werden nun Review-Kandidaten und daraus Review-Entwürfe gebildet. Diese Entwürfe dienen ausschließlich der späteren manuellen Bestandsanlage und lösen weiterhin keine automatische Übernahme in Bestand, Historie oder Verbrauch aus.
+
+Umgesetzt wurde:
+
+- Review-Entwürfe aus bestehenden Review-Kandidaten erzeugen
+- Review-Entwurfs-Helper zentral über `shoppingListUtils.js` bereitstellen
+- Review-Entwurfsstatus in `ShoppingListSection.jsx` vorbereiten
+- Anzahl vorbereiteter Review-Entwürfe sichtbar anzeigen
+- vorbereitete Review-Entwürfe mit Name, Menge und Einheit anzeigen
+- Hinweise auf manuell zu ergänzende Lagerdaten und erforderliche Bestätigung anzeigen
+- deaktivierten Aktionsbereich für spätere manuelle Bestandsprüfung vorbereiten
+- Review-Bereich, Review-Entwurfsliste und Review-Statusliste in eigene Render-Funktionen auslagern
+
+Wichtige fachliche Grenze:
+
+- keine automatische Bestandsübernahme
+- keine automatische Verbrauchs- oder Historienbuchung
+- keine Datenbankänderung
+- keine API-Änderung
+- Lagerort, Lagereinheit, Fach und ausdrückliche Bestätigung bleiben Voraussetzung für eine spätere echte Übernahme
+
+Relevante Commits:
+
+- `dffa6a4` – Prepare shopping list inventory review drafts
+- `30a4f59` – Re-export shopping list inventory review draft helpers
+- `0abe3ad` – Prepare shopping list inventory review draft state
+- `89866b9` – Show shopping list inventory review draft count
+- `85cdd39` – Show shopping list inventory review draft list
+- `797b1c9` – Show shopping list inventory review draft details
+- `0339e47` – Prepare disabled shopping list inventory review action
+- `abdffa5` – Extract shopping list inventory review section renderer
+- `b22de38` – Extract shopping list inventory review draft list renderer
+- `39419ff` – Extract shopping list inventory review status list renderer
+
+Nächster sinnvoller Schritt:
+
+Der nächste Produktivzyklus kann die echte manuelle Review-Interaktion vorbereiten, z. B. Auswahl eines Review-Entwurfs, Formularzustand für Lagerort/Lagereinheit/Fach und spätere ausdrückliche Bestätigung. Die tatsächliche Bestandsanlage darf erst erfolgen, wenn diese Angaben vollständig vorliegen und der Nutzer die Übernahme bewusst auslöst.
