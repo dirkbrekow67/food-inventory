@@ -609,6 +609,26 @@ export function ShoppingListSection({
     );
   }
 
+  function renderShoppingListInventoryReviewDraftList() {
+    return (
+      <ul className="shopping-list-inventory-review-drafts">
+        {shoppingListInventoryReviewDrafts.map((draft) => (
+          <li key={draft.shoppingListItemId}>
+            <strong>{draft.name}</strong>
+            {draft.quantity || draft.unit ? (
+              <span>
+                {" "}
+                · {[draft.quantity, draft.unit].filter(Boolean).join(" ")}
+              </span>
+            ) : null}
+            <span> · Lagerdaten manuell ergänzen</span>
+            <span> · Bestätigung erforderlich</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   function renderShoppingListInventoryReviewSection() {
     if (!canShowShoppingListInventoryReviewSection) {
       return null;
@@ -635,22 +655,7 @@ export function ShoppingListSection({
             : `${shoppingListInventoryReviewState.draftCount} manuelle Review-Entwürfe sind vorbereitet.`}
         </p>
 
-        <ul className="shopping-list-inventory-review-drafts">
-          {shoppingListInventoryReviewDrafts.map((draft) => (
-            <li key={draft.shoppingListItemId}>
-              <strong>{draft.name}</strong>
-              {draft.quantity || draft.unit ? (
-                <span>
-                  {" "}
-                  · {[draft.quantity, draft.unit].filter(Boolean).join(" ")}
-                </span>
-              ) : null}
-              <span> · Lagerdaten manuell ergänzen</span>
-              <span> · Bestätigung erforderlich</span>
-            </li>
-          ))}
-        </ul>
-
+        {renderShoppingListInventoryReviewDraftList()}
         <div className="shopping-list-inventory-review-actions">
           <button type="button" className="secondary-button" disabled>
             Manuelle Bestandsprüfung vorbereiten
