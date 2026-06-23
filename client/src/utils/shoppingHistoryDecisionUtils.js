@@ -112,6 +112,41 @@ export function createShoppingListInventoryReviewCandidate(item) {
 }
 
 
+
+export function createShoppingListInventoryReviewDraft(candidate) {
+  if (!candidate) {
+    return null;
+  }
+
+  return {
+    source: "shopping_list",
+    shoppingListItemId: candidate.shoppingListItemId ?? null,
+    productId: candidate.productId ?? null,
+    name: candidate.name || "Unbenannter Einkaufslisteneintrag",
+    quantity: candidate.quantity ?? "",
+    unit: candidate.unit || "",
+    storageLocationId: "",
+    storageUnitId: "",
+    storageCompartmentId: "",
+    expirationDate: "",
+    openedDate: "",
+    frozenDate: "",
+    note: "",
+    requiresManualConfirmation: true,
+    automaticTransferAllowed: false,
+  };
+}
+
+export function createShoppingListInventoryReviewDrafts(candidates) {
+  if (!Array.isArray(candidates)) {
+    return [];
+  }
+
+  return candidates
+    .map(createShoppingListInventoryReviewDraft)
+    .filter((draft) => draft !== null);
+}
+
 export function createShoppingListInventoryReviewCandidates(items) {
   if (!Array.isArray(items)) {
     return [];
