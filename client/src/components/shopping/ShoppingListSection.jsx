@@ -609,6 +609,100 @@ export function ShoppingListSection({
     );
   }
 
+  function renderShoppingListInventoryReviewSection() {
+    if (!canShowShoppingListInventoryReviewSection) {
+      return null;
+    }
+
+    return (
+      <div className="shopping-list-inventory-review-section">
+        <div>
+          <h3>Manuelle Bestandsprüfung</h3>
+          <p className="muted shopping-list-inventory-review-hint">
+            {shoppingListInventoryReviewState.summaryText}
+          </p>
+        </div>
+
+        <p className="muted">
+          Erledigte Einkaufslisteneinträge werden hier nur zur späteren
+          manuellen Prüfung vorbereitet. Es erfolgt keine automatische
+          Bestandsübernahme.
+        </p>
+
+        <p className="muted shopping-list-inventory-review-draft-count">
+          {shoppingListInventoryReviewState.draftCount === 1
+            ? "1 manueller Review-Entwurf ist vorbereitet."
+            : `${shoppingListInventoryReviewState.draftCount} manuelle Review-Entwürfe sind vorbereitet.`}
+        </p>
+
+        <ul className="shopping-list-inventory-review-drafts">
+          {shoppingListInventoryReviewDrafts.map((draft) => (
+            <li key={draft.shoppingListItemId}>
+              <strong>{draft.name}</strong>
+              {draft.quantity || draft.unit ? (
+                <span>
+                  {" "}
+                  · {[draft.quantity, draft.unit].filter(Boolean).join(" ")}
+                </span>
+              ) : null}
+              <span> · Lagerdaten manuell ergänzen</span>
+              <span> · Bestätigung erforderlich</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="shopping-list-inventory-review-actions">
+          <button type="button" className="secondary-button" disabled>
+            Manuelle Bestandsprüfung vorbereiten
+          </button>
+
+          <p className="muted">
+            Die Funktion wird erst aktiviert, wenn Lagerort, Lagereinheit,
+            Fach und ausdrückliche Bestätigung technisch verarbeitet werden.
+          </p>
+        </div>
+
+        <ul className="shopping-list-inventory-review-status-list">
+          {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
+            <li>
+              {shoppingListInventoryReviewState.readyForManualReviewCount} mit
+              Produkt- und Mengenangabe für die manuelle Prüfung vorbereitet.
+            </li>
+          )}
+
+          {shoppingListInventoryReviewState.needsQuantityReviewCount > 0 && (
+            <li>
+              {shoppingListInventoryReviewState.needsQuantityReviewCount} mit
+              Produktzuordnung, aber Menge oder Einheit muss geprüft werden.
+            </li>
+          )}
+
+          {shoppingListInventoryReviewState.needsProductCount > 0 && (
+            <li>
+              {shoppingListInventoryReviewState.needsProductCount} erledigte
+              Einträge werden nicht gelistet, weil die Produktzuordnung fehlt.
+            </li>
+          )}
+        </ul>
+
+        <ul className="shopping-list-inventory-review-candidates">
+          {shoppingListInventoryReviewCandidates.map((candidate) => (
+            <li key={candidate.shoppingListItemId}>
+              <strong>{candidate.name}</strong>
+              {candidate.quantity || candidate.unit ? (
+                <span>
+                  {" "}
+                  · {[candidate.quantity, candidate.unit].filter(Boolean).join(" ")}
+                </span>
+              ) : null}
+              <span> · {candidate.statusText}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   return (
     <section
       className="card shopping-list-section"
@@ -791,94 +885,7 @@ export function ShoppingListSection({
         <p className="shopping-list-message">{visibleShoppingListMessage}</p>
       )}
 
-      {canShowShoppingListInventoryReviewSection && (
-        <div className="shopping-list-inventory-review-section">
-          <div>
-            <h3>Manuelle Bestandsprüfung</h3>
-            <p className="muted shopping-list-inventory-review-hint">
-              {shoppingListInventoryReviewState.summaryText}
-            </p>
-          </div>
-
-          <p className="muted">
-            Erledigte Einkaufslisteneinträge werden hier nur zur späteren
-            manuellen Prüfung vorbereitet. Es erfolgt keine automatische
-            Bestandsübernahme.
-          </p>
-
-          <p className="muted shopping-list-inventory-review-draft-count">
-            {shoppingListInventoryReviewState.draftCount === 1
-              ? "1 manueller Review-Entwurf ist vorbereitet."
-              : `${shoppingListInventoryReviewState.draftCount} manuelle Review-Entwürfe sind vorbereitet.`}
-          </p>
-
-          <ul className="shopping-list-inventory-review-drafts">
-            {shoppingListInventoryReviewDrafts.map((draft) => (
-              <li key={draft.shoppingListItemId}>
-                <strong>{draft.name}</strong>
-                {draft.quantity || draft.unit ? (
-                  <span>
-                    {" "}
-                    · {[draft.quantity, draft.unit].filter(Boolean).join(" ")}
-                  </span>
-                ) : null}
-                <span> · Lagerdaten manuell ergänzen</span>
-                <span> · Bestätigung erforderlich</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="shopping-list-inventory-review-actions">
-            <button type="button" className="secondary-button" disabled>
-              Manuelle Bestandsprüfung vorbereiten
-            </button>
-
-            <p className="muted">
-              Die Funktion wird erst aktiviert, wenn Lagerort, Lagereinheit,
-              Fach und ausdrückliche Bestätigung technisch verarbeitet werden.
-            </p>
-          </div>
-
-          <ul className="shopping-list-inventory-review-status-list">
-            {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
-              <li>
-                {shoppingListInventoryReviewState.readyForManualReviewCount} mit
-                Produkt- und Mengenangabe für die manuelle Prüfung vorbereitet.
-              </li>
-            )}
-
-            {shoppingListInventoryReviewState.needsQuantityReviewCount > 0 && (
-              <li>
-                {shoppingListInventoryReviewState.needsQuantityReviewCount} mit
-                Produktzuordnung, aber Menge oder Einheit muss geprüft werden.
-              </li>
-            )}
-
-            {shoppingListInventoryReviewState.needsProductCount > 0 && (
-              <li>
-                {shoppingListInventoryReviewState.needsProductCount} erledigte
-                Einträge werden nicht gelistet, weil die Produktzuordnung fehlt.
-              </li>
-            )}
-          </ul>
-
-          <ul className="shopping-list-inventory-review-candidates">
-            {shoppingListInventoryReviewCandidates.map((candidate) => (
-              <li key={candidate.shoppingListItemId}>
-                <strong>{candidate.name}</strong>
-                {candidate.quantity || candidate.unit ? (
-                  <span>
-                    {" "}
-                    · {[candidate.quantity, candidate.unit].filter(Boolean).join(" ")}
-                  </span>
-                ) : null}
-                <span> · {candidate.statusText}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
+      {renderShoppingListInventoryReviewSection()}
       {hasSelectedShoppingListItems && (
         <div className="shopping-list-selection-toolbar">
           <div>
