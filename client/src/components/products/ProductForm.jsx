@@ -90,8 +90,19 @@ export function ProductForm({
     inputRef.current?.click();
   }
 
+  function handleProductFormSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (isProcessingProductImage) {
+      return;
+    }
+
+    onSaveProduct(event);
+  }
+
   return (
-    <form className="product-form" onSubmit={onSaveProduct}>
+    <form className="product-form" onSubmit={handleProductFormSubmit}>
       <div className="form-title-row">
         <h3>
           {editingProductId ? "Produkt bearbeiten" : "Neues Produkt anlegen"}
@@ -362,7 +373,7 @@ export function ProductForm({
       </label>
 
       <div className="form-actions">
-        <button type="submit" disabled={savingProduct}>
+        <button type="submit" disabled={savingProduct || isProcessingProductImage}>
           {savingProduct
             ? "Speichern..."
             : editingProductId
