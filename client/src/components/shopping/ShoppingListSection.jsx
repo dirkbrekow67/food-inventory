@@ -812,6 +812,16 @@ export function ShoppingListSection({
               : `${shoppingListInventoryReviewState.draftCount} manuelle Review-Entwürfe sind vorbereitet.`}
           </p>
 
+          <ul className="shopping-list-inventory-review-drafts">
+            {shoppingListInventoryReviewDrafts.map((draft) => (
+              <li key={draft.shoppingListItemId}>
+                <strong>{draft.name}</strong>
+                <span> · Lagerdaten manuell ergänzen</span>
+                <span> · Bestätigung erforderlich</span>
+              </li>
+            ))}
+          </ul>
+
           <ul className="shopping-list-inventory-review-status-list">
             {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
               <li>
