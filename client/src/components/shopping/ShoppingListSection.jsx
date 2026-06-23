@@ -97,6 +97,9 @@ export function ShoppingListSection({
     summaryText: getShoppingListHistoryTransferDecisionSummaryText(shoppingListItems),
   });
 
+  const canShowShoppingListInventoryReviewSection =
+    !loadingShoppingList && shoppingListInventoryReviewState.hasCandidateItems;
+
   const isShoppingListBulkActionRunning = shoppingListBulkAction !== "";
   const isShoppingListActionDisabled =
     savingShoppingListItem || isShoppingListBulkActionRunning;
@@ -606,7 +609,7 @@ export function ShoppingListSection({
     <section
       className="card shopping-list-section"
       data-inventory-review-candidates={
-        shoppingListInventoryReviewState.hasCandidateItems ? "true" : "false"
+        canShowShoppingListInventoryReviewSection ? "true" : "false"
       }
       data-inventory-review-candidate-count={
         shoppingListInventoryReviewState.candidateCount
@@ -781,8 +784,7 @@ export function ShoppingListSection({
         <p className="shopping-list-message">{visibleShoppingListMessage}</p>
       )}
 
-
-      {shoppingListInventoryReviewState.hasCandidateItems && (
+      {canShowShoppingListInventoryReviewSection && (
         <div className="shopping-list-inventory-review-section">
           <div>
             <h3>Manuelle Bestandsprüfung</h3>
