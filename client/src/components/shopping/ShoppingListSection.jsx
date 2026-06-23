@@ -828,6 +828,17 @@ export function ShoppingListSection({
             ))}
           </ul>
 
+          <div className="shopping-list-inventory-review-actions">
+            <button type="button" className="secondary-button" disabled>
+              Manuelle Bestandsprüfung vorbereiten
+            </button>
+
+            <p className="muted">
+              Die Funktion wird erst aktiviert, wenn Lagerort, Lagereinheit,
+              Fach und ausdrückliche Bestätigung technisch verarbeitet werden.
+            </p>
+          </div>
+
           <ul className="shopping-list-inventory-review-status-list">
             {shoppingListInventoryReviewState.readyForManualReviewCount > 0 && (
               <li>
