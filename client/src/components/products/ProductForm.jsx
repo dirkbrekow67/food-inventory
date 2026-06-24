@@ -21,7 +21,7 @@ import {
 
 import { uploadProductPhoto } from "../../api/productApi";
 
-import { ProductImageField } from "./ProductImageField";
+import { ProductImageSection } from "./ProductImageSection";
 
 import { countryOptions, storeOptions } from "../../constants/productOptions";
 
@@ -42,31 +42,6 @@ export function ProductForm({
     useState("");
 
   const isProcessingProductImage = Boolean(processingProductImageSide);
-
-  const productImageFieldConfigs = [
-    {
-      fieldName: "imageFront",
-      side: "front",
-      uploadInputRef: frontUploadInputRef,
-      cameraInputRef: frontCameraInputRef,
-      label: "Produktfoto Vorderseite",
-      processingText: "Vorderseite wird verarbeitet...",
-      imagePath: productForm.imageFront,
-      altText: "Produkt Vorderseite",
-      removeText: "Vorderseite entfernen",
-    },
-    {
-      fieldName: "imageBack",
-      side: "back",
-      uploadInputRef: backUploadInputRef,
-      cameraInputRef: backCameraInputRef,
-      label: "Produktfoto Rückseite",
-      processingText: "Rückseite wird verarbeitet...",
-      imagePath: productForm.imageBack,
-      altText: "Produkt Rückseite",
-      removeText: "Rückseite entfernen",
-    },
-  ];
 
   async function handleProductImageChange(event, fieldName, side) {
     event.preventDefault();
@@ -279,19 +254,18 @@ export function ProductForm({
         </label>
       </div>
 
-      <div className="product-image-grid">
-        {productImageFieldConfigs.map((imageFieldConfig) => (
-          <ProductImageField
-            key={imageFieldConfig.fieldName}
-            {...imageFieldConfig}
-            isProcessingProductImage={isProcessingProductImage}
-            processingProductImageSide={processingProductImageSide}
-            onOpenFileInput={openFileInput}
-            onImageChange={handleProductImageChange}
-            onRemoveImage={removeProductImage}
-          />
-        ))}
-      </div>
+      <ProductImageSection
+        productForm={productForm}
+        frontUploadInputRef={frontUploadInputRef}
+        frontCameraInputRef={frontCameraInputRef}
+        backUploadInputRef={backUploadInputRef}
+        backCameraInputRef={backCameraInputRef}
+        isProcessingProductImage={isProcessingProductImage}
+        processingProductImageSide={processingProductImageSide}
+        onOpenFileInput={openFileInput}
+        onImageChange={handleProductImageChange}
+        onRemoveImage={removeProductImage}
+      />
 
       <label>
         Notiz
