@@ -36,6 +36,27 @@ export function ProductForm({
 
   const isProcessingProductImage = Boolean(processingProductImageSide);
 
+  function resetProductImageInput(inputElement) {
+    if (inputElement) {
+      inputElement.value = "";
+    }
+  }
+
+  function isProductImageFile(file) {
+    return Boolean(file?.type?.startsWith("image/"));
+  }
+
+  function getProductImageErrorMessage(error) {
+    if (
+      error instanceof Error &&
+      error.message === "Foto-Upload ohne Bildpfad erhalten."
+    ) {
+      return "Das Foto wurde verarbeitet, aber vom Server wurde kein Bildpfad zurückgegeben.";
+    }
+
+    return "Das Produktfoto konnte nicht verarbeitet oder gespeichert werden.";
+  }
+
   async function handleProductImageChange(event, fieldName, side) {
     event.preventDefault();
     event.stopPropagation();
@@ -48,7 +69,13 @@ export function ProductForm({
     const file = inputElement.files?.[0];
 
     if (!file) {
-      inputElement.value = "";
+      resetProductImageInput(inputElement);
+      return;
+    }
+
+    if (!isProductImageFile(file)) {
+      resetProductImageInput(inputElement);
+      window.alert("Bitte eine Bilddatei auswählen oder ein Foto aufnehmen.");
       return;
     }
 
@@ -74,11 +101,9 @@ export function ProductForm({
       onUpdateProductForm(fieldName, uploadedPhoto.imagePath);
     } catch (error) {
       console.error(error);
-      window.alert(
-        "Das Produktfoto konnte nicht verarbeitet oder gespeichert werden.",
-      );
+      window.alert(getProductImageErrorMessage(error));
     } finally {
-      inputElement.value = "";
+      resetProductImageInput(inputElement);
       setProcessingProductImageSide("");
     }
   }
