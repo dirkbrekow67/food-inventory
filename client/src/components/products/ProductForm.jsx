@@ -12,6 +12,13 @@ import { renderSelectOptions } from "../form/FormSelectOptions";
 
 import { compressImageFileToDataUrl } from "../../utils/imageFileUtils";
 
+import {
+  PRODUCT_IMAGE_UPLOAD_MISSING_PATH_ERROR_MESSAGE,
+  getProductImageErrorMessage,
+  isProductImageFile,
+  resetProductImageInput,
+} from "../../utils/productImageFormUtils";
+
 import { uploadProductPhoto } from "../../api/productApi";
 
 import { createImageSrc } from "../../utils/imageUrlUtils";
@@ -35,27 +42,6 @@ export function ProductForm({
     useState("");
 
   const isProcessingProductImage = Boolean(processingProductImageSide);
-
-  function resetProductImageInput(inputElement) {
-    if (inputElement) {
-      inputElement.value = "";
-    }
-  }
-
-  function isProductImageFile(file) {
-    return Boolean(file?.type?.startsWith("image/"));
-  }
-
-  function getProductImageErrorMessage(error) {
-    if (
-      error instanceof Error &&
-      error.message === "Foto-Upload ohne Bildpfad erhalten."
-    ) {
-      return "Das Foto wurde verarbeitet, aber vom Server wurde kein Bildpfad zurückgegeben.";
-    }
-
-    return "Das Produktfoto konnte nicht verarbeitet oder gespeichert werden.";
-  }
 
   async function handleProductImageChange(event, fieldName, side) {
     event.preventDefault();
@@ -95,7 +81,7 @@ export function ProductForm({
       });
 
       if (!uploadedPhoto?.imagePath) {
-        throw new Error("Foto-Upload ohne Bildpfad erhalten.");
+        throw new Error(PRODUCT_IMAGE_UPLOAD_MISSING_PATH_ERROR_MESSAGE);
       }
 
       onUpdateProductForm(fieldName, uploadedPhoto.imagePath);
