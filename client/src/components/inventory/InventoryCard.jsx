@@ -53,6 +53,7 @@ export function InventoryCard({
   isHighlighted,
   onOpenRemovalDialog,
   onOpenInventoryEditDialog,
+  onOpenInventoryProduct,
   onUpdateLabelPrintStatus,
 }) {
   const quantityLabel = getInventoryQuantityLabel(item);
@@ -135,7 +136,15 @@ export function InventoryCard({
           className="secondary-button"
           onClick={() => onOpenInventoryEditDialog(item)}
         >
-          Bearbeiten
+          Bestand bearbeiten
+        </button>
+
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => onOpenInventoryProduct(item)}
+        >
+          Produkt anzeigen/bearbeiten
         </button>
 
         <button

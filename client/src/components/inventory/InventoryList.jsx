@@ -7,6 +7,7 @@ export function InventoryList({
   highlightedInventoryItemId,
   onOpenRemovalDialog,
   onOpenInventoryEditDialog,
+  onOpenInventoryProduct,
   onUpdateLabelPrintStatus,
 }) {
   return (
@@ -17,6 +18,7 @@ export function InventoryList({
           key={item.id}
           onOpenRemovalDialog={onOpenRemovalDialog}
           onOpenInventoryEditDialog={onOpenInventoryEditDialog}
+          onOpenInventoryProduct={onOpenInventoryProduct}
           onUpdateLabelPrintStatus={onUpdateLabelPrintStatus}
           isHighlighted={item.id === highlightedInventoryItemId}
         />

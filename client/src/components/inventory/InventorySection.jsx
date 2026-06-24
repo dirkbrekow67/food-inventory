@@ -39,6 +39,7 @@ export function InventorySection({
   onResetLabelScan,
   onUpdateLabelPrintStatus,
   onOpenInventoryEditDialog,
+  onOpenInventoryProduct,
   editingInventoryItemId,
   onCancelInventoryEdit,
 }) {
@@ -154,6 +155,7 @@ export function InventorySection({
         labelScanMessage={labelScanMessage}
         onResetLabelScan={onResetLabelScan}
         onOpenInventoryEditDialog={onOpenInventoryEditDialog}
+        onOpenInventoryProduct={onOpenInventoryProduct}
       />
     </section>
   );

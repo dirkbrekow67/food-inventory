@@ -632,6 +632,7 @@ function App() {
       );
 
       setLabelScanInput(normalizedLabelCode);
+      setActiveSection(saveActiveSection("inventory"));
 
       if (!matchingItem) {
         setHighlightedInventoryItemId(null);
@@ -808,6 +809,23 @@ function App() {
     setProductForm(createProductFormFromProduct(product));
 
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function openProductFromInventoryItem(item) {
+    const productId = item.product_id || item.productId;
+
+    const product = products.find(
+      (currentProduct) => String(currentProduct.id) === String(productId),
+    );
+
+    if (!product) {
+      setErrorMessage("Zugehöriges Produkt konnte nicht geöffnet werden.");
+      return;
+    }
+
+    setShowProductsInInventoryView(true);
+    setActiveSection(saveActiveSection("inventory"));
+    startEditProduct(product);
   }
 
   async function deactivateProduct(productId) {
@@ -1616,6 +1634,7 @@ function App() {
           onResetInventoryFilters={resetInventoryFilters}
           onOpenRemovalDialog={openRemovalDialog}
           onOpenInventoryEditDialog={startEditInventoryItem}
+          onOpenInventoryProduct={openProductFromInventoryItem}
           onUpdateLabelPrintStatus={updateInventoryLabelPrintStatus}
           onLabelScanInputChange={setLabelScanInput}
           onLabelScanSubmit={handleLabelScanSubmit}

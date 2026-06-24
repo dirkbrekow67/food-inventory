@@ -30,6 +30,7 @@ export function InventoryOverview({
   onResetLabelScan,
   onUpdateLabelPrintStatus,
   onOpenInventoryEditDialog,
+  onOpenInventoryProduct,
 }) {
   return (
     <>
@@ -86,6 +87,7 @@ export function InventoryOverview({
         onUpdateLabelPrintStatus={onUpdateLabelPrintStatus}
         highlightedInventoryItemId={highlightedInventoryItemId}
         onOpenInventoryEditDialog={onOpenInventoryEditDialog}
+        onOpenInventoryProduct={onOpenInventoryProduct}
       />
     </>
   );
