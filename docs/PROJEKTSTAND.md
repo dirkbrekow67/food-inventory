@@ -2163,3 +2163,46 @@ Relevante Commits:
 Nächster sinnvoller Schritt:
 
 Der nächste Produktivzyklus kann die echte manuelle Review-Interaktion vorbereiten, z. B. Auswahl eines Review-Entwurfs, Formularzustand für Lagerort/Lagereinheit/Fach und spätere ausdrückliche Bestätigung. Die tatsächliche Bestandsanlage darf erst erfolgen, wenn diese Angaben vollständig vorliegen und der Nutzer die Übernahme bewusst auslöst.
+
+## Produktfoto-Workflow und ProductForm-Refactoring
+
+Stand nach den Blöcken 369 bis 378:
+
+Der Produktfoto-Workflow wurde stabilisiert und die Produktformular-Komponente wurde fachlich aufgeteilt.
+
+Umgesetzt:
+
+- Fotoauswahl und Kameraauslösung verhindern nun Formular-Reloads während der Bildverarbeitung.
+- Während der Fotoverarbeitung wird das Formular über `aria-busy` gekennzeichnet.
+- Upload-, Kamera-, Entfernen- und Speichern-Aktionen werden während laufender Fotoverarbeitung gesperrt bzw. klarer beschriftet.
+- Produktfotos werden vor dem Upload auf Bilddateien geprüft.
+- Fehlermeldungen für nicht verarbeitbare Dateien und fehlerhafte Upload-Antworten wurden verständlicher gemacht.
+- Produktfoto-Helfer wurden in `client/src/utils/productImageFormUtils.js` ausgelagert.
+- Die Bildfeld-Darstellung wurde in `client/src/components/products/ProductImageField.jsx` ausgelagert.
+- Der Produktfoto-Abschnitt wurde in `client/src/components/products/ProductImageSection.jsx` ausgelagert.
+- Die Produkt-Stammdatenfelder wurden in `client/src/components/products/ProductDetailsFields.jsx` ausgelagert.
+- `ProductForm.jsx` enthält dadurch wieder stärker die Formularsteuerung und weniger Detail-JSX.
+
+Betroffene Dateien:
+
+- `client/src/components/products/ProductForm.jsx`
+- `client/src/components/products/ProductImageField.jsx`
+- `client/src/components/products/ProductImageSection.jsx`
+- `client/src/components/products/ProductDetailsFields.jsx`
+- `client/src/utils/productImageFormUtils.js`
+
+Wichtige Commits:
+
+- `28d3686` – Prevent product form reload during photo handling
+- `5039a8f` – Improve product photo processing feedback
+- `82df5d4` – Extract product image field renderer
+- `f96976d` – Improve product photo validation and errors
+- `5ec4e3f` – Extract product image form helpers
+- `3ff2482` – Extract product image field component
+- `9552000` – Render product image fields from config
+- `2775566` – Extract product image section component
+- `95e1a35` – Extract product details fields component
+
+Hinweis:
+
+Der Raspberry Pi wurde in diesem Zyklus nicht automatisch aktualisiert. Die produktiven Testdaten auf dem Raspberry Pi bleiben unverändert; eine Aktualisierung erfolgt später bei Bedarf per Git.
