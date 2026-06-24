@@ -21,7 +21,7 @@ import {
 
 import { uploadProductPhoto } from "../../api/productApi";
 
-import { createImageSrc } from "../../utils/imageUrlUtils";
+import { ProductImageField } from "./ProductImageField";
 
 import { countryOptions, storeOptions } from "../../constants/productOptions";
 
@@ -94,10 +94,6 @@ export function ProductForm({
     }
   }
 
-  function getProductImageButtonText(side, defaultText) {
-    return processingProductImageSide === side ? "Verarbeite..." : defaultText;
-  }
-
   function removeProductImage(fieldName) {
     onUpdateProductForm(fieldName, "");
   }
@@ -114,80 +110,6 @@ export function ProductForm({
 
     inputElement.value = "";
     inputElement.click();
-  }
-
-  function renderProductImageField({
-    fieldName,
-    side,
-    uploadInputRef,
-    cameraInputRef,
-    label,
-    processingText,
-    imagePath,
-    altText,
-    removeText,
-  }) {
-    return (
-      <div className="product-image-field">
-        <span className="product-image-label">{label}</span>
-
-        <div className="product-image-actions">
-          <button
-            type="button"
-            className="secondary-button"
-            disabled={isProcessingProductImage}
-            onClick={(event) => openFileInput(event, uploadInputRef)}
-          >
-            {getProductImageButtonText(side, "Hochladen")}
-          </button>
-
-          <button
-            type="button"
-            className="secondary-button"
-            disabled={isProcessingProductImage}
-            onClick={(event) => openFileInput(event, cameraInputRef)}
-          >
-            {getProductImageButtonText(side, "Kamera")}
-          </button>
-        </div>
-
-        {processingProductImageSide === side && (
-          <p className="form-hint">{processingText}</p>
-        )}
-
-        <input
-          ref={uploadInputRef}
-          className="visually-hidden-file-input"
-          type="file"
-          accept="image/*"
-          onChange={(event) => handleProductImageChange(event, fieldName, side)}
-        />
-
-        <input
-          ref={cameraInputRef}
-          className="visually-hidden-file-input"
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={(event) => handleProductImageChange(event, fieldName, side)}
-        />
-
-        {imagePath && (
-          <div className="product-image-preview">
-            <img src={createImageSrc(imagePath)} alt={altText} />
-
-            <button
-              type="button"
-              className="secondary-button danger-outline-button"
-              disabled={isProcessingProductImage}
-              onClick={() => removeProductImage(fieldName)}
-            >
-              {removeText}
-            </button>
-          </div>
-        )}
-      </div>
-    );
   }
 
   function handleProductFormSubmit(event) {
@@ -333,29 +255,39 @@ export function ProductForm({
       </div>
 
       <div className="product-image-grid">
-        {renderProductImageField({
-          fieldName: "imageFront",
-          side: "front",
-          uploadInputRef: frontUploadInputRef,
-          cameraInputRef: frontCameraInputRef,
-          label: "Produktfoto Vorderseite",
-          processingText: "Vorderseite wird verarbeitet...",
-          imagePath: productForm.imageFront,
-          altText: "Produkt Vorderseite",
-          removeText: "Vorderseite entfernen",
-        })}
+        <ProductImageField
+          fieldName="imageFront"
+          side="front"
+          uploadInputRef={frontUploadInputRef}
+          cameraInputRef={frontCameraInputRef}
+          label="Produktfoto Vorderseite"
+          processingText="Vorderseite wird verarbeitet..."
+          imagePath={productForm.imageFront}
+          altText="Produkt Vorderseite"
+          removeText="Vorderseite entfernen"
+          isProcessingProductImage={isProcessingProductImage}
+          processingProductImageSide={processingProductImageSide}
+          onOpenFileInput={openFileInput}
+          onImageChange={handleProductImageChange}
+          onRemoveImage={removeProductImage}
+        />
 
-        {renderProductImageField({
-          fieldName: "imageBack",
-          side: "back",
-          uploadInputRef: backUploadInputRef,
-          cameraInputRef: backCameraInputRef,
-          label: "Produktfoto Rückseite",
-          processingText: "Rückseite wird verarbeitet...",
-          imagePath: productForm.imageBack,
-          altText: "Produkt Rückseite",
-          removeText: "Rückseite entfernen",
-        })}
+        <ProductImageField
+          fieldName="imageBack"
+          side="back"
+          uploadInputRef={backUploadInputRef}
+          cameraInputRef={backCameraInputRef}
+          label="Produktfoto Rückseite"
+          processingText="Rückseite wird verarbeitet..."
+          imagePath={productForm.imageBack}
+          altText="Produkt Rückseite"
+          removeText="Rückseite entfernen"
+          isProcessingProductImage={isProcessingProductImage}
+          processingProductImageSide={processingProductImageSide}
+          onOpenFileInput={openFileInput}
+          onImageChange={handleProductImageChange}
+          onRemoveImage={removeProductImage}
+        />
       </div>
 
       <label>
