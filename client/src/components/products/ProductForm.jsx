@@ -67,6 +67,10 @@ export function ProductForm({
         imageDataUrl: compressedImageDataUrl,
       });
 
+      if (!uploadedPhoto?.imagePath) {
+        throw new Error("Foto-Upload ohne Bildpfad erhalten.");
+      }
+
       onUpdateProductForm(fieldName, uploadedPhoto.imagePath);
     } catch (error) {
       console.error(error);
@@ -87,7 +91,14 @@ export function ProductForm({
     event.preventDefault();
     event.stopPropagation();
 
-    inputRef.current?.click();
+    const inputElement = inputRef.current;
+
+    if (!inputElement || isProcessingProductImage) {
+      return;
+    }
+
+    inputElement.value = "";
+    inputElement.click();
   }
 
   function handleProductFormSubmit(event) {
