@@ -105,6 +105,80 @@ export function ProductForm({
     inputElement.click();
   }
 
+  function renderProductImageField({
+    fieldName,
+    side,
+    uploadInputRef,
+    cameraInputRef,
+    label,
+    processingText,
+    imagePath,
+    altText,
+    removeText,
+  }) {
+    return (
+      <div className="product-image-field">
+        <span className="product-image-label">{label}</span>
+
+        <div className="product-image-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={isProcessingProductImage}
+            onClick={(event) => openFileInput(event, uploadInputRef)}
+          >
+            {getProductImageButtonText(side, "Hochladen")}
+          </button>
+
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={isProcessingProductImage}
+            onClick={(event) => openFileInput(event, cameraInputRef)}
+          >
+            {getProductImageButtonText(side, "Kamera")}
+          </button>
+        </div>
+
+        {processingProductImageSide === side && (
+          <p className="form-hint">{processingText}</p>
+        )}
+
+        <input
+          ref={uploadInputRef}
+          className="visually-hidden-file-input"
+          type="file"
+          accept="image/*"
+          onChange={(event) => handleProductImageChange(event, fieldName, side)}
+        />
+
+        <input
+          ref={cameraInputRef}
+          className="visually-hidden-file-input"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={(event) => handleProductImageChange(event, fieldName, side)}
+        />
+
+        {imagePath && (
+          <div className="product-image-preview">
+            <img src={createImageSrc(imagePath)} alt={altText} />
+
+            <button
+              type="button"
+              className="secondary-button danger-outline-button"
+              disabled={isProcessingProductImage}
+              onClick={() => removeProductImage(fieldName)}
+            >
+              {removeText}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   function handleProductFormSubmit(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -248,139 +322,29 @@ export function ProductForm({
       </div>
 
       <div className="product-image-grid">
-        <div className="product-image-field">
-          <span className="product-image-label">Produktfoto Vorderseite</span>
+        {renderProductImageField({
+          fieldName: "imageFront",
+          side: "front",
+          uploadInputRef: frontUploadInputRef,
+          cameraInputRef: frontCameraInputRef,
+          label: "Produktfoto Vorderseite",
+          processingText: "Vorderseite wird verarbeitet...",
+          imagePath: productForm.imageFront,
+          altText: "Produkt Vorderseite",
+          removeText: "Vorderseite entfernen",
+        })}
 
-          <div className="product-image-actions">
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={isProcessingProductImage}
-              onClick={(event) => openFileInput(event, frontUploadInputRef)}
-            >
-              {getProductImageButtonText("front", "Hochladen")}
-            </button>
-
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={isProcessingProductImage}
-              onClick={(event) => openFileInput(event, frontCameraInputRef)}
-            >
-              {getProductImageButtonText("front", "Kamera")}
-            </button>
-          </div>
-
-          {processingProductImageSide === "front" && (
-            <p className="form-hint">Vorderseite wird verarbeitet...</p>
-          )}
-
-          <input
-            ref={frontUploadInputRef}
-            className="visually-hidden-file-input"
-            type="file"
-            accept="image/*"
-            onChange={(event) =>
-              handleProductImageChange(event, "imageFront", "front")
-            }
-          />
-
-          <input
-            ref={frontCameraInputRef}
-            className="visually-hidden-file-input"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(event) =>
-              handleProductImageChange(event, "imageFront", "front")
-            }
-          />
-
-          {productForm.imageFront && (
-            <div className="product-image-preview">
-              <img
-                src={createImageSrc(productForm.imageFront)}
-                alt="Produkt Vorderseite"
-              />
-
-              <button
-                type="button"
-                className="secondary-button danger-outline-button"
-                disabled={isProcessingProductImage}
-                onClick={() => removeProductImage("imageFront")}
-              >
-                Vorderseite entfernen
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="product-image-field">
-          <span className="product-image-label">Produktfoto Rückseite</span>
-
-          <div className="product-image-actions">
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={isProcessingProductImage}
-              onClick={(event) => openFileInput(event, backUploadInputRef)}
-            >
-              {getProductImageButtonText("back", "Hochladen")}
-            </button>
-
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={isProcessingProductImage}
-              onClick={(event) => openFileInput(event, backCameraInputRef)}
-            >
-              {getProductImageButtonText("back", "Kamera")}
-            </button>
-          </div>
-
-          {processingProductImageSide === "back" && (
-            <p className="form-hint">Rückseite wird verarbeitet...</p>
-          )}
-
-          <input
-            ref={backUploadInputRef}
-            className="visually-hidden-file-input"
-            type="file"
-            accept="image/*"
-            onChange={(event) =>
-              handleProductImageChange(event, "imageBack", "back")
-            }
-          />
-
-          <input
-            ref={backCameraInputRef}
-            className="visually-hidden-file-input"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(event) =>
-              handleProductImageChange(event, "imageBack", "back")
-            }
-          />
-
-          {productForm.imageBack && (
-            <div className="product-image-preview">
-              <img
-                src={createImageSrc(productForm.imageBack)}
-                alt="Produkt Rückseite"
-              />
-
-              <button
-                type="button"
-                className="secondary-button danger-outline-button"
-                disabled={isProcessingProductImage}
-                onClick={() => removeProductImage("imageBack")}
-              >
-                Rückseite entfernen
-              </button>
-            </div>
-          )}
-        </div>
+        {renderProductImageField({
+          fieldName: "imageBack",
+          side: "back",
+          uploadInputRef: backUploadInputRef,
+          cameraInputRef: backCameraInputRef,
+          label: "Produktfoto Rückseite",
+          processingText: "Rückseite wird verarbeitet...",
+          imagePath: productForm.imageBack,
+          altText: "Produkt Rückseite",
+          removeText: "Rückseite entfernen",
+        })}
       </div>
 
       <label>
