@@ -83,6 +83,10 @@ export function ProductForm({
     }
   }
 
+  function getProductImageButtonText(side, defaultText) {
+    return processingProductImageSide === side ? "Verarbeite..." : defaultText;
+  }
+
   function removeProductImage(fieldName) {
     onUpdateProductForm(fieldName, "");
   }
@@ -113,7 +117,11 @@ export function ProductForm({
   }
 
   return (
-    <form className="product-form" onSubmit={handleProductFormSubmit}>
+    <form
+      className="product-form"
+      aria-busy={isProcessingProductImage ? "true" : "false"}
+      onSubmit={handleProductFormSubmit}
+    >
       <div className="form-title-row">
         <h3>
           {editingProductId ? "Produkt bearbeiten" : "Neues Produkt anlegen"}
@@ -250,7 +258,7 @@ export function ProductForm({
               disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, frontUploadInputRef)}
             >
-              Hochladen
+              {getProductImageButtonText("front", "Hochladen")}
             </button>
 
             <button
@@ -259,7 +267,7 @@ export function ProductForm({
               disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, frontCameraInputRef)}
             >
-              Kamera
+              {getProductImageButtonText("front", "Kamera")}
             </button>
           </div>
 
@@ -298,6 +306,7 @@ export function ProductForm({
               <button
                 type="button"
                 className="secondary-button danger-outline-button"
+                disabled={isProcessingProductImage}
                 onClick={() => removeProductImage("imageFront")}
               >
                 Vorderseite entfernen
@@ -316,7 +325,7 @@ export function ProductForm({
               disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, backUploadInputRef)}
             >
-              Hochladen
+              {getProductImageButtonText("back", "Hochladen")}
             </button>
 
             <button
@@ -325,7 +334,7 @@ export function ProductForm({
               disabled={isProcessingProductImage}
               onClick={(event) => openFileInput(event, backCameraInputRef)}
             >
-              Kamera
+              {getProductImageButtonText("back", "Kamera")}
             </button>
           </div>
 
@@ -364,6 +373,7 @@ export function ProductForm({
               <button
                 type="button"
                 className="secondary-button danger-outline-button"
+                disabled={isProcessingProductImage}
                 onClick={() => removeProductImage("imageBack")}
               >
                 Rückseite entfernen
@@ -385,11 +395,13 @@ export function ProductForm({
 
       <div className="form-actions">
         <button type="submit" disabled={savingProduct || isProcessingProductImage}>
-          {savingProduct
-            ? "Speichern..."
-            : editingProductId
-              ? "Änderungen speichern"
-              : "Produkt anlegen"}
+          {isProcessingProductImage
+            ? "Foto wird verarbeitet..."
+            : savingProduct
+              ? "Speichern..."
+              : editingProductId
+                ? "Änderungen speichern"
+                : "Produkt anlegen"}
         </button>
       </div>
     </form>
